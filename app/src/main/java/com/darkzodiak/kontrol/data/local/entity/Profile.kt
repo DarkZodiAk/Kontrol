@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class Profile(
     @PrimaryKey(autoGenerate = true)
     val id: Long? = null,
-    val enabled: Boolean = false
+    val name: String = "",
+    val isEnabled: Boolean = false
 )

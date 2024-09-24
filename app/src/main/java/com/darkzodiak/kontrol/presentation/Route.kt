@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 sealed interface Route {
     @Serializable
-    object MainScreen: Route
+    object HomeScreen: Route
     @Serializable
-    object ProfileScreen: Route
+    data class ProfileScreen(val id: Long? = null): Route
 }
