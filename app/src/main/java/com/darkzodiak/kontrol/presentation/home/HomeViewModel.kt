@@ -21,7 +21,7 @@ class HomeViewModel @Inject constructor(
         when(action) {
             is HomeAction.SwitchProfileState -> {
                 viewModelScope.launch {
-                    profileDao.upsertProfile(action.profile)
+                    profileDao.updateProfile(action.profile)
                 }
             }
             else -> Unit

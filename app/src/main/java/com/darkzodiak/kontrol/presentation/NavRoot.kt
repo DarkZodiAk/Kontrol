@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.darkzodiak.kontrol.presentation.home.HomeScreenRoot
+import com.darkzodiak.kontrol.presentation.profile.ProfileScreenRoot
 
 @Composable
 fun NavRoot(
@@ -20,11 +21,13 @@ fun NavRoot(
         composable<Route.HomeScreen> {
             HomeScreenRoot(
                 onOpenProfile = { navController.navigate(Route.ProfileScreen(it)) },
-                onNewProfile = { navController.navigate(Route.ProfileScreen) }
+                onNewProfile = { navController.navigate(Route.ProfileScreen(null)) }
             )
         }
         composable<Route.ProfileScreen> {
-
+            ProfileScreenRoot(
+                onBack = { navController.navigateUp() }
+            )
         }
     }
 }
