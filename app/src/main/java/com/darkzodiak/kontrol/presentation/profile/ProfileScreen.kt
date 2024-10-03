@@ -83,7 +83,7 @@ fun ProfileScreen(
                     onValueChange = { onAction(ProfileAction.ModifyName(it)) }
                 )
             }
-            items(state.apps) { appName ->
+            items(state.apps) { app ->
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
@@ -92,15 +92,15 @@ fun ProfileScreen(
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = appName,
+                        text = app.packageName,
                         modifier = Modifier.weight(3f)
                     )
                     RadioButton(
-                        selected = state.selectedApps.contains(appName),
+                        selected = state.selectedApps.contains(app),
                         onClick = {
                             onAction(
-                                if(state.selectedApps.contains(appName)) ProfileAction.UnselectApp(appName)
-                                else ProfileAction.SelectApp(appName)
+                                if(state.selectedApps.contains(app)) ProfileAction.UnselectApp(app)
+                                else ProfileAction.SelectApp(app)
                             )
                         },
                         modifier = Modifier.weight(1f)

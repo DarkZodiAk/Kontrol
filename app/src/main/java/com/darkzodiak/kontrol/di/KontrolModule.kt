@@ -3,6 +3,7 @@ package com.darkzodiak.kontrol.di
 import android.content.Context
 import androidx.room.Room
 import com.darkzodiak.kontrol.data.local.KontrolDatabase
+import com.darkzodiak.kontrol.data.local.dao.AppDao
 import com.darkzodiak.kontrol.data.local.dao.ProfileDao
 import dagger.Module
 import dagger.Provides
@@ -21,12 +22,18 @@ object KontrolModule {
             context,
             KontrolDatabase::class.java,
             KontrolDatabase.DB_NAME
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides
     @Singleton
     fun providesProfileDao(db: KontrolDatabase): ProfileDao {
         return db.profileDao
+    }
+
+    @Provides
+    @Singleton
+    fun providesAppDao(db: KontrolDatabase): AppDao {
+        return db.appDao
     }
 }

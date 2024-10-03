@@ -1,40 +1,41 @@
 package com.darkzodiak.kontrol.presentation.profile
 
-import android.content.Context
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.darkzodiak.kontrol.data.local.dao.AppDao
 import com.darkzodiak.kontrol.data.local.dao.ProfileDao
+import com.darkzodiak.kontrol.data.local.entity.App
 import com.darkzodiak.kontrol.data.local.entity.AppToProfile
 import com.darkzodiak.kontrol.data.local.entity.Profile
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val profileDao: ProfileDao,
+    private val appDao: AppDao,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     var state by mutableStateOf(ProfileState())
         private set
 
     private var profile = Profile()
-    private var profileApps = emptyList<String>()
+    private var profileApps = emptyList<App>()
 
     init {
-        val apps = getAllInstalledApps()
-        state = state.copy(
-            apps = apps
-        )
+        appDao.getAllApps()
+            .onEach { apps ->
+                state = state.copy(apps = apps)
+            }.launchIn(viewModelScope)
+
         savedStateHandle.get<Long>("id")?.let { id ->
             viewModelScope.launch {
                 profile = profileDao.getProfileById(id).first()
@@ -60,14 +61,14 @@ class ProfileViewModel @Inject constructor(
                     } else {
                         id = profileDao.insertProfile(profile.copy(name = state.name))
                     }
-                    state.selectedApps.forEach { appName ->
+                    state.selectedApps.forEach { app ->
                         profileDao.addAppToProfile(
-                            AppToProfile(profileId = id, appPackageName = appName)
+                            AppToProfile(profileId = id, appId = app.id!!)
                         )
                     }
-                    (profileApps - state.selectedApps).forEach { appName ->
+                    (profileApps - state.selectedApps).forEach { app ->
                         profileDao.deleteAppFromProfile(
-                            AppToProfile(profileId = id, appPackageName = appName)
+                            AppToProfile(profileId = id, appId = app.id!!)
                         )
                     }
                 }
@@ -77,25 +78,15 @@ class ProfileViewModel @Inject constructor(
             }
             is ProfileAction.SelectApp -> {
                 state = state.copy(
-                    selectedApps = state.selectedApps + action.appName
+                    selectedApps = state.selectedApps + action.app
                 )
             }
             is ProfileAction.UnselectApp -> {
                 state = state.copy(
-                    selectedApps = state.selectedApps - action.appName
+                    selectedApps = state.selectedApps - action.app
                 )
             }
             else -> Unit
         }
-    }
-
-    private fun getAllInstalledApps(): List<String> {
-        val packageManager: PackageManager = context.packageManager
-
-        val apps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-
-        return apps
-            .filter { it.flags and ApplicationInfo.FLAG_SYSTEM == 0 }
-            .map { it.loadLabel(packageManager).toString() }
     }
 }
