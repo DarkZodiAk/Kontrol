@@ -6,18 +6,23 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.darkzodiak.kontrol.presentation.home.HomeScreenRoot
+import com.darkzodiak.kontrol.presentation.permission.PermissionScreenRoot
 import com.darkzodiak.kontrol.presentation.profile.ProfileScreenRoot
 
 @Composable
 fun NavRoot(
-    modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    hasPermissions: Boolean,
+    modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
-        startDestination = Route.HomeScreen,
+        startDestination = if(hasPermissions) Route.HomeScreen else Route.PermissionScreen,
         modifier = modifier
     ) {
+        composable<Route.PermissionScreen> {
+            PermissionScreenRoot(onGoToApp = { navController.navigate(Route.HomeScreen) })
+        }
         composable<Route.HomeScreen> {
             HomeScreenRoot(
                 onOpenProfile = { navController.navigate(Route.ProfileScreen(it)) },

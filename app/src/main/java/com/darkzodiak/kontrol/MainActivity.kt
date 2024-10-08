@@ -4,9 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.darkzodiak.kontrol.data.AppObserver
+import com.darkzodiak.kontrol.data.KontrolService
+import com.darkzodiak.kontrol.presentation.AppRoot
 import com.darkzodiak.kontrol.presentation.NavRoot
+import com.darkzodiak.kontrol.presentation.Route
 import com.darkzodiak.kontrol.ui.theme.KontrolTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -22,7 +28,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             KontrolTheme {
-                NavRoot(navController = rememberNavController())
+                LaunchedEffect(true) {
+                    if(hasUsageStatisticsPermission()) {
+                        appObserver.update()
+                        startService(KontrolService.buildActionIntent(this@MainActivity, KontrolService.ACTION_START))
+                    }
+                }
+
+                NavRoot(
+                    navController = rememberNavController(),
+                    hasPermissions = hasUsageStatisticsPermission()
+                )
+                /*AppRoot(
+                    navController = rememberNavController()
+                )*/
             }
         }
     }
