@@ -26,6 +26,11 @@ class PermissionViewModel @Inject constructor(
                         state = state.copy(hasUsageStatsPermission = action.hasPermission)
                         updatePermissionState()
                     }
+
+                    Permission.ACCESSIBILITY -> {
+                        state = state.copy(hasAccessibilityPermission = action.hasPermission)
+                        updatePermissionState()
+                    }
                 }
             }
         }
@@ -33,7 +38,7 @@ class PermissionViewModel @Inject constructor(
 
     private fun updatePermissionState() {
         state = state.copy(
-            hasAllPermissions = state.hasUsageStatsPermission
+            hasAllPermissions = state.hasUsageStatsPermission && state.hasAccessibilityPermission
         )
     }
 }

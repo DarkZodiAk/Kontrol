@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Kontrol</string>
+    <string name="accessibility_service_label">Kontrol Accessibility</string>
 </resources>

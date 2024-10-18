@@ -1,15 +1,16 @@
 package com.darkzodiak.kontrol.data
 
+import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.IBinder
 import android.util.Log
+import android.view.accessibility.AccessibilityEvent
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import com.darkzodiak.kontrol.R
@@ -19,10 +20,10 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class KontrolService: Service() {
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
+class KontrolService: AccessibilityService() {
+    //    override fun onBind(intent: Intent?): IBinder? {
+//        return null
+//    }
 
     private val notificationManager by lazy {
         getSystemService<NotificationManager>()!!
@@ -41,13 +42,53 @@ class KontrolService: Service() {
         when(intent?.action) {
             ACTION_START -> {
                 createNotificationChannel()
-                startForeground(1, buildNotification(getRunningApp()))
+                startForeground(1, buildNotification("null"))
                 updateNotification()
             }
             ACTION_STOP -> stop()
         }
         return START_STICKY
     }
+
+    override fun onServiceConnected() {
+        Log.d("ACCESSIBILITY", "Connected")
+        val info = AccessibilityServiceInfo().apply {
+            eventTypes = AccessibilityEvent.TYPE_WINDOWS_CHANGED or
+                    AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or
+                    AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+            eventTypes = AccessibilityEvent.TYPES_ALL_MASK
+            flags = AccessibilityServiceInfo.DEFAULT
+            notificationTimeout = 250
+        }
+
+        serviceInfo = info
+    }
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        //Log.d("ACCESSIBILITY", "$event")
+        when(event?.eventType) {
+            AccessibilityEvent.TYPE_WINDOWS_CHANGED -> {
+                Log.d("ACCESSIBILITY", "WINDOWS_CHANGED")
+            }
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+                Log.d("ACCESSIBILITY", "WINDOWS_STATE_CHANGED")
+            }
+            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
+                Log.d("ACCESSIBILITY", "WINDOWS_CONTENT_CHANGED")
+            }
+            else -> Unit
+        }
+    }
+
+    override fun onInterrupt() {
+        Log.d("ACCESSIBILITY", "Interrupted")
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        Log.d("ACCESSIBILITY", "Destroyed")
+        return super.onUnbind(intent)
+    }
+
 
     private fun stop() {
         stopSelf()
@@ -62,7 +103,7 @@ class KontrolService: Service() {
     private fun updateNotification() {
         scope.launch {
             while(true) {
-                notificationManager.notify(1, buildNotification(getRunningApp()))
+                notificationManager.notify(1, buildNotification("null"))
                 delay(1250L)
             }
         }
@@ -77,18 +118,6 @@ class KontrolService: Service() {
             )
             notificationManager.createNotificationChannel(channel)
         }
-    }
-
-    private fun getRunningApp(): String {
-        //Log.d("SERVICE", activityManager.runningAppProcesses.map { it.processName }.toString())
-        Log.d("SERVICE", activityManager.getRunningTasks(10).map { it.baseActivity?.packageName }.toString())
-
-        return "null"
-        //return activityManager
-            //.getRunningTasks(10)
-            //.firstOrNull { it. }
-            //.firstOrNull { it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE }
-            //.toString()
     }
 
     companion object {

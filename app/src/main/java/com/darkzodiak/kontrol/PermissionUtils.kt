@@ -25,3 +25,15 @@ fun Context.getUsageStatsIntent(): Intent {
         Uri.fromParts("package", packageName, null)
     )
 }
+
+fun Context.getAccessibilityIntent(): Intent {
+    return Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+}
+
+fun Context.hasAccessibilityPermission(): Boolean {
+    val accessibilityServiceName = "$packageName/$packageName.data.KontrolService"
+    val enabledServices = Settings.Secure.getString(
+        contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+    )
+    return enabledServices?.contains(accessibilityServiceName) == true
+}
