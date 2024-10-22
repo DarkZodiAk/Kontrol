@@ -37,6 +37,9 @@ interface ProfileDao {
     @Query("SELECT * FROM app WHERE id IN (SELECT appId FROM apptoprofile WHERE profileId = :id)")
     fun getProfileAppsById(id: Long): Flow<List<App>>
 
+    @Query("SELECT * FROM profile WHERE id IN (SELECT profileId FROM apptoprofile WHERE appId = :appId)")
+    suspend fun getProfilesByApp(appId: Long): List<Profile>
+
     @Query("SELECT COUNT(*) FROM apptoprofile WHERE appId = :appId")
     suspend fun isAppInProfiles(appId: Long): Boolean
 }

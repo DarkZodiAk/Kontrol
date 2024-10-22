@@ -1,6 +1,7 @@
 package com.darkzodiak.kontrol.data
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import com.darkzodiak.kontrol.data.local.dao.AppDao
 import com.darkzodiak.kontrol.data.local.entity.App
@@ -52,5 +53,16 @@ class AppObserver @Inject constructor(
         scope.launch {
             getAllInstalledApps()
         }
+    }
+
+    fun getCurrentLauncherPackageName(): String {
+        val intent = Intent().apply {
+            action = Intent.ACTION_MAIN
+            addCategory(Intent.CATEGORY_HOME)
+        }
+        return packageManager
+            .resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)!!
+            .activityInfo
+            .packageName
     }
 }

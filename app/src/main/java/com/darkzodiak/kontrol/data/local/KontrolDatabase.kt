@@ -10,7 +10,7 @@ import com.darkzodiak.kontrol.data.local.entity.Profile
 
 @Database(
     entities = [Profile::class, App::class, AppToProfile::class],
-    version = 2
+    version = 3
 )
 abstract class KontrolDatabase: RoomDatabase() {
     abstract val profileDao: ProfileDao

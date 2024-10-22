@@ -25,6 +25,8 @@ class KontrolService: AccessibilityService() {
 
     @Inject
     lateinit var repository: KontrolRepository
+    @Inject
+    lateinit var appObserver: AppObserver
 
     private val notificationManager by lazy {
         getSystemService<NotificationManager>()!!
@@ -34,11 +36,18 @@ class KontrolService: AccessibilityService() {
     private var currentApp = "com.darkzodiak.kontrol"
     private var scope = CoroutineScope(Dispatchers.Main)
 
+    private var currentLauncher = ""
     private val ignoredPackages = listOf("com.android.systemui", "com.google.android.inputmethod.latin")
     private val baseNotification = NotificationCompat.Builder(this, CHANNEL_ID)
         .setContentTitle("Kontrol")
         .setOngoing(true)
         .setSmallIcon(R.drawable.ic_launcher_foreground)
+
+
+    override fun onCreate() {
+        super.onCreate()
+        currentLauncher = appObserver.getCurrentLauncherPackageName()
+    }
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -80,9 +89,10 @@ class KontrolService: AccessibilityService() {
             scope.launch {
                 if(repository.isAppInProfiles(currentApp)) {
                     performGlobalAction(GLOBAL_ACTION_HOME)
+                    currentApp = currentLauncher
                 }
+                notificationManager.notify(1, buildNotification(currentApp))
             }
-            notificationManager.notify(1, buildNotification(currentApp))
         }
     }
 
