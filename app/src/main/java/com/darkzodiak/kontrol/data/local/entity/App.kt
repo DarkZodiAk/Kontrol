@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class App(
     @PrimaryKey(autoGenerate = true)
     val id: Long? = null,
-    val packageName: String = ""
+    val packageName: String = "",
+    val title: String = ""
 )

@@ -26,7 +26,7 @@ interface ProfileDao {
     fun getProfiles(): Flow<List<Profile>>
 
     @Query("SELECT * FROM profile WHERE id = :id")
-    fun getProfileById(id: Long): Flow<Profile>
+    suspend fun getProfileById(id: Long): Profile
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addAppToProfile(appToProfile: AppToProfile)
@@ -36,4 +36,7 @@ interface ProfileDao {
 
     @Query("SELECT * FROM app WHERE id IN (SELECT appId FROM apptoprofile WHERE profileId = :id)")
     fun getProfileAppsById(id: Long): Flow<List<App>>
+
+    @Query("SELECT COUNT(*) FROM apptoprofile WHERE appId = :appId")
+    suspend fun isAppInProfiles(appId: Long): Boolean
 }

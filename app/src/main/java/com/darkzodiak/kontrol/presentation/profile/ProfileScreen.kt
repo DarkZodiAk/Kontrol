@@ -92,7 +92,7 @@ fun ProfileScreen(
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = app.packageName,
+                        text = app.title,
                         modifier = Modifier.weight(3f)
                     )
                     RadioButton(

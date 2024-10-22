@@ -1,8 +1,6 @@
 package com.darkzodiak.kontrol.data
 
 import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.AccessibilityServiceInfo
-import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -14,24 +12,29 @@ import android.view.accessibility.AccessibilityEvent
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import com.darkzodiak.kontrol.R
+import com.darkzodiak.kontrol.domain.KontrolRepository
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class KontrolService: AccessibilityService() {
-    //    override fun onBind(intent: Intent?): IBinder? {
-//        return null
-//    }
+
+    @Inject
+    lateinit var repository: KontrolRepository
 
     private val notificationManager by lazy {
         getSystemService<NotificationManager>()!!
     }
-    private val activityManager by lazy {
-        getSystemService<ActivityManager>()!!
-    }
+
+    private var isRunning = false
+    private var currentApp = "com.darkzodiak.kontrol"
     private var scope = CoroutineScope(Dispatchers.Main)
+
+    private val ignoredPackages = listOf("com.android.systemui", "com.google.android.inputmethod.latin")
     private val baseNotification = NotificationCompat.Builder(this, CHANNEL_ID)
         .setContentTitle("Kontrol")
         .setOngoing(true)
@@ -41,40 +44,19 @@ class KontrolService: AccessibilityService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when(intent?.action) {
             ACTION_START -> {
+                isRunning = true
                 createNotificationChannel()
-                startForeground(1, buildNotification("null"))
-                updateNotification()
+                startForeground(1, buildNotification(currentApp))
             }
             ACTION_STOP -> stop()
         }
         return START_STICKY
     }
 
-    override fun onServiceConnected() {
-        Log.d("ACCESSIBILITY", "Connected")
-        val info = AccessibilityServiceInfo().apply {
-            eventTypes = AccessibilityEvent.TYPE_WINDOWS_CHANGED or
-                    AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or
-                    AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
-            eventTypes = AccessibilityEvent.TYPES_ALL_MASK
-            flags = AccessibilityServiceInfo.DEFAULT
-            notificationTimeout = 250
-        }
-
-        serviceInfo = info
-    }
-
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        //Log.d("ACCESSIBILITY", "$event")
         when(event?.eventType) {
-            AccessibilityEvent.TYPE_WINDOWS_CHANGED -> {
-                Log.d("ACCESSIBILITY", "WINDOWS_CHANGED")
-            }
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
-                Log.d("ACCESSIBILITY", "WINDOWS_STATE_CHANGED")
-            }
-            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
-                Log.d("ACCESSIBILITY", "WINDOWS_CONTENT_CHANGED")
+                processAppEvent("${event.packageName}")
             }
             else -> Unit
         }
@@ -84,30 +66,30 @@ class KontrolService: AccessibilityService() {
         Log.d("ACCESSIBILITY", "Interrupted")
     }
 
-    override fun onUnbind(intent: Intent?): Boolean {
-        Log.d("ACCESSIBILITY", "Destroyed")
-        return super.onUnbind(intent)
-    }
-
 
     private fun stop() {
         stopSelf()
+        isRunning = false
         scope.cancel()
         scope = CoroutineScope(Dispatchers.Main)
+    }
+
+    private fun processAppEvent(packageName: String) {
+        if(isRunning && packageName != currentApp && packageName !in ignoredPackages) {
+            currentApp = packageName
+            scope.launch {
+                if(repository.isAppInProfiles(currentApp)) {
+                    performGlobalAction(GLOBAL_ACTION_HOME)
+                }
+            }
+            notificationManager.notify(1, buildNotification(currentApp))
+        }
     }
 
     private fun buildNotification(appName: String): Notification {
         return baseNotification.setContentText(appName).build()
     }
 
-    private fun updateNotification() {
-        scope.launch {
-            while(true) {
-                notificationManager.notify(1, buildNotification("null"))
-                delay(1250L)
-            }
-        }
-    }
 
     private fun createNotificationChannel() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
