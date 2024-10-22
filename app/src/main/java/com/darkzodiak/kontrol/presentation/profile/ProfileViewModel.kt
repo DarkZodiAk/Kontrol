@@ -6,11 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darkzodiak.kontrol.data.local.dao.AppDao
-import com.darkzodiak.kontrol.data.local.dao.ProfileDao
 import com.darkzodiak.kontrol.data.local.entity.App
-import com.darkzodiak.kontrol.data.local.entity.AppToProfile
 import com.darkzodiak.kontrol.data.local.entity.Profile
+import com.darkzodiak.kontrol.domain.KontrolRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -20,8 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val profileDao: ProfileDao,
-    private val appDao: AppDao,
+    private val repository: KontrolRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     var state by mutableStateOf(ProfileState())
@@ -31,15 +28,15 @@ class ProfileViewModel @Inject constructor(
     private var profileApps = emptyList<App>()
 
     init {
-        appDao.getAllApps()
+        repository.getAllApps()
             .onEach { apps ->
                 state = state.copy(apps = apps)
             }.launchIn(viewModelScope)
 
         savedStateHandle.get<Long>("id")?.let { id ->
             viewModelScope.launch {
-                profile = profileDao.getProfileById(id).first()
-                profileApps = profileDao.getProfileAppsById(id).first()
+                profile = repository.getProfileById(id)
+                profileApps = repository.getProfileAppsById(id).first()
                 state = state.copy(
                     name = profile.name,
                     selectedApps = profileApps
@@ -57,19 +54,15 @@ class ProfileViewModel @Inject constructor(
                 viewModelScope.launch {
                     var id = profile.id
                     if(id != null) {
-                        profileDao.updateProfile(profile.copy(name = state.name))
+                        repository.updateProfile(profile.copy(name = state.name))
                     } else {
-                        id = profileDao.insertProfile(profile.copy(name = state.name))
+                        id = repository.addProfile(profile.copy(name = state.name))
                     }
                     state.selectedApps.forEach { app ->
-                        profileDao.addAppToProfile(
-                            AppToProfile(profileId = id, appId = app.id!!)
-                        )
+                        repository.addAppToProfile(profileId = id, appId = app.id!!)
                     }
                     (profileApps - state.selectedApps).forEach { app ->
-                        profileDao.deleteAppFromProfile(
-                            AppToProfile(profileId = id, appId = app.id!!)
-                        )
+                        repository.deleteAppFromProfile(profileId = id, appId = app.id!!)
                     }
                 }
             }

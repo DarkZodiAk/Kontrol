@@ -20,4 +20,7 @@ interface AppDao {
 
     @Query("SELECT * FROM app WHERE id = :id")
     suspend fun getAppById(id: Long): App
+
+    @Query("SELECT * FROM app WHERE packageName = :packageName")
+    suspend fun getAppByPackageName(packageName: String): App?
 }

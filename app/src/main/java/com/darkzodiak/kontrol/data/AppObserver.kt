@@ -1,6 +1,7 @@
 package com.darkzodiak.kontrol.data
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import com.darkzodiak.kontrol.data.local.dao.AppDao
 import com.darkzodiak.kontrol.data.local.entity.App
@@ -26,14 +27,19 @@ class AppObserver @Inject constructor(
 
         val newApps = apps
             .filter { packageManager.getLaunchIntentForPackage(it.packageName) != null }
-            .map { it.loadLabel(packageManager).toString() }
+            .map {
+                App(
+                    packageName = it.packageName,
+                    title = it.loadLabel(packageManager).toString()
+                )
+            }
 
         val appsToDelete = currentApps.filter { app ->
-            newApps.none { it == app.packageName }
+            newApps.none { it.packageName == app.packageName }
         }
-        val appsToInsert = newApps.filter { appName ->
-            currentApps.none { it.packageName == appName }
-        }.map { App(packageName = it) }
+        val appsToInsert = newApps.filter { app ->
+            currentApps.none { it.packageName == app.packageName }
+        }
 
         appsToDelete.forEach {
             appDao.deleteApp(it)
@@ -47,5 +53,16 @@ class AppObserver @Inject constructor(
         scope.launch {
             getAllInstalledApps()
         }
+    }
+
+    fun getCurrentLauncherPackageName(): String {
+        val intent = Intent().apply {
+            action = Intent.ACTION_MAIN
+            addCategory(Intent.CATEGORY_HOME)
+        }
+        return packageManager
+            .resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)!!
+            .activityInfo
+            .packageName
     }
 }
