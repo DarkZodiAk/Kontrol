@@ -2,5 +2,6 @@ package com.darkzodiak.kontrol.presentation.permission
 
 enum class Permission {
     USAGE_STATS_ACCESS,
-    ACCESSIBILITY
+    ACCESSIBILITY,
+    SYSTEM_ALERT_WINDOW
 }

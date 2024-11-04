@@ -21,8 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.darkzodiak.kontrol.data.KontrolService
 import com.darkzodiak.kontrol.getAccessibilityIntent
+import com.darkzodiak.kontrol.getAlertWindowIntent
 import com.darkzodiak.kontrol.getUsageStatsIntent
 import com.darkzodiak.kontrol.hasAccessibilityPermission
+import com.darkzodiak.kontrol.hasAlertWindowPermission
 import com.darkzodiak.kontrol.hasUsageStatisticsPermission
 
 @Composable
@@ -35,6 +37,7 @@ fun PermissionScreenRoot(
     LaunchedEffect(key1 = true) {
         viewModel.onAction(PermissionAction.SendPermissionInfo(Permission.USAGE_STATS_ACCESS, context.hasUsageStatisticsPermission()))
         viewModel.onAction(PermissionAction.SendPermissionInfo(Permission.ACCESSIBILITY, context.hasAccessibilityPermission()))
+        viewModel.onAction(PermissionAction.SendPermissionInfo(Permission.SYSTEM_ALERT_WINDOW, context.hasAlertWindowPermission()))
     }
 
     PermissionScreen(
@@ -68,6 +71,11 @@ fun PermissionScreen(
     ) {
         onAction(PermissionAction.SendPermissionInfo(Permission.ACCESSIBILITY, context.hasAccessibilityPermission()))
     }
+    val alertWindowLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        onAction(PermissionAction.SendPermissionInfo(Permission.SYSTEM_ALERT_WINDOW, context.hasAlertWindowPermission()))
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -87,11 +95,17 @@ fun PermissionScreen(
                 hasPermission = state.hasUsageStatsPermission,
                 onButtonClick = { usageStatsLauncher.launch(context.getUsageStatsIntent()) }
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             PermissionCard(
                 title = "Accessibility",
                 hasPermission = state.hasAccessibilityPermission,
-                onButtonClick = { accessibilityLauncher.launch(context.getAccessibilityIntent()) }
+                onButtonClick = { accessibilityLauncher.launch(getAccessibilityIntent()) }
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            PermissionCard(
+                title = "Overlay",
+                hasPermission = state.hasAlertWindowPermission,
+                onButtonClick = { alertWindowLauncher.launch(context.getAlertWindowIntent()) }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
