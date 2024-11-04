@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Kontrol</string>
     <string name="accessibility_service_label">Kontrol Accessibility</string>
+    <string name="title_activity_block">BlockActivity</string>
 </resources>

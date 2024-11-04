@@ -26,7 +26,7 @@ fun Context.getUsageStatsIntent(): Intent {
     )
 }
 
-fun Context.getAccessibilityIntent(): Intent {
+fun getAccessibilityIntent(): Intent {
     return Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
 }
 
@@ -36,4 +36,16 @@ fun Context.hasAccessibilityPermission(): Boolean {
         contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
     )
     return enabledServices?.contains(accessibilityServiceName) == true
+}
+
+fun Context.getAlertWindowIntent(): Intent {
+    return Intent(
+        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+        Uri.fromParts("package", packageName, null)
+    )
+}
+
+fun Context.hasAlertWindowPermission(): Boolean {
+    return if(Build.VERSION.SDK_INT < 23) true
+        else Settings.canDrawOverlays(this)
 }

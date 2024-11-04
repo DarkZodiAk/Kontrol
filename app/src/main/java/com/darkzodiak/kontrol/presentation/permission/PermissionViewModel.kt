@@ -31,6 +31,11 @@ class PermissionViewModel @Inject constructor(
                         state = state.copy(hasAccessibilityPermission = action.hasPermission)
                         updatePermissionState()
                     }
+
+                    Permission.SYSTEM_ALERT_WINDOW -> {
+                        state = state.copy(hasAlertWindowPermission = action.hasPermission)
+                        updatePermissionState()
+                    }
                 }
             }
         }
@@ -38,7 +43,9 @@ class PermissionViewModel @Inject constructor(
 
     private fun updatePermissionState() {
         state = state.copy(
-            hasAllPermissions = state.hasUsageStatsPermission && state.hasAccessibilityPermission
+            hasAllPermissions = state.hasUsageStatsPermission &&
+                    state.hasAccessibilityPermission &&
+                    state.hasAlertWindowPermission
         )
     }
 }

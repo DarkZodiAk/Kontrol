@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import com.darkzodiak.kontrol.R
 import com.darkzodiak.kontrol.domain.KontrolRepository
+import com.darkzodiak.kontrol.overlay.OverlayManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,7 @@ class KontrolService: AccessibilityService() {
     lateinit var repository: KontrolRepository
     @Inject
     lateinit var appObserver: AppObserver
+    private var overlayManager: OverlayManager? = null
 
     private val notificationManager by lazy {
         getSystemService<NotificationManager>()!!
@@ -54,6 +56,7 @@ class KontrolService: AccessibilityService() {
         when(intent?.action) {
             ACTION_START -> {
                 isRunning = true
+                overlayManager = OverlayManager(context = this)
                 createNotificationChannel()
                 startForeground(1, buildNotification(currentApp))
             }
@@ -65,6 +68,7 @@ class KontrolService: AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         when(event?.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+                Log.d("WINDOW CHANGED", event.packageName.toString())
                 processAppEvent("${event.packageName}")
             }
             else -> Unit
@@ -89,6 +93,7 @@ class KontrolService: AccessibilityService() {
             scope.launch {
                 if(repository.isAppInProfiles(currentApp)) {
                     performGlobalAction(GLOBAL_ACTION_HOME)
+                    overlayManager?.open("$packageName заблокирован")
                     currentApp = currentLauncher
                 }
                 notificationManager.notify(1, buildNotification(currentApp))

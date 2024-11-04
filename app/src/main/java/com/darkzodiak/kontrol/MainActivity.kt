@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             KontrolTheme {
                 LaunchedEffect(true) {
-                    if(hasUsageStatisticsPermission() && hasAccessibilityPermission()) {
+                    if(hasUsageStatisticsPermission() && hasAccessibilityPermission() && hasAlertWindowPermission()) {
                         appObserver.update()
                         startService(KontrolService.buildActionIntent(this@MainActivity, KontrolService.ACTION_START))
                     }
@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
 
                 NavRoot(
                     navController = rememberNavController(),
-                    hasPermissions = hasUsageStatisticsPermission() && hasAccessibilityPermission()
+                    hasPermissions = hasUsageStatisticsPermission() && hasAccessibilityPermission() && hasAlertWindowPermission()
                 )
                 /*AppRoot(
                     navController = rememberNavController()
