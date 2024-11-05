@@ -7,12 +7,13 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import com.darkzodiak.kontrol.R
 import com.darkzodiak.kontrol.domain.KontrolRepository
+import com.darkzodiak.kontrol.domain.eventBus.PermissionEvent
+import com.darkzodiak.kontrol.domain.eventBus.PermissionEventBus
 import com.darkzodiak.kontrol.overlay.OverlayManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -68,17 +69,21 @@ class KontrolService: AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         when(event?.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
-                Log.d("WINDOW CHANGED", event.packageName.toString())
                 processAppEvent("${event.packageName}")
             }
             else -> Unit
         }
     }
 
-    override fun onInterrupt() {
-        Log.d("ACCESSIBILITY", "Interrupted")
-    }
+    override fun onInterrupt() { }
 
+    override fun onUnbind(intent: Intent?): Boolean {
+        scope.launch {
+            PermissionEventBus.sendEvent(PermissionEvent.LostAccessibilityPermission)
+            if(isRunning) stop()
+        }
+        return super.onUnbind(intent)
+    }
 
     private fun stop() {
         stopSelf()

@@ -1,12 +1,14 @@
 package com.darkzodiak.kontrol
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.data.AppObserver
+import com.darkzodiak.kontrol.domain.eventBus.PermissionEvent
+import com.darkzodiak.kontrol.domain.eventBus.PermissionEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
@@ -14,13 +16,18 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val appObserver: AppObserver
 ): ViewModel() {
-    var hasPermissions by mutableStateOf(true)
-        private set
+    private val channel = Channel<MainEvent>()
+    val serviceEvent = channel.receiveAsFlow()
 
-    private val channel = Channel<Boolean>()
-    val uiEvent = channel.receiveAsFlow()
-
-    fun updatePermissionState() {
-
+    init {
+        appObserver.update()
+        PermissionEventBus.permissionBus.onEach { event ->
+            when(event) {
+                PermissionEvent.GrantedAllPermissions -> {
+                    channel.send(MainEvent.StartKontrolService)
+                }
+                else -> Unit
+            }
+        }.launchIn(viewModelScope)
     }
 }
