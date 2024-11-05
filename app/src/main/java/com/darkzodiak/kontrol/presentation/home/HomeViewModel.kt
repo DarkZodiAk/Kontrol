@@ -5,10 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.darkzodiak.kontrol.data.permission.PermissionObserver
 import com.darkzodiak.kontrol.domain.KontrolRepository
 import com.darkzodiak.kontrol.domain.Permission
-import com.darkzodiak.kontrol.domain.eventBus.PermissionEvent
-import com.darkzodiak.kontrol.domain.eventBus.PermissionEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -18,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: KontrolRepository,
+    private val permissionObserver: PermissionObserver
 ) : ViewModel() {
 
     var state by mutableStateOf(HomeState())
@@ -28,14 +28,13 @@ class HomeViewModel @Inject constructor(
             state = state.copy(profiles = it)
         }.launchIn(viewModelScope)
 
-        PermissionEventBus.permissionBus.onEach { event ->
-            when(event) {
-                PermissionEvent.LostAccessibilityPermission -> {
-                    state = state.copy(hasAccessibilityPermission = false)
-                    updatePermissionState()
-                }
-                else -> Unit
-            }
+        permissionObserver.permissionsState.onEach {
+            state = state.copy(
+                hasUsageStatsPermission = it.hasUsageStatsPermission,
+                hasAccessibilityPermission = it.hasAccessibilityPermission,
+                hasAlertWindowPermission = it.hasAlertWindowPermission,
+                hasAllPermissions = it.hasAllPermissions
+            )
         }.launchIn(viewModelScope)
     }
 
@@ -46,39 +45,22 @@ class HomeViewModel @Inject constructor(
                     repository.updateProfile(action.profile)
                 }
             }
-            is HomeAction.SendPermissionInfo -> {
+            is HomeAction.UpdatePermissionInfo -> {
                 when(action.permission) {
                     Permission.USAGE_STATS_ACCESS -> {
-                        state = state.copy(hasUsageStatsPermission = action.granted)
-                        updatePermissionState()
+                        permissionObserver.updateUsageStatsPermission()
                     }
 
                     Permission.ACCESSIBILITY -> {
-                        state = state.copy(hasAccessibilityPermission = action.granted)
-                        updatePermissionState()
+                        permissionObserver.updateAccessibilityPermission()
                     }
 
                     Permission.SYSTEM_ALERT_WINDOW -> {
-                        state = state.copy(hasAlertWindowPermission = action.granted)
-                        updatePermissionState()
+                        permissionObserver.updateAlertWindowPermission()
                     }
                 }
             }
             else -> Unit
-        }
-    }
-
-
-    private fun updatePermissionState() {
-        state = state.copy(
-            hasAllPermissions = state.hasUsageStatsPermission &&
-                    state.hasAccessibilityPermission &&
-                    state.hasAlertWindowPermission
-        )
-        if(state.hasAllPermissions) {
-            viewModelScope.launch {
-                PermissionEventBus.sendEvent(PermissionEvent.GrantedAllPermissions)
-            }
         }
     }
 }

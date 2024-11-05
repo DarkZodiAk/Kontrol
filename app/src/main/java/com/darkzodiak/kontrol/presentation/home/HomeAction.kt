@@ -7,5 +7,5 @@ sealed interface HomeAction {
     object NewProfile: HomeAction
     data class OpenProfile(val id: Long): HomeAction
     data class SwitchProfileState(val profile: Profile): HomeAction
-    data class SendPermissionInfo(val permission: Permission, val granted: Boolean): HomeAction
+    data class UpdatePermissionInfo(val permission: Permission): HomeAction
 }

@@ -11,9 +11,8 @@ import android.view.accessibility.AccessibilityEvent
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import com.darkzodiak.kontrol.R
+import com.darkzodiak.kontrol.data.permission.PermissionObserver
 import com.darkzodiak.kontrol.domain.KontrolRepository
-import com.darkzodiak.kontrol.domain.eventBus.PermissionEvent
-import com.darkzodiak.kontrol.domain.eventBus.PermissionEventBus
 import com.darkzodiak.kontrol.overlay.OverlayManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +28,9 @@ class KontrolService: AccessibilityService() {
     lateinit var repository: KontrolRepository
     @Inject
     lateinit var appObserver: AppObserver
+    @Inject
+    lateinit var permissionObserver: PermissionObserver
+
     private var overlayManager: OverlayManager? = null
 
     private val notificationManager by lazy {
@@ -52,7 +54,6 @@ class KontrolService: AccessibilityService() {
         currentLauncher = appObserver.getCurrentLauncherPackageName()
     }
 
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when(intent?.action) {
             ACTION_START -> {
@@ -64,6 +65,11 @@ class KontrolService: AccessibilityService() {
             ACTION_STOP -> stop()
         }
         return START_STICKY
+    }
+
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        permissionObserver.updateAllPermissions()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -79,7 +85,7 @@ class KontrolService: AccessibilityService() {
 
     override fun onUnbind(intent: Intent?): Boolean {
         scope.launch {
-            PermissionEventBus.sendEvent(PermissionEvent.LostAccessibilityPermission)
+            permissionObserver.updateAccessibilityPermission()
             if(isRunning) stop()
         }
         return super.onUnbind(intent)

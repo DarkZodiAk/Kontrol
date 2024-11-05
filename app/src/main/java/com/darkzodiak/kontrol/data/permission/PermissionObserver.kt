@@ -1,0 +1,74 @@
+package com.darkzodiak.kontrol.data.permission
+
+import android.content.Context
+import com.darkzodiak.kontrol.hasAccessibilityPermission
+import com.darkzodiak.kontrol.hasAlertWindowPermission
+import com.darkzodiak.kontrol.hasUsageStatsPermission
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class PermissionObserver @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val applicationScope: CoroutineScope
+) {
+
+    private val _permissionState = MutableStateFlow(PermissionsState())
+    val permissionsState = _permissionState.asStateFlow()
+
+    val canRunService = permissionsState
+        .map { it.hasAllPermissions }
+        .stateIn(applicationScope, SharingStarted.Lazily, false)
+
+
+    fun updateAllPermissions() {
+        updateUsageStatsPermission()
+        updateAccessibilityPermission()
+        updateAlertWindowPermission()
+    }
+
+    fun updateUsageStatsPermission() {
+        applicationScope.launch {
+            val enabled = context.hasUsageStatsPermission()
+            _permissionState.update {
+                it.copy(
+                    hasUsageStatsPermission = enabled,
+                    hasAllPermissions = enabled && it.hasAccessibilityPermission && it.hasAlertWindowPermission
+                )
+            }
+        }
+    }
+
+    fun updateAccessibilityPermission() {
+        applicationScope.launch {
+            val enabled = context.hasAccessibilityPermission()
+            _permissionState.update {
+                it.copy(
+                    hasAccessibilityPermission = enabled,
+                    hasAllPermissions = it.hasUsageStatsPermission && enabled && it.hasAlertWindowPermission
+                )
+            }
+        }
+    }
+
+    fun updateAlertWindowPermission() {
+        applicationScope.launch {
+            val enabled = context.hasAlertWindowPermission()
+            _permissionState.update {
+                it.copy(
+                    hasAlertWindowPermission = enabled,
+                    hasAllPermissions = it.hasUsageStatsPermission && it.hasAccessibilityPermission && enabled
+                )
+            }
+        }
+    }
+}

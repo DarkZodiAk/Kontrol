@@ -32,7 +32,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -49,9 +48,6 @@ import com.darkzodiak.kontrol.data.local.entity.Profile
 import com.darkzodiak.kontrol.getAccessibilityIntent
 import com.darkzodiak.kontrol.getAlertWindowIntent
 import com.darkzodiak.kontrol.getUsageStatsIntent
-import com.darkzodiak.kontrol.hasAccessibilityPermission
-import com.darkzodiak.kontrol.hasAlertWindowPermission
-import com.darkzodiak.kontrol.hasUsageStatisticsPermission
 import com.darkzodiak.kontrol.domain.Permission
 import com.darkzodiak.kontrol.presentation.components.PermissionCard
 
@@ -61,14 +57,6 @@ fun HomeScreenRoot(
     onOpenProfile: (Long) -> Unit,
     onNewProfile: () -> Unit
 ) {
-    val context = LocalContext.current
-
-    LaunchedEffect(key1 = true) {
-        viewModel.onAction(HomeAction.SendPermissionInfo(Permission.USAGE_STATS_ACCESS, context.hasUsageStatisticsPermission()))
-        viewModel.onAction(HomeAction.SendPermissionInfo(Permission.ACCESSIBILITY, context.hasAccessibilityPermission()))
-        viewModel.onAction(HomeAction.SendPermissionInfo(Permission.SYSTEM_ALERT_WINDOW, context.hasAlertWindowPermission()))
-    }
-
     HomeScreen(
         state = viewModel.state,
         onAction = { action ->
@@ -95,32 +83,17 @@ fun HomeScreen(
     val usageStatsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
-        onAction(
-            HomeAction.SendPermissionInfo(
-                Permission.USAGE_STATS_ACCESS,
-                context.hasUsageStatisticsPermission()
-            )
-        )
+        onAction(HomeAction.UpdatePermissionInfo(Permission.USAGE_STATS_ACCESS))
     }
     val accessibilityLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
-        onAction(
-            HomeAction.SendPermissionInfo(
-                Permission.ACCESSIBILITY,
-                context.hasAccessibilityPermission()
-            )
-        )
+        onAction(HomeAction.UpdatePermissionInfo(Permission.ACCESSIBILITY))
     }
     val alertWindowLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
-        onAction(
-            HomeAction.SendPermissionInfo(
-                Permission.SYSTEM_ALERT_WINDOW,
-                context.hasAlertWindowPermission()
-            )
-        )
+        onAction(HomeAction.UpdatePermissionInfo(Permission.SYSTEM_ALERT_WINDOW))
     }
 
     Scaffold(
