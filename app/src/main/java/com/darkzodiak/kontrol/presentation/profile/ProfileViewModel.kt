@@ -42,6 +42,7 @@ class ProfileViewModel @Inject constructor(
                     selectedApps = profileApps
                 )
             }
+            state = state.copy(isNewProfile = false)
         }
     }
 

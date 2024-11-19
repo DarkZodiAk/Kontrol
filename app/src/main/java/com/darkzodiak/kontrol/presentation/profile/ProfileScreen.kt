@@ -1,29 +1,37 @@
 package com.darkzodiak.kontrol.presentation.profile
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.darkzodiak.kontrol.presentation.components.KontrolTextField
 
 @Composable
 fun ProfileScreenRoot(
@@ -51,8 +59,10 @@ fun ProfileScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {},
+            CenterAlignedTopAppBar(
+                title = { 
+                    Text(text = if(state.isNewProfile) "Создать профиль" else "Изменить профиль")
+                },
                 navigationIcon = {
                     IconButton(
                         onClick = { onAction(ProfileAction.Back) }
@@ -62,7 +72,8 @@ fun ProfileScreen(
                 },
                 actions = {
                     IconButton(
-                        onClick = { onAction(ProfileAction.Done) }
+                        onClick = { onAction(ProfileAction.Done) },
+                        enabled = state.name.isNotBlank()
                     ) {
                         Icon(Icons.Default.Done, null)
                     }
@@ -71,43 +82,158 @@ fun ProfileScreen(
         },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-        LazyColumn(
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(horizontal = 16.dp)
         ) {
-            item {
-                TextField(
-                    value = state.name,
-                    onValueChange = { onAction(ProfileAction.ModifyName(it)) }
-                )
-            }
-            items(state.apps) { app ->
+            state.warning?.let {
                 Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.errorContainer)
+                        .padding(16.dp)
                 ) {
-                    Text(
-                        text = app.title,
-                        modifier = Modifier.weight(3f)
-                    )
-                    RadioButton(
-                        selected = state.selectedApps.contains(app),
-                        onClick = {
-                            onAction(
-                                if(state.selectedApps.contains(app)) ProfileAction.UnselectApp(app)
-                                else ProfileAction.SelectApp(app)
-                            )
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
+                    Icon(imageVector = Icons.Outlined.ErrorOutline, contentDescription = null)
+                    Column {
+                        Text(
+                            text = "Предупреждение",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = state.warning,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
+            KontrolTextField(
+                text = state.name,
+                placeholder = "Название",
+                onTextChange = { onAction(ProfileAction.ModifyName(it)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                text = "Заблокированные приложения",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(
+                        width = 1.dp,
+                        color = Color(202, 196, 208),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Apps, contentDescription = null)
+                Text(
+                    text = "Выберите приложения",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+            Text(
+                text = "Ограничения",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(
+                        width = 1.dp,
+                        color = Color(202, 196, 208),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                Text(
+                    text = "Добавить",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "Блокировка профиля",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = "Блокирует редактирование профиля",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(
+                        width = 1.dp,
+                        color = Color(202, 196, 208),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Icon(imageVector = Icons.Default.LockOpen, contentDescription = null)
+                Text(
+                    text = "Нет",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         }
+
+
+
+
+//        LazyColumn(
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(innerPadding)
+//        ) {
+//            item {
+//                TextField(
+//                    value = state.name,
+//                    onValueChange = { onAction(ProfileAction.ModifyName(it)) }
+//                )
+//            }
+//            items(state.apps) { app ->
+//                Row(
+//                    horizontalArrangement = Arrangement.SpaceBetween,
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(8.dp)
+//                ) {
+//                    Text(
+//                        text = app.title,
+//                        modifier = Modifier.weight(3f)
+//                    )
+//                    RadioButton(
+//                        selected = state.selectedApps.contains(app),
+//                        onClick = {
+//                            onAction(
+//                                if(state.selectedApps.contains(app)) ProfileAction.UnselectApp(app)
+//                                else ProfileAction.SelectApp(app)
+//                            )
+//                        },
+//                        modifier = Modifier.weight(1f)
+//                    )
+//                }
+//            }
+//        }
     }
 }
 
