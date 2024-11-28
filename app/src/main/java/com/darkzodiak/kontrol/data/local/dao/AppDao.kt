@@ -4,23 +4,23 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import com.darkzodiak.kontrol.data.local.entity.App
+import com.darkzodiak.kontrol.data.local.entity.AppEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AppDao {
     @Insert
-    suspend fun insertApp(app: App)
+    suspend fun insertApp(appEntity: AppEntity)
 
     @Delete
-    suspend fun deleteApp(app: App)
+    suspend fun deleteApp(appEntity: AppEntity)
 
-    @Query("SELECT * FROM app")
-    fun getAllApps(): Flow<List<App>>
+    @Query("SELECT * FROM appentity")
+    fun getAllApps(): Flow<List<AppEntity>>
 
-    @Query("SELECT * FROM app WHERE id = :id")
-    suspend fun getAppById(id: Long): App
+    @Query("SELECT * FROM appentity WHERE id = :id")
+    suspend fun getAppById(id: Long): AppEntity
 
-    @Query("SELECT * FROM app WHERE packageName = :packageName")
-    suspend fun getAppByPackageName(packageName: String): App?
+    @Query("SELECT * FROM appentity WHERE packageName = :packageName")
+    suspend fun getAppByPackageName(packageName: String): AppEntity?
 }

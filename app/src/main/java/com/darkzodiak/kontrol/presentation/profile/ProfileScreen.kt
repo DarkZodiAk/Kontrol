@@ -1,14 +1,24 @@
 package com.darkzodiak.kontrol.presentation.profile
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -21,13 +31,20 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -57,6 +74,10 @@ fun ProfileScreen(
     state: ProfileState,
     onAction: (ProfileAction) -> Unit
 ) {
+    val scrollState = rememberScrollState()
+    val modalSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var modalSheetIsVisible by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -86,6 +107,7 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
@@ -124,9 +146,11 @@ fun ProfileScreen(
             )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
+                    .clickable { modalSheetIsVisible = true }
                     .border(
                         width = 1.dp,
                         color = Color(202, 196, 208),
@@ -135,10 +159,22 @@ fun ProfileScreen(
                     .padding(16.dp)
             ) {
                 Icon(imageVector = Icons.Default.Apps, contentDescription = null)
-                Text(
-                    text = "Выберите приложения",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                if(state.selectedApps.isEmpty()) {
+                    Text(
+                        text = "Выберите приложения",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                } else {
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        items(state.selectedApps) { app ->
+                            Image(
+                                bitmap = app.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
+                }
             }
             Text(
                 text = "Ограничения",
@@ -195,45 +231,20 @@ fun ProfileScreen(
         }
 
 
-
-
-//        LazyColumn(
-//            horizontalAlignment = Alignment.CenterHorizontally,
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(innerPadding)
-//        ) {
-//            item {
-//                TextField(
-//                    value = state.name,
-//                    onValueChange = { onAction(ProfileAction.ModifyName(it)) }
-//                )
-//            }
-//            items(state.apps) { app ->
-//                Row(
-//                    horizontalArrangement = Arrangement.SpaceBetween,
-//                    verticalAlignment = Alignment.CenterVertically,
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(8.dp)
-//                ) {
-//                    Text(
-//                        text = app.title,
-//                        modifier = Modifier.weight(3f)
-//                    )
-//                    RadioButton(
-//                        selected = state.selectedApps.contains(app),
-//                        onClick = {
-//                            onAction(
-//                                if(state.selectedApps.contains(app)) ProfileAction.UnselectApp(app)
-//                                else ProfileAction.SelectApp(app)
-//                            )
-//                        },
-//                        modifier = Modifier.weight(1f)
-//                    )
-//                }
-//            }
-//        }
+        if(modalSheetIsVisible) {
+            ModalBottomSheet(
+                onDismissRequest = { modalSheetIsVisible = false },
+                sheetState = modalSheetState,
+                dragHandle = {},
+                shape = RectangleShape
+            ) {
+                AppList(
+                    apps = state.apps,
+                    selectedApps = state.selectedApps,
+                    onAction = onAction
+                )
+            }
+        }
     }
 }
 

@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.darkzodiak.kontrol.data.local.entity.App
+import com.darkzodiak.kontrol.data.local.entity.AppEntity
 import com.darkzodiak.kontrol.data.local.entity.AppToProfile
 import com.darkzodiak.kontrol.data.local.entity.Profile
 import kotlinx.coroutines.flow.Flow
@@ -34,8 +34,8 @@ interface ProfileDao {
     @Delete
     suspend fun deleteAppFromProfile(appToProfile: AppToProfile)
 
-    @Query("SELECT * FROM app WHERE id IN (SELECT appId FROM apptoprofile WHERE profileId = :id)")
-    fun getProfileAppsById(id: Long): Flow<List<App>>
+    @Query("SELECT * FROM appentity WHERE id IN (SELECT appId FROM apptoprofile WHERE profileId = :id)")
+    fun getProfileAppsById(id: Long): Flow<List<AppEntity>>
 
     @Query("SELECT * FROM profile WHERE id IN (SELECT profileId FROM apptoprofile WHERE appId = :appId)")
     suspend fun getProfilesByApp(appId: Long): List<Profile>

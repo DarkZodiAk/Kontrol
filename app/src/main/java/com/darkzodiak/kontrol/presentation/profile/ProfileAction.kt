@@ -1,6 +1,7 @@
 package com.darkzodiak.kontrol.presentation.profile
 
-import com.darkzodiak.kontrol.data.local.entity.App
+import com.darkzodiak.kontrol.domain.App
+
 
 sealed interface ProfileAction {
     object Back: ProfileAction

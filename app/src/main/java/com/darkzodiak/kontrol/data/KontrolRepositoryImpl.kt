@@ -2,16 +2,19 @@ package com.darkzodiak.kontrol.data
 
 import com.darkzodiak.kontrol.data.local.dao.AppDao
 import com.darkzodiak.kontrol.data.local.dao.ProfileDao
-import com.darkzodiak.kontrol.data.local.entity.App
+import com.darkzodiak.kontrol.data.local.entity.AppEntity
 import com.darkzodiak.kontrol.data.local.entity.AppToProfile
 import com.darkzodiak.kontrol.data.local.entity.Profile
+import com.darkzodiak.kontrol.domain.App
 import com.darkzodiak.kontrol.domain.KontrolRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class KontrolRepositoryImpl @Inject constructor(
     private val profileDao: ProfileDao,
-    private val appDao: AppDao
+    private val appDao: AppDao,
+    private val appMapper: AppMapper
 ): KontrolRepository {
     override suspend fun addProfile(profile: Profile): Long {
         return profileDao.insertProfile(profile)
@@ -42,7 +45,7 @@ class KontrolRepositoryImpl @Inject constructor(
     }
 
     override fun getProfileAppsById(id: Long): Flow<List<App>> {
-        return profileDao.getProfileAppsById(id)
+        return profileDao.getProfileAppsById(id).map { it.map { appMapper.appEntityToApp(it) }}
     }
 
 
@@ -57,18 +60,18 @@ class KontrolRepositoryImpl @Inject constructor(
 
 
     override suspend fun addApp(app: App) {
-        appDao.insertApp(app)
+        appDao.insertApp(appMapper.appToAppEntity(app))
     }
 
     override suspend fun deleteApp(app: App) {
-        appDao.deleteApp(app)
+        appDao.deleteApp(appMapper.appToAppEntity(app))
     }
 
     override fun getAllApps(): Flow<List<App>> {
-        return appDao.getAllApps()
+        return appDao.getAllApps().map { it.map { appMapper.appEntityToApp(it) }}
     }
 
     override suspend fun getAppById(id: Long): App {
-        return appDao.getAppById(id)
+        return appMapper.appEntityToApp(appDao.getAppById(id))
     }
 }

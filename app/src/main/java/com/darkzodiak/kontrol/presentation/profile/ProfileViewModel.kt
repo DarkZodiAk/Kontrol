@@ -6,8 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darkzodiak.kontrol.data.local.entity.App
+import com.darkzodiak.kontrol.data.local.entity.AppEntity
 import com.darkzodiak.kontrol.data.local.entity.Profile
+import com.darkzodiak.kontrol.domain.App
 import com.darkzodiak.kontrol.domain.KontrolRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
