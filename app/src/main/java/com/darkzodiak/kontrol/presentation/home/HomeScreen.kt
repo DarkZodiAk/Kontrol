@@ -40,11 +40,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.darkzodiak.kontrol.data.local.entity.Profile
 import com.darkzodiak.kontrol.getAccessibilityIntent
 import com.darkzodiak.kontrol.getAlertWindowIntent
 import com.darkzodiak.kontrol.getUsageStatsIntent
 import com.darkzodiak.kontrol.domain.Permission
+import com.darkzodiak.kontrol.domain.model.Profile
 import com.darkzodiak.kontrol.presentation.components.PermissionCard
 import com.darkzodiak.kontrol.presentation.components.ProfileCard
 

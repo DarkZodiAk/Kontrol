@@ -1,4 +1,4 @@
-package com.darkzodiak.kontrol.domain
+package com.darkzodiak.kontrol.domain.model
 
 import androidx.compose.ui.graphics.ImageBitmap
 

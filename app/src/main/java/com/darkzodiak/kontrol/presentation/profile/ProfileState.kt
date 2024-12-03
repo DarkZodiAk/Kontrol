@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.presentation.profile
 
-import com.darkzodiak.kontrol.domain.App
+import com.darkzodiak.kontrol.domain.model.App
 
 data class ProfileState(
     val isNewProfile: Boolean = true,

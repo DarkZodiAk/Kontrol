@@ -1,7 +1,7 @@
 package com.darkzodiak.kontrol.presentation.home
 
-import com.darkzodiak.kontrol.data.local.entity.Profile
 import com.darkzodiak.kontrol.domain.Permission
+import com.darkzodiak.kontrol.domain.model.Profile
 
 sealed interface HomeAction {
     object NewProfile: HomeAction

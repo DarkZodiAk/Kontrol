@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.presentation.home
 
-import com.darkzodiak.kontrol.data.local.entity.Profile
+import com.darkzodiak.kontrol.domain.model.Profile
 
 data class HomeState(
     val profiles: List<Profile> = emptyList(),
