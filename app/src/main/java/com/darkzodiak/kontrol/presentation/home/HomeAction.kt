@@ -6,6 +6,7 @@ import com.darkzodiak.kontrol.domain.Permission
 sealed interface HomeAction {
     object NewProfile: HomeAction
     data class OpenProfile(val id: Long): HomeAction
+    data class DeleteProfile(val profile: Profile): HomeAction
     data class SwitchProfileState(val profile: Profile): HomeAction
     data class UpdatePermissionInfo(val permission: Permission): HomeAction
 }

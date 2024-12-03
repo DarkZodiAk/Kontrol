@@ -7,7 +7,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,14 +20,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -36,7 +33,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -50,6 +46,7 @@ import com.darkzodiak.kontrol.getAlertWindowIntent
 import com.darkzodiak.kontrol.getUsageStatsIntent
 import com.darkzodiak.kontrol.domain.Permission
 import com.darkzodiak.kontrol.presentation.components.PermissionCard
+import com.darkzodiak.kontrol.presentation.components.ProfileCard
 
 @Composable
 fun HomeScreenRoot(
@@ -70,6 +67,7 @@ fun HomeScreenRoot(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     state: HomeState,
@@ -105,9 +103,10 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             if (!state.hasAllPermissions) {
                 item {
@@ -135,32 +134,21 @@ fun HomeScreen(
                             Text(text = "Предоставить")
                         }
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
 
             items(state.profiles) { profile ->
-                Card(onClick = { onAction(HomeAction.OpenProfile(profile.id!!)) }) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = profile.name,
-                            fontSize = 18.sp
-                        )
-                        Switch(
-                            checked = profile.isEnabled,
-                            onCheckedChange = {
-                                onAction(HomeAction.SwitchProfileState(profile.copy(isEnabled = it)))
-                            }
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
+                ProfileCard(
+                    infoText = if(profile.isEnabled) "Активен" else "Неактивен",
+                    title = profile.name,
+                    isActive = profile.isEnabled,
+                    isLocked = false,
+                    onClick = { onAction(HomeAction.OpenProfile(profile.id!!)) },
+                    onActivate = { onAction(HomeAction.SwitchProfileState(profile.copy(isEnabled = true))) },
+                    onPause = { /*TODO*/ },
+                    onStop = { onAction(HomeAction.SwitchProfileState(profile.copy(isEnabled = false))) },
+                    onDelete = { onAction(HomeAction.DeleteProfile(profile)) }
+                )
             }
         }
 

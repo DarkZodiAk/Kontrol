@@ -45,6 +45,11 @@ class HomeViewModel @Inject constructor(
                     repository.updateProfile(action.profile)
                 }
             }
+            is HomeAction.DeleteProfile -> {
+                viewModelScope.launch {
+                    repository.deleteProfile(action.profile)
+                }
+            }
             is HomeAction.UpdatePermissionInfo -> {
                 when(action.permission) {
                     Permission.USAGE_STATS_ACCESS -> {
