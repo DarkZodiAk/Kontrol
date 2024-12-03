@@ -7,5 +7,6 @@ data class ProfileState(
     val name: String = "",
     val apps: List<App> = emptyList(),
     val selectedApps: List<App> = emptyList(),
+    val selectedUnsaved: List<App> = emptyList(),
     val warning: String? = null,
 )

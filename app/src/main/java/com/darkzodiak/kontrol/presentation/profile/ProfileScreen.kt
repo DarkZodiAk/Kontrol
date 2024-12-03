@@ -12,9 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,20 +28,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -53,6 +43,7 @@ import com.darkzodiak.kontrol.presentation.components.KontrolTextField
 @Composable
 fun ProfileScreenRoot(
     viewModel: ProfileViewModel = hiltViewModel(),
+    toAppList: () -> Unit,
     onBack: () -> Unit
 ) {
     ProfileScreen(
@@ -61,6 +52,7 @@ fun ProfileScreenRoot(
             when(action) {
                 ProfileAction.Back -> onBack()
                 ProfileAction.Done -> onBack()
+                ProfileAction.OpenAppsList -> toAppList()
                 else -> Unit
             }
             viewModel.onAction(action)
@@ -75,8 +67,6 @@ fun ProfileScreen(
     onAction: (ProfileAction) -> Unit
 ) {
     val scrollState = rememberScrollState()
-    val modalSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var modalSheetIsVisible by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -150,7 +140,7 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { modalSheetIsVisible = true }
+                    .clickable { onAction(ProfileAction.OpenAppsList) }
                     .border(
                         width = 1.dp,
                         color = Color(202, 196, 208),
@@ -159,7 +149,7 @@ fun ProfileScreen(
                     .padding(16.dp)
             ) {
                 Icon(imageVector = Icons.Default.Apps, contentDescription = null)
-                if(state.selectedApps.isEmpty()) {
+                if (state.selectedApps.isEmpty()) {
                     Text(
                         text = "Выберите приложения",
                         style = MaterialTheme.typography.titleMedium
@@ -226,22 +216,6 @@ fun ProfileScreen(
                 Text(
                     text = "Нет",
                     style = MaterialTheme.typography.titleMedium
-                )
-            }
-        }
-
-
-        if(modalSheetIsVisible) {
-            ModalBottomSheet(
-                onDismissRequest = { modalSheetIsVisible = false },
-                sheetState = modalSheetState,
-                dragHandle = {},
-                shape = RectangleShape
-            ) {
-                AppList(
-                    apps = state.apps,
-                    selectedApps = state.selectedApps,
-                    onAction = onAction
                 )
             }
         }

@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darkzodiak.kontrol.data.local.entity.AppEntity
 import com.darkzodiak.kontrol.data.local.entity.Profile
 import com.darkzodiak.kontrol.domain.App
 import com.darkzodiak.kontrol.domain.KontrolRepository
@@ -40,7 +39,8 @@ class ProfileViewModel @Inject constructor(
                 profileApps = repository.getProfileAppsById(id).first()
                 state = state.copy(
                     name = profile.name,
-                    selectedApps = profileApps
+                    selectedApps = profileApps,
+                    selectedUnsaved = profileApps
                 )
             }
             state = state.copy(isNewProfile = false)
@@ -71,16 +71,24 @@ class ProfileViewModel @Inject constructor(
             is ProfileAction.ModifyName -> {
                 state = state.copy(name = action.text)
             }
-            is ProfileAction.SelectApp -> {
+
+            is ProfileAction.Apps.SelectApp -> {
                 state = state.copy(
-                    selectedApps = state.selectedApps + action.app
+                    selectedUnsaved = state.selectedUnsaved + action.app
                 )
             }
-            is ProfileAction.UnselectApp -> {
+            is ProfileAction.Apps.UnselectApp -> {
                 state = state.copy(
-                    selectedApps = state.selectedApps - action.app
+                    selectedUnsaved = state.selectedUnsaved - action.app
                 )
             }
+            ProfileAction.Apps.Dismiss -> {
+                state = state.copy(selectedUnsaved = state.selectedApps)
+            }
+            ProfileAction.Apps.Save -> {
+                state = state.copy(selectedApps = state.selectedUnsaved)
+            }
+
             else -> Unit
         }
     }
