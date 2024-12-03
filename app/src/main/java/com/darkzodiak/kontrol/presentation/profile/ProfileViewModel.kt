@@ -63,8 +63,8 @@ class ProfileViewModel @Inject constructor(
                     state.selectedApps.forEach { app ->
                         repository.addAppToProfile(profileId = id, appId = app.id!!)
                     }
-                    (profileApps - state.selectedApps).forEach { app ->
-                        repository.deleteAppFromProfile(profileId = id, appId = app.id!!)
+                    (profileApps.map { it.id } - state.selectedApps.map { it.id }).forEach { appId ->
+                        repository.deleteAppFromProfile(profileId = id, appId = appId!!)
                     }
                 }
             }
@@ -79,7 +79,7 @@ class ProfileViewModel @Inject constructor(
             }
             is ProfileAction.Apps.UnselectApp -> {
                 state = state.copy(
-                    selectedUnsaved = state.selectedUnsaved - action.app
+                    selectedUnsaved = state.selectedUnsaved.filter { it.id != action.app.id }
                 )
             }
             ProfileAction.Apps.Dismiss -> {
