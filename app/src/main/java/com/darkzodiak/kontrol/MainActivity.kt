@@ -14,11 +14,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-//    @Inject
-//    lateinit var appObserver: AppObserver
     @Inject
     lateinit var permissionObserver: PermissionObserver
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,8 +23,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             KontrolTheme {
                 NavRoot(navController = rememberNavController())
-
-//                AppRoot(navController = rememberNavController())
             }
         }
     }

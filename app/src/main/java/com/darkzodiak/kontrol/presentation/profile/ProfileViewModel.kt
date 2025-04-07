@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darkzodiak.kontrol.domain.model.App
+import com.darkzodiak.kontrol.data.local.entity.App
 import com.darkzodiak.kontrol.domain.KontrolRepository
 import com.darkzodiak.kontrol.domain.model.Profile
 import dagger.hilt.android.lifecycle.HiltViewModel

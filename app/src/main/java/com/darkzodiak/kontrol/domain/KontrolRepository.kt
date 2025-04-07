@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.domain
 
-import com.darkzodiak.kontrol.domain.model.App
+import com.darkzodiak.kontrol.data.local.entity.App
 import com.darkzodiak.kontrol.domain.model.Profile
 import kotlinx.coroutines.flow.Flow
 

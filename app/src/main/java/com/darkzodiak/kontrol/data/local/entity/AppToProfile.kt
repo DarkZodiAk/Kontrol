@@ -13,7 +13,7 @@ import androidx.room.ForeignKey
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = AppEntity::class,
+            entity = App::class,
             parentColumns = ["id"],
             childColumns = ["appId"],
             onDelete = ForeignKey.CASCADE
