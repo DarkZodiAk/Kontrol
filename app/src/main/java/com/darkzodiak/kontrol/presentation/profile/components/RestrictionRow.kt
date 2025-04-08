@@ -29,12 +29,15 @@ fun RestrictionRow(
             )
             .clickable { onClick() }
     ) {
-        RestrictionIconText(restriction)
+        RestrictionIconText(restriction, active)
     }
 }
 
 @Composable
-fun RestrictionIconText(restriction: EditRestriction) {
+fun RestrictionIconText(
+    restriction: EditRestriction,
+    showDetails: Boolean
+) {
     Icon(
         imageVector = when(restriction) {
             EditRestriction.NoRestriction -> Icons.Default.LockOpen
@@ -46,8 +49,8 @@ fun RestrictionIconText(restriction: EditRestriction) {
     Text(
         text = when(restriction) {
             EditRestriction.NoRestriction -> "Нет"
-            is EditRestriction.Password -> "Пароль"
-            is EditRestriction.RandomPassword -> "Случайный пароль"
+            is EditRestriction.Password -> "Пароль" + if(showDetails) " (${restriction.password.length} символов)" else ""
+            is EditRestriction.RandomPassword -> "Случайный пароль" + if(showDetails) " (${restriction.length} символов)" else ""
         },
         style = MaterialTheme.typography.titleMedium
     )

@@ -182,7 +182,7 @@ fun ProfileScreen(
             KontrolOutlinedRow(
                 modifier = Modifier.clickable { onAction(ProfileAction.OpenEditRestriction) }
             ) {
-                RestrictionIconText(state.editRestriction)
+                RestrictionIconText(state.editRestriction, showDetails = true)
             }
         }
     }
