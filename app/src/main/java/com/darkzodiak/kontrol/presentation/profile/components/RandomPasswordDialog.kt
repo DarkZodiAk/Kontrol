@@ -37,8 +37,8 @@ fun RandomPasswordDialog(
     var length by rememberSaveable { mutableStateOf(oldLength) }
 
     val errorMessage = remember(length) {
-        if(length.isEmpty() || length.toInt() < 8) "Длина пароля должна быть не менее 8 символов"
-        else if(length.toInt() > 1000) "Длина пароля должна быть не более 1000 символов"
+        if(length.isEmpty() || length.toInt() < 4) "Длина пароля должна быть не менее 4 символов"
+        else if(length.toInt() > 500) "Длина пароля должна быть не более 500 символов"
         else null
     }
 

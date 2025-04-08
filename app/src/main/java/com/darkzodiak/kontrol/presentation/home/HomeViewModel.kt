@@ -55,15 +55,19 @@ class HomeViewModel @Inject constructor(
                     Permission.USAGE_STATS_ACCESS -> {
                         permissionObserver.updateUsageStatsPermission()
                     }
-
                     Permission.ACCESSIBILITY -> {
                         permissionObserver.updateAccessibilityPermission()
                     }
-
                     Permission.SYSTEM_ALERT_WINDOW -> {
                         permissionObserver.updateAlertWindowPermission()
                     }
                 }
+            }
+            is HomeAction.PrepareForUnlock -> {
+                state = state.copy(
+                    pendingAction = action.action,
+                    curRestriction = action.restriction
+                )
             }
             else -> Unit
         }

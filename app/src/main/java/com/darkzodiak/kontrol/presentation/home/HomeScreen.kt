@@ -44,9 +44,11 @@ import com.darkzodiak.kontrol.getAccessibilityIntent
 import com.darkzodiak.kontrol.getAlertWindowIntent
 import com.darkzodiak.kontrol.getUsageStatsIntent
 import com.darkzodiak.kontrol.domain.Permission
+import com.darkzodiak.kontrol.domain.model.EditRestriction
 import com.darkzodiak.kontrol.domain.model.Profile
 import com.darkzodiak.kontrol.presentation.components.PermissionCard
 import com.darkzodiak.kontrol.presentation.components.ProfileCard
+import com.darkzodiak.kontrol.presentation.home.components.EnterPasswordDialog
 
 @Composable
 fun HomeScreenRoot(
@@ -73,8 +75,10 @@ fun HomeScreen(
     state: HomeState,
     onAction: (HomeAction) -> Unit
 ) {
+    var passwordDialogVisible by rememberSaveable { mutableStateOf(false) }
+
     val permissionSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var permissionSheetIsVisible by rememberSaveable { mutableStateOf(false) }
+    var permissionSheetVisible by rememberSaveable { mutableStateOf(false) }
 
 
     val context = LocalContext.current
@@ -92,6 +96,24 @@ fun HomeScreen(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
         onAction(HomeAction.UpdatePermissionInfo(Permission.SYSTEM_ALERT_WINDOW))
+    }
+
+    // Show dialog depending on profile's restriction
+    fun showUnlockDialog(editRestriction: EditRestriction) {
+        when(editRestriction) {
+            EditRestriction.NoRestriction -> { }
+            is EditRestriction.Password -> { passwordDialogVisible = true }
+            is EditRestriction.RandomPassword -> { passwordDialogVisible = true }
+        }
+    }
+
+    // Executes given action on profile if it isn't enabled or it has no Edit Restriction
+    // Otherwise it will save action and show appropriate dialog to unlock action
+    fun tryExecuteProfileAction(profile: Profile, action: HomeAction) {
+        if(profile.isEnabled && profile.editRestriction !is EditRestriction.NoRestriction) {
+            onAction(HomeAction.PrepareForUnlock(action, profile.editRestriction))
+            showUnlockDialog(profile.editRestriction)
+        } else onAction(action)
     }
 
     Scaffold(
@@ -123,7 +145,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
-                            onClick = { permissionSheetIsVisible = true },
+                            onClick = { permissionSheetVisible = true },
                             colors = ButtonColors(
                                 containerColor = MaterialTheme.colorScheme.error,
                                 contentColor = MaterialTheme.colorScheme.onError,
@@ -142,22 +164,37 @@ fun HomeScreen(
                     infoText = if(profile.isEnabled) "Активен" else "Неактивен",
                     title = profile.name,
                     isActive = profile.isEnabled,
-                    isLocked = false,
-                    onClick = { onAction(HomeAction.OpenProfile(profile.id!!)) },
-                    onActivate = { onAction(HomeAction.SwitchProfileState(profile.copy(isEnabled = true))) },
+                    onClick = {
+                        tryExecuteProfileAction(
+                            profile = profile,
+                            action = HomeAction.OpenProfile(profile.id!!)
+                        )
+                    },
+                    onActivate = {
+                        onAction(HomeAction.SwitchProfileState(profile.copy(isEnabled = true)))
+                    },
                     onPause = { /*TODO*/ },
-                    onStop = { onAction(HomeAction.SwitchProfileState(profile.copy(isEnabled = false))) },
-                    onDelete = { onAction(HomeAction.DeleteProfile(profile)) }
+                    onStop = {
+                        tryExecuteProfileAction(
+                            profile = profile,
+                            action = HomeAction.SwitchProfileState(profile.copy(isEnabled = false))
+                        )
+                    },
+                    onDelete = {
+                        tryExecuteProfileAction(
+                            profile = profile,
+                            action = HomeAction.DeleteProfile(profile)
+                        )
+                    }
                 )
             }
         }
 
-        if (permissionSheetIsVisible) {
+        if(permissionSheetVisible) {
             ModalBottomSheet(
                 sheetState = permissionSheetState,
-                onDismissRequest = { permissionSheetIsVisible = false }
+                onDismissRequest = { permissionSheetVisible = false }
             ) {
-
                 Text(
                     text = "Предоставьте следующие разрешения:",
                     modifier = Modifier.padding(horizontal = 8.dp)
@@ -185,6 +222,18 @@ fun HomeScreen(
                     )
                 }
             }
+        }
+
+        // All unlock dialogs should call onAction(state.pendingAction) on success
+        if(passwordDialogVisible) {
+            EnterPasswordDialog(
+                passRestriction = state.curRestriction,
+                onDismiss = { passwordDialogVisible = false },
+                onSuccess = {
+                    onAction(state.pendingAction)
+                    passwordDialogVisible = false
+                }
+            )
         }
     }
 }

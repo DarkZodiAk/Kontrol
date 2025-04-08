@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 @Composable
 fun KontrolDropdownMenu(
     actions: HashMap<String, () -> Unit>,
-    isLocked: Boolean,
     onDismiss: () -> Unit
 ) {
     DropdownMenu(
@@ -21,7 +20,7 @@ fun KontrolDropdownMenu(
         actions.forEach { action ->
             DropdownMenuItem(
                 onClick = {
-                    action.value() //ОБЯЗАТЕЛЬНО СКОБКИ - ВЫЗОВ ФУНКЦИИ
+                    action.value()
                     onDismiss()
                 },
                 text = {
@@ -30,7 +29,6 @@ fun KontrolDropdownMenu(
                         style = MaterialTheme.typography.bodyLarge
                     )
                 },
-                enabled = !isLocked
             )
         }
     }

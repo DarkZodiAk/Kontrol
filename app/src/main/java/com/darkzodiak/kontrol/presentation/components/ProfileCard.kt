@@ -36,7 +36,6 @@ fun ProfileCard(
     infoText: String,
     title: String,
     isActive: Boolean,
-    isLocked: Boolean,
     onClick: () -> Unit,
     onActivate: () -> Unit,
     onPause: () -> Unit,
@@ -96,7 +95,6 @@ fun ProfileCard(
                                 put("Включить", onActivate)
                             }
                         },
-                        isLocked = isLocked,
                         onDismiss = { dropdownMenuIsVisible = false }
                     )
                 }
@@ -113,7 +111,6 @@ private fun ProfileCardPreview() {
             infoText = "Активно",
             title = "Блокировка",
             isActive = true,
-            isLocked = false,
             onClick = {  },
             onActivate = {  },
             onPause = {  },

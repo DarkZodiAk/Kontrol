@@ -27,7 +27,7 @@ fun PasswordDialog(
 
     val passwordError = remember(password) {
         if(password.isEmpty()) "Пароль не записан"
-        else if(password.length < 8) "Пароль должен быть не менее 8 символов"
+        else if(password.length < 4) "Пароль должен быть не менее 4 символов"
         else null
     }
     val repeatPasswordError = remember(password, repeatPassword) {
@@ -60,7 +60,7 @@ fun PasswordDialog(
         },
         confirmButton = {
             Button(
-                enabled = password.length >= 8 && password == repeatPassword,
+                enabled = password.length >= 4 && password == repeatPassword,
                 onClick = { onSave(password) }
             ) {
                 Text("Сохранить")
