@@ -45,20 +45,29 @@ class HomeViewModel @Inject constructor(
                     repository.updateProfile(action.profile)
                 }
             }
+            is HomeAction.DeleteProfile -> {
+                viewModelScope.launch {
+                    repository.deleteProfile(action.profile)
+                }
+            }
             is HomeAction.UpdatePermissionInfo -> {
                 when(action.permission) {
                     Permission.USAGE_STATS_ACCESS -> {
                         permissionObserver.updateUsageStatsPermission()
                     }
-
                     Permission.ACCESSIBILITY -> {
                         permissionObserver.updateAccessibilityPermission()
                     }
-
                     Permission.SYSTEM_ALERT_WINDOW -> {
                         permissionObserver.updateAlertWindowPermission()
                     }
                 }
+            }
+            is HomeAction.PrepareForUnlock -> {
+                state = state.copy(
+                    pendingAction = action.action,
+                    curRestriction = action.restriction
+                )
             }
             else -> Unit
         }

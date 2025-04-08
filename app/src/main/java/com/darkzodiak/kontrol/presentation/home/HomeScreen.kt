@@ -7,7 +7,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,14 +20,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -36,7 +33,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -44,12 +40,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.darkzodiak.kontrol.data.local.entity.Profile
 import com.darkzodiak.kontrol.getAccessibilityIntent
 import com.darkzodiak.kontrol.getAlertWindowIntent
 import com.darkzodiak.kontrol.getUsageStatsIntent
 import com.darkzodiak.kontrol.domain.Permission
+import com.darkzodiak.kontrol.domain.model.EditRestriction
+import com.darkzodiak.kontrol.domain.model.Profile
 import com.darkzodiak.kontrol.presentation.components.PermissionCard
+import com.darkzodiak.kontrol.presentation.components.ProfileCard
+import com.darkzodiak.kontrol.presentation.home.components.EnterPasswordDialog
 
 @Composable
 fun HomeScreenRoot(
@@ -70,13 +69,16 @@ fun HomeScreenRoot(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     state: HomeState,
     onAction: (HomeAction) -> Unit
 ) {
+    var passwordDialogVisible by rememberSaveable { mutableStateOf(false) }
+
     val permissionSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var permissionSheetIsVisible by rememberSaveable { mutableStateOf(false) }
+    var permissionSheetVisible by rememberSaveable { mutableStateOf(false) }
 
 
     val context = LocalContext.current
@@ -96,6 +98,24 @@ fun HomeScreen(
         onAction(HomeAction.UpdatePermissionInfo(Permission.SYSTEM_ALERT_WINDOW))
     }
 
+    // Show dialog depending on profile's restriction
+    fun showUnlockDialog(editRestriction: EditRestriction) {
+        when(editRestriction) {
+            EditRestriction.NoRestriction -> { }
+            is EditRestriction.Password -> { passwordDialogVisible = true }
+            is EditRestriction.RandomPassword -> { passwordDialogVisible = true }
+        }
+    }
+
+    // Executes given action on profile if it isn't enabled or it has no Edit Restriction
+    // Otherwise it will save action and show appropriate dialog to unlock action
+    fun tryExecuteProfileAction(profile: Profile, action: HomeAction) {
+        if(profile.isEnabled && profile.editRestriction !is EditRestriction.NoRestriction) {
+            onAction(HomeAction.PrepareForUnlock(action, profile.editRestriction))
+            showUnlockDialog(profile.editRestriction)
+        } else onAction(action)
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = { onAction(HomeAction.NewProfile) }) {
@@ -105,9 +125,10 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             if (!state.hasAllPermissions) {
                 item {
@@ -124,7 +145,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
-                            onClick = { permissionSheetIsVisible = true },
+                            onClick = { permissionSheetVisible = true },
                             colors = ButtonColors(
                                 containerColor = MaterialTheme.colorScheme.error,
                                 contentColor = MaterialTheme.colorScheme.onError,
@@ -135,41 +156,45 @@ fun HomeScreen(
                             Text(text = "Предоставить")
                         }
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
 
             items(state.profiles) { profile ->
-                Card(onClick = { onAction(HomeAction.OpenProfile(profile.id!!)) }) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = profile.name,
-                            fontSize = 18.sp
+                ProfileCard(
+                    infoText = if(profile.isEnabled) "Активен" else "Неактивен",
+                    title = profile.name,
+                    isActive = profile.isEnabled,
+                    onClick = {
+                        tryExecuteProfileAction(
+                            profile = profile,
+                            action = HomeAction.OpenProfile(profile.id!!)
                         )
-                        Switch(
-                            checked = profile.isEnabled,
-                            onCheckedChange = {
-                                onAction(HomeAction.SwitchProfileState(profile.copy(isEnabled = it)))
-                            }
+                    },
+                    onActivate = {
+                        onAction(HomeAction.SwitchProfileState(profile.copy(isEnabled = true)))
+                    },
+                    onPause = { /*TODO*/ },
+                    onStop = {
+                        tryExecuteProfileAction(
+                            profile = profile,
+                            action = HomeAction.SwitchProfileState(profile.copy(isEnabled = false))
+                        )
+                    },
+                    onDelete = {
+                        tryExecuteProfileAction(
+                            profile = profile,
+                            action = HomeAction.DeleteProfile(profile)
                         )
                     }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
+                )
             }
         }
 
-        if (permissionSheetIsVisible) {
+        if(permissionSheetVisible) {
             ModalBottomSheet(
                 sheetState = permissionSheetState,
-                onDismissRequest = { permissionSheetIsVisible = false }
+                onDismissRequest = { permissionSheetVisible = false }
             ) {
-
                 Text(
                     text = "Предоставьте следующие разрешения:",
                     modifier = Modifier.padding(horizontal = 8.dp)
@@ -197,6 +222,18 @@ fun HomeScreen(
                     )
                 }
             }
+        }
+
+        // All unlock dialogs should call onAction(state.pendingAction) on success
+        if(passwordDialogVisible) {
+            EnterPasswordDialog(
+                passRestriction = state.curRestriction,
+                onDismiss = { passwordDialogVisible = false },
+                onSuccess = {
+                    onAction(state.pendingAction)
+                    passwordDialogVisible = false
+                }
+            )
         }
     }
 }

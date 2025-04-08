@@ -7,7 +7,7 @@ import androidx.room.ForeignKey
     primaryKeys = ["profileId", "appId"],
     foreignKeys = [
         ForeignKey(
-            entity = Profile::class,
+            entity = ProfileEntity::class,
             parentColumns = ["id"],
             childColumns = ["profileId"],
             onDelete = ForeignKey.CASCADE

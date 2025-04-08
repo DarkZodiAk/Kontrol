@@ -3,13 +3,20 @@ package com.darkzodiak.kontrol.data
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.core.graphics.drawable.toBitmap
 import com.darkzodiak.kontrol.data.local.dao.AppDao
 import com.darkzodiak.kontrol.data.local.entity.App
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,7 +26,8 @@ class AppObserver @Inject constructor(
     private val appDao: AppDao
 ) {
     private val packageManager = context.packageManager
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
 
     private suspend fun getAllInstalledApps() {
         val currentApps = appDao.getAllApps().first()
@@ -30,7 +38,7 @@ class AppObserver @Inject constructor(
             .map {
                 App(
                     packageName = it.packageName,
-                    title = it.loadLabel(packageManager).toString()
+                    title = it.loadLabel(packageManager).toString(),
                 )
             }
 
@@ -42,10 +50,17 @@ class AppObserver @Inject constructor(
         }
 
         appsToDelete.forEach {
-            appDao.deleteApp(it)
+            scope.launch {
+                appDao.deleteApp(it)
+                deleteIcon(it.packageName)
+            }
         }
+
         appsToInsert.forEach {
-            appDao.insertApp(it)
+            scope.launch {
+                val uri = getAppIconAndSave(it.packageName)
+                appDao.insertApp(it.copy(icon = uri))
+            }
         }
     }
 
@@ -64,5 +79,32 @@ class AppObserver @Inject constructor(
             .resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)!!
             .activityInfo
             .packageName
+    }
+
+    private fun deleteIcon(packageName: String) {
+        val filename = "$packageName.png"
+        val file = File(context.filesDir, filename)
+        file.delete()
+    }
+
+    private fun getAppIconAndSave(packageName: String): String {
+        try {
+            val icon = packageManager.getApplicationIcon(packageName).toBitmap()
+            val filename = "$packageName.png"
+            val file = File(context.filesDir, filename)
+            saveBitmapToFile(icon, file)
+            return Uri.fromFile(file).toString()
+        } catch(e: IOException) {
+            return ""
+        }
+    }
+
+    private fun saveBitmapToFile(bitmap: Bitmap, file: File) {
+        try {
+            FileOutputStream(file).use {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                it.flush()
+            }
+        } catch(_: IOException) {}
     }
 }

@@ -8,5 +8,6 @@ data class App(
     @PrimaryKey(autoGenerate = true)
     val id: Long? = null,
     val packageName: String = "",
-    val title: String = ""
+    val title: String = "",
+    val icon: String = "",
 )
