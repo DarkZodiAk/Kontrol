@@ -47,7 +47,6 @@ fun KontrolTextField(
                 .onFocusChanged { focusState ->
                     isFocused = focusState.isFocused
                 }
-
         )
         if(text.isNotBlank()){
             Icon(

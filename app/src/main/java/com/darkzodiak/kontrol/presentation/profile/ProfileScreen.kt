@@ -19,7 +19,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,11 +37,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.darkzodiak.kontrol.presentation.components.KontrolOutlinedRow
 import com.darkzodiak.kontrol.presentation.components.KontrolTextField
+import com.darkzodiak.kontrol.presentation.profile.components.RestrictionIconText
 
 @Composable
 fun ProfileScreenRoot(
     viewModel: ProfileViewModel = hiltViewModel(),
     toAppList: () -> Unit,
+    toRestrictions: () -> Unit,
     onBack: () -> Unit
 ) {
     ProfileScreen(
@@ -52,6 +53,7 @@ fun ProfileScreenRoot(
                 ProfileAction.Back -> onBack()
                 ProfileAction.Done -> onBack()
                 ProfileAction.OpenAppsList -> toAppList()
+                ProfileAction.OpenEditRestriction -> toRestrictions()
                 else -> Unit
             }
             viewModel.onAction(action)
@@ -180,11 +182,7 @@ fun ProfileScreen(
             KontrolOutlinedRow(
                 modifier = Modifier.clickable { onAction(ProfileAction.OpenEditRestriction) }
             ) {
-                Icon(imageVector = Icons.Default.LockOpen, contentDescription = null)
-                Text(
-                    text = "Нет",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                RestrictionIconText(state.editRestriction)
             }
         }
     }

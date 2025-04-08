@@ -40,7 +40,9 @@ class ProfileViewModel @Inject constructor(
                 state = state.copy(
                     name = profile.name,
                     selectedApps = profileApps,
-                    selectedUnsaved = profileApps
+                    selectedUnsaved = profileApps,
+                    editRestriction = profile.editRestriction,
+                    editRestrictionUnsaved = profile.editRestriction
                 )
             }
             state = state.copy(isNewProfile = false)
@@ -56,21 +58,24 @@ class ProfileViewModel @Inject constructor(
                 viewModelScope.launch {
                     var id = profile.id
                     if(id != null) {
-                        repository.updateProfile(profile.copy(name = state.name))
+                        repository.updateProfile(profile.copy(name = state.name, editRestriction = state.editRestriction))
                     } else {
-                        id = repository.addProfile(profile.copy(name = state.name))
+                        id = repository.addProfile(profile.copy(name = state.name, editRestriction = state.editRestriction))
                     }
+
                     state.selectedApps.forEach { app ->
                         repository.addAppToProfile(profileId = id, appId = app.id!!)
                     }
                     (profileApps.map { it.id } - state.selectedApps.map { it.id }).forEach { appId ->
                         repository.deleteAppFromProfile(profileId = id, appId = appId!!)
                     }
+
                 }
             }
             is ProfileAction.ModifyName -> {
                 state = state.copy(name = action.text)
             }
+
 
             is ProfileAction.Apps.SelectApp -> {
                 state = state.copy(
@@ -87,6 +92,16 @@ class ProfileViewModel @Inject constructor(
             }
             ProfileAction.Apps.Save -> {
                 state = state.copy(selectedApps = state.selectedUnsaved)
+            }
+
+            is ProfileAction.Restriction.UpdateType -> {
+                state = state.copy(editRestrictionUnsaved = action.type)
+            }
+            ProfileAction.Restriction.Dismiss -> {
+                state = state.copy(editRestrictionUnsaved = state.editRestriction)
+            }
+            ProfileAction.Restriction.Save -> {
+                state = state.copy(editRestriction = state.editRestrictionUnsaved)
             }
 
             else -> Unit
