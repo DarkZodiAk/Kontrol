@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,7 +50,7 @@ fun RandomPasswordDialog(
                 Text("Блокирует редактирование профиля, пока не будет записано")
                 NumberTextField(
                     text = length,
-                    onTextChange = { length = it },
+                    onTextChange = { length = it.take(4) },
                 )
                 Text("случайных символов")
                 errorMessage?.let {
@@ -58,7 +59,7 @@ fun RandomPasswordDialog(
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            OutlinedButton(onClick = onDismiss) {
                 Text("Отмена")
             }
         },

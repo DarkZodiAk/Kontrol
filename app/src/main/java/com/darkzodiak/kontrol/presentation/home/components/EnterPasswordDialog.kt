@@ -1,9 +1,12 @@
 package com.darkzodiak.kontrol.presentation.home.components
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,9 +41,10 @@ fun EnterPasswordDialog(
     AlertDialog(
         title = { Text("Введите пароль") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column {
                 if(passRestriction is EditRestriction.RandomPassword) {
-                    Text(targetPassword)
+                    Text(targetPassword, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(Modifier.height(8.dp))
                 }
                 KontrolTextField(
                     text = password,
@@ -51,13 +55,14 @@ fun EnterPasswordDialog(
                     }
                 )
                 if(mismatchError) {
+                    Spacer(Modifier.height(4.dp))
                     Text("Пароль введен неверно", color = Color.Red)
                 }
             }
         },
         onDismissRequest = { },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            OutlinedButton(onClick = onDismiss) {
                 Text("Отмена")
             }
         },

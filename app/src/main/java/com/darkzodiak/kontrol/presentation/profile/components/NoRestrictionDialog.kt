@@ -2,6 +2,7 @@ package com.darkzodiak.kontrol.presentation.profile.components
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,7 +18,7 @@ fun NoRestrictionDialog(
         text = { Text("Данные о текущей блокировке могут быть потеряны") },
         onDismissRequest = onDismiss,
         dismissButton = {
-            Button(onClick = onDismiss) {
+            OutlinedButton(onClick = onDismiss) {
                 Text("Отмена")
             }
         },
