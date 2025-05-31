@@ -16,8 +16,6 @@ interface KontrolRepository {
 
     suspend fun isAppInProfiles(packageName: String): Boolean
 
-    suspend fun addApp(app: App)
-    suspend fun deleteApp(app: App)
     fun getAllApps(): Flow<List<App>>
     suspend fun getAppById(id: Long): App
 }

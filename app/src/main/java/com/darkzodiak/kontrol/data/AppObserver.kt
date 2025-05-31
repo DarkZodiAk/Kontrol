@@ -40,26 +40,24 @@ class AppObserver @Inject constructor(
                     packageName = it.packageName,
                     title = it.loadLabel(packageManager).toString(),
                 )
-            }
+            }.associateBy { it.packageName }
 
-        val appsToDelete = currentApps.filter { app ->
-            newApps.none { it.packageName == app.packageName }
-        }
-        val appsToInsert = newApps.filter { app ->
-            currentApps.none { it.packageName == app.packageName }
-        }
-
-        appsToDelete.forEach {
+        // Remove all deleted apps from DB
+        currentApps.filter { app ->
+            app.packageName !in newApps
+        }.forEach {
             scope.launch {
                 appDao.deleteApp(it)
                 deleteIcon(it.packageName)
             }
         }
 
-        appsToInsert.forEach {
+        // Add/Update all scanned apps, even if they already exist in DB
+        // Reason: any app might change its icon
+        newApps.forEach {
             scope.launch {
-                val uri = getAppIconAndSave(it.packageName)
-                appDao.insertApp(it.copy(icon = uri))
+                val uri = getAppIconAndSave(it.value.packageName)
+                appDao.upsertApp(it.value.copy(icon = uri))
             }
         }
     }

@@ -59,15 +59,6 @@ class KontrolRepositoryImpl @Inject constructor(
         return false
     }
 
-
-    override suspend fun addApp(app: App) {
-        appDao.insertApp(app)
-    }
-
-    override suspend fun deleteApp(app: App) {
-        appDao.deleteApp(app)
-    }
-
     override fun getAllApps(): Flow<List<App>> {
         return appDao.getAllApps()
     }
