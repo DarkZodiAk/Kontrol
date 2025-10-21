@@ -22,7 +22,7 @@ class KontrolApp: Application() {
     lateinit var appObserver: AppObserver
 
     override fun onCreate() {
-        super.onCreate()
+        super.onCreate() // TODO(): Check how context changes in transition from direct boot mode
         appObserver.update()
         permissionObserver.canRunService.onEach { canRunService ->
             if(canRunService) {

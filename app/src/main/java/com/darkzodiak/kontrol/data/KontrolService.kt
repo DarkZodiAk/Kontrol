@@ -6,6 +6,7 @@ import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
 import com.darkzodiak.kontrol.data.permission.PermissionObserver
 import com.darkzodiak.kontrol.domain.KontrolRepository
+import com.darkzodiak.kontrol.overlay.OverlayData
 import com.darkzodiak.kontrol.overlay.OverlayManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -23,12 +24,12 @@ class KontrolService: AccessibilityService() {
     lateinit var appObserver: AppObserver
     @Inject
     lateinit var permissionObserver: PermissionObserver
-
-    private var overlayManager: OverlayManager? = null
+    @Inject
+    lateinit var overlayManager: OverlayManager
 
 
     private var isRunning = false
-    private var currentApp = "com.darkzodiak.kontrol"
+    private var currentApp = BLOCKER_APP_ID
     private val scope = CoroutineScope(Dispatchers.Main)
 
     private var currentLauncher = ""
@@ -44,7 +45,6 @@ class KontrolService: AccessibilityService() {
         when(intent?.action) {
             ACTION_START -> {
                 isRunning = true
-                overlayManager = OverlayManager(context = this)
             }
             ACTION_STOP -> stop()
         }
@@ -87,7 +87,7 @@ class KontrolService: AccessibilityService() {
             scope.launch {
                 if(repository.isAppInProfiles(currentApp)) {
                     performGlobalAction(GLOBAL_ACTION_HOME)
-                    overlayManager?.open("$packageName заблокирован")
+                    overlayManager.openOverlay(OverlayData.SimpleBlock(packageName)) {}
                     currentApp = currentLauncher
                 }
             }
@@ -97,6 +97,8 @@ class KontrolService: AccessibilityService() {
     companion object {
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
+
+        private const val BLOCKER_APP_ID = "com.darkzodiak.kontrol"
 
         fun buildActionIntent(context: Context, action: String): Intent {
             return Intent(context, KontrolService::class.java).also {

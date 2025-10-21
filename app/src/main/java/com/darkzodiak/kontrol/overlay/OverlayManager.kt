@@ -6,12 +6,14 @@ import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.widget.TextView
 import androidx.core.content.getSystemService
-import com.darkzodiak.kontrol.R
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class OverlayManager(
-    private val context: Context
+@Singleton
+class OverlayManager @Inject constructor(
+    @ApplicationContext private val context: Context
 ) {
     private val windowManager by lazy {
         context.getSystemService<WindowManager>()!!
@@ -19,7 +21,20 @@ class OverlayManager(
     private val layoutInflater by lazy {
         context.getSystemService<LayoutInflater>()!!
     }
-    private val rootView = layoutInflater.inflate(R.layout.overlay, null)
+
+    private var blockCallback: (() -> Unit)? = null
+    private var blockView: View? = null
+
+    private val overlaysMap = OverlaysMapFactory().build(
+        layoutInflater = layoutInflater,
+        onClose = { appShouldClose ->
+            closeOverlay()
+            if (appShouldClose) {
+                blockCallback?.invoke()
+            }
+            blockCallback = null
+        }
+    )
 
     private val windowParams = WindowManager.LayoutParams(
         WindowManager.LayoutParams.MATCH_PARENT,
@@ -36,30 +51,26 @@ class OverlayManager(
         PixelFormat.OPAQUE
     )
 
+    fun openOverlay(data: OverlayData, callback: () -> Unit) {
+        val overlay = overlaysMap[data.appRestrictionType] ?: return
+        overlay.init(data)
+        blockCallback = callback
+        blockView = overlay.view
 
-    private fun initWindow() {
-        rootView.findViewById<View>(R.id.button2).setOnClickListener { close() }
-    }
-
-    init {
-        initWindow()
-    }
-
-    fun open(text: String) {
         try {
-            rootView.findViewById<TextView>(R.id.textView7).text = text
-            windowManager.addView(rootView, windowParams)
+            windowManager.addView(blockView, windowParams)
         } catch (e: Exception) {
-            // Ignore exception for now, but in production, you should have some
-            // warning for the user here.
+            // TODO(): Find out what exceptions we may encounter here
         }
     }
-    private fun close() {
+
+    private fun closeOverlay() {
+        if (blockView == null) return
         try {
-            windowManager.removeView(rootView)
+            windowManager.removeView(blockView)
         } catch (e: Exception) {
-            // Ignore exception for now, but in production, you should have some
-            // warning for the user here.
+            // TODO(): Find out what exceptions we may encounter here
         }
+        blockView = null
     }
 }
