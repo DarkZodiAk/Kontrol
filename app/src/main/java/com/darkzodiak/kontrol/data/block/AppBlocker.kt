@@ -8,8 +8,8 @@ import com.darkzodiak.kontrol.overlay.OverlayManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -24,11 +24,10 @@ class AppBlocker @Inject constructor(
     private var appCloser: AppCloser? = null
 
     init {
-        scope.launch {
-            ExternalEventBus.bus
-                .filterIsInstance<ExternalEvent.OpenApp>()
-                .onEach { processApp(it.packageName) }
-        }
+        ExternalEventBus.bus
+            .filterIsInstance<ExternalEvent.OpenApp>()
+            .onEach { processApp(it.packageName) }
+            .launchIn(scope)
     }
 
     fun setAppCloser(closer: AppCloser) {

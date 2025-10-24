@@ -56,7 +56,7 @@ class KontrolService: AccessibilityService(), AppCloser {
         permissionObserver.updateAllPermissions()
 
         val currentApp = rootInActiveWindow.packageName.toString()
-        ExternalEventBus.postEvent(ExternalEvent.OpenApp(currentApp))
+        sendEvent(ExternalEvent.OpenApp(currentApp))
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -87,16 +87,21 @@ class KontrolService: AccessibilityService(), AppCloser {
 
     override fun closeApp(packageName: String) {
         performGlobalAction(GLOBAL_ACTION_HOME)
-        ExternalEventBus.postEvent(ExternalEvent.ReturnToLauncher)
     }
 
     private fun processAppEvent(packageName: String) {
         if (packageName in ignoredPackages) return
 
         if (packageName == deviceLauncher) {
-            ExternalEventBus.postEvent(ExternalEvent.ReturnToLauncher)
+            sendEvent(ExternalEvent.ReturnToLauncher)
         } else {
-            ExternalEventBus.postEvent(ExternalEvent.OpenApp(packageName))
+            sendEvent(ExternalEvent.OpenApp(packageName))
+        }
+    }
+
+    private fun sendEvent(event: ExternalEvent) {
+        scope.launch {
+            ExternalEventBus.postEvent(event)
         }
     }
 

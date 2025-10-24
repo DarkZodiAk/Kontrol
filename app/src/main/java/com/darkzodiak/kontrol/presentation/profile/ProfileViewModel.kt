@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.data.local.entity.App
 import com.darkzodiak.kontrol.domain.KontrolRepository
 import com.darkzodiak.kontrol.domain.model.Profile
+import com.darkzodiak.kontrol.domain.usecase.GetAllAppsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -19,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: KontrolRepository,
-    private val savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    getAllAppsUseCase: GetAllAppsUseCase
 ) : ViewModel() {
     var state by mutableStateOf(ProfileState())
         private set
@@ -28,10 +30,9 @@ class ProfileViewModel @Inject constructor(
     private var profileApps = emptyList<App>()
 
     init {
-        repository.getAllApps()
-            .onEach { apps ->
-                state = state.copy(apps = apps)
-            }.launchIn(viewModelScope)
+        getAllAppsUseCase().onEach { apps ->
+            state = state.copy(apps = apps)
+        }.launchIn(viewModelScope)
 
         savedStateHandle.get<Long>("id")?.let { id ->
             viewModelScope.launch {
@@ -69,7 +70,7 @@ class ProfileViewModel @Inject constructor(
                     (profileApps.map { it.id } - state.selectedApps.map { it.id }).forEach { appId ->
                         repository.deleteAppFromProfile(profileId = id, appId = appId!!)
                     }
-
+                    // TODO(): May be incomplete because app exits from screen at this time. Wait for process to finish
                 }
             }
             is ProfileAction.ModifyName -> {

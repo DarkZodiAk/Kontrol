@@ -7,7 +7,7 @@ object ExternalEventBus {
     private val _bus = MutableSharedFlow<ExternalEvent>()
     val bus = _bus.asSharedFlow()
 
-    fun postEvent(event: ExternalEvent) {
-        _bus.tryEmit(event)
+    suspend fun postEvent(event: ExternalEvent) {
+        _bus.emit(event)
     }
 }
