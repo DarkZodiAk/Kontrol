@@ -37,7 +37,7 @@
         </activity>
 
         <receiver
-            android:name=".data.AppInstallDeleteReceiver"
+            android:name=".data.receivers.AppInstallDeleteReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />

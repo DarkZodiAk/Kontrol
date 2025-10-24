@@ -21,7 +21,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AppObserver @Inject constructor(
+class AppFetcher @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appDao: AppDao
 ) {

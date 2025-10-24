@@ -4,10 +4,11 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Context
 import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
+import com.darkzodiak.kontrol.data.block.AppBlocker
+import com.darkzodiak.kontrol.data.block.AppCloser
+import com.darkzodiak.kontrol.data.block.external_events.ExternalEvent
+import com.darkzodiak.kontrol.data.block.external_events.ExternalEventBus
 import com.darkzodiak.kontrol.data.permission.PermissionObserver
-import com.darkzodiak.kontrol.domain.KontrolRepository
-import com.darkzodiak.kontrol.overlay.OverlayData
-import com.darkzodiak.kontrol.overlay.OverlayManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,29 +17,28 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class KontrolService: AccessibilityService() {
+class KontrolService: AccessibilityService(), AppCloser {
 
     @Inject
-    lateinit var repository: KontrolRepository
-    @Inject
-    lateinit var appObserver: AppObserver
+    lateinit var appFetcher: AppFetcher
     @Inject
     lateinit var permissionObserver: PermissionObserver
     @Inject
-    lateinit var overlayManager: OverlayManager
-
+    lateinit var appBlocker: AppBlocker
 
     private var isRunning = false
-    private var currentApp = BLOCKER_APP_ID
     private val scope = CoroutineScope(Dispatchers.Main)
 
-    private var currentLauncher = ""
+    private var deviceLauncher = ""
+
+    // TODO(): Maybe relocate and move package names into constants
     private val ignoredPackages = listOf("com.android.systemui", "com.google.android.inputmethod.latin")
 
 
     override fun onCreate() {
         super.onCreate()
-        currentLauncher = appObserver.getCurrentLauncherPackageName()
+        appBlocker.setAppCloser(this)
+        deviceLauncher = appFetcher.getCurrentLauncherPackageName()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -54,12 +54,16 @@ class KontrolService: AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         permissionObserver.updateAllPermissions()
+
+        val currentApp = rootInActiveWindow.packageName.toString()
+        ExternalEventBus.postEvent(ExternalEvent.OpenApp(currentApp))
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (isRunning.not()) return
         when(event?.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
-                processAppEvent("${event.packageName}")
+                processAppEvent(event.packageName.toString())
             }
             else -> Unit
         }
@@ -81,24 +85,24 @@ class KontrolService: AccessibilityService() {
         scope.coroutineContext.cancelChildren()
     }
 
+    override fun closeApp(packageName: String) {
+        performGlobalAction(GLOBAL_ACTION_HOME)
+        ExternalEventBus.postEvent(ExternalEvent.ReturnToLauncher)
+    }
+
     private fun processAppEvent(packageName: String) {
-        if(isRunning && packageName != currentApp && packageName !in ignoredPackages) {
-            currentApp = packageName
-            scope.launch {
-                if(repository.isAppInProfiles(currentApp)) {
-                    performGlobalAction(GLOBAL_ACTION_HOME)
-                    overlayManager.openOverlay(OverlayData.SimpleBlock(packageName)) {}
-                    currentApp = currentLauncher
-                }
-            }
+        if (packageName in ignoredPackages) return
+
+        if (packageName == deviceLauncher) {
+            ExternalEventBus.postEvent(ExternalEvent.ReturnToLauncher)
+        } else {
+            ExternalEventBus.postEvent(ExternalEvent.OpenApp(packageName))
         }
     }
 
     companion object {
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
-
-        private const val BLOCKER_APP_ID = "com.darkzodiak.kontrol"
 
         fun buildActionIntent(context: Context, action: String): Intent {
             return Intent(context, KontrolService::class.java).also {
