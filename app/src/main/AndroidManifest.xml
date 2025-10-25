@@ -14,7 +14,7 @@
         tools:ignore="QueryAllPackagesPermission" />
 
     <application
-        android:name=".KontrolApp"
+        android:name=".core.KontrolApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -37,7 +37,7 @@
         </activity>
 
         <receiver
-            android:name=".data.receivers.AppInstallDeleteReceiver"
+            android:name=".core.data.receivers.AppInstallDeleteReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
@@ -48,7 +48,7 @@
         </receiver>
 
         <service
-            android:name=".data.KontrolService"
+            android:name=".core.data.KontrolService"
             android:exported="false"
             android:foregroundServiceType="specialUse"
             android:label="@string/accessibility_service_label"

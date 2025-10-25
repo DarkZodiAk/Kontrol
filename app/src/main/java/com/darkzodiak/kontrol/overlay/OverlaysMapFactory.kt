@@ -2,7 +2,7 @@ package com.darkzodiak.kontrol.overlay
 
 import android.view.LayoutInflater
 import com.darkzodiak.kontrol.R
-import com.darkzodiak.kontrol.data.local.AppRestrictionType
+import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
 
 class OverlaysMapFactory {
     fun build(
