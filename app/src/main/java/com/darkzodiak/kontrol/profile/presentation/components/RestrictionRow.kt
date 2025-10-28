@@ -42,7 +42,7 @@ fun RestrictionIconText(
         imageVector = when(restriction) {
             EditRestriction.NoRestriction -> Icons.Default.LockOpen
             is EditRestriction.Password -> Icons.Default.Password
-            is EditRestriction.RandomPassword -> Icons.Default.Password
+            is EditRestriction.RandomText -> Icons.Default.Password
         },
         contentDescription = null
     )
@@ -50,7 +50,7 @@ fun RestrictionIconText(
         text = when(restriction) {
             EditRestriction.NoRestriction -> "Нет"
             is EditRestriction.Password -> "Пароль" + if(showDetails) " (${restriction.password.length} символов)" else ""
-            is EditRestriction.RandomPassword -> "Случайный пароль" + if(showDetails) " (${restriction.length} символов)" else ""
+            is EditRestriction.RandomText -> "Случайный пароль" + if(showDetails) " (${restriction.length} символов)" else ""
         },
         style = MaterialTheme.typography.titleMedium
     )

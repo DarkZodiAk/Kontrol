@@ -30,7 +30,7 @@ fun EnterPasswordDialog(
         mutableStateOf(
             when(passRestriction) {
                 is EditRestriction.Password -> passRestriction.password
-                is EditRestriction.RandomPassword -> getRandomAlphaString(passRestriction.length)
+                is EditRestriction.RandomText -> getRandomAlphaString(passRestriction.length)
                 else -> throw IllegalArgumentException("Passed non-password restriction")
             }
         )
@@ -42,7 +42,7 @@ fun EnterPasswordDialog(
         title = { Text("Введите пароль") },
         text = {
             Column {
-                if(passRestriction is EditRestriction.RandomPassword) {
+                if(passRestriction is EditRestriction.RandomText) {
                     Text(targetPassword, style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(8.dp))
                 }

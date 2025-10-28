@@ -11,10 +11,7 @@ object ProfileMapper {
             id = profile.id,
             name = profile.name,
             isEnabled = profile.isEnabled,
-            editRestriction = getEditRestrictionFromData(
-                type = profile.editRestrictionType,
-                value = profile.editRestrictionValue
-            )
+            editRestriction = getEditRestrictionFromProfile(profile)
         )
     }
     fun profileToProfileEntity(profile: Profile): ProfileEntity {
@@ -27,11 +24,13 @@ object ProfileMapper {
         )
     }
 
-    private fun editRestrictionToType(restriction: EditRestriction): EditRestrictionType {
+    private fun ProfileEntity.applyEditRestriction(
+        restriction: EditRestriction
+    ): ProfileEntity {
         return when(restriction) {
             EditRestriction.NoRestriction -> EditRestrictionType.NO_RESTRICTION
             is EditRestriction.Password -> EditRestrictionType.PASSWORD
-            is EditRestriction.RandomPassword -> EditRestrictionType.RANDOM_PASSWORD
+            is EditRestriction.RandomText -> EditRestrictionType.RANDOM_TEXT
         }
     }
 
@@ -39,24 +38,25 @@ object ProfileMapper {
         return when(restriction) {
             EditRestriction.NoRestriction -> ""
             is EditRestriction.Password -> restriction.password
-            is EditRestriction.RandomPassword -> restriction.length.toString()
+            is EditRestriction.RandomText -> restriction.length.toString()
         }
     }
 
-    private fun getEditRestrictionFromData(
-        type: EditRestrictionType,
-        value: String
+    private fun getEditRestrictionFromProfile(
+        profile: ProfileEntity
     ): EditRestriction {
-        return when(type) {
+        return when(profile.editRestrictionType) {
             EditRestrictionType.NO_RESTRICTION -> {
                 EditRestriction.NoRestriction
             }
-            EditRestrictionType.RANDOM_PASSWORD -> {
-                EditRestriction.RandomPassword(value.toInt())
+            EditRestrictionType.RANDOM_TEXT -> {
+                EditRestriction.RandomText(profile.randomTextLength!!)
             }
             EditRestrictionType.PASSWORD -> {
-                EditRestriction.Password(value)
+                EditRestriction.Password(profile.password!!)
             }
         }
     }
+
+    private
 }

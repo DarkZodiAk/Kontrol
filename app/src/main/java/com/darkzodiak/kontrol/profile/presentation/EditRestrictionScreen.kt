@@ -102,7 +102,7 @@ fun EditRestrictionScreen(
 
             RestrictionRow(
                 restriction = getRandPasswordRestrictionOrDefault(state.editRestrictionUnsaved),
-                active = state.editRestrictionUnsaved is EditRestriction.RandomPassword,
+                active = state.editRestrictionUnsaved is EditRestriction.RandomText,
                 onClick = { randomPasswordDialogVisible = true }
             )
         }
@@ -130,7 +130,7 @@ fun EditRestrictionScreen(
         if(randomPasswordDialogVisible) {
             RandomPasswordDialog(
                 onSave = {
-                    onAction(ProfileAction.Restriction.UpdateType(EditRestriction.RandomPassword(it)))
+                    onAction(ProfileAction.Restriction.UpdateType(EditRestriction.RandomText(it)))
                     randomPasswordDialogVisible = false
                 },
                 onDismiss = { randomPasswordDialogVisible = false },
@@ -145,9 +145,9 @@ fun getPasswordRestrictionOrDefault(restriction: EditRestriction): EditRestricti
     else EditRestriction.Password.DEFAULT
 }
 
-fun getRandPasswordRestrictionOrDefault(restriction: EditRestriction): EditRestriction.RandomPassword {
-    return if(restriction is EditRestriction.RandomPassword) restriction
-    else EditRestriction.RandomPassword.DEFAULT
+fun getRandPasswordRestrictionOrDefault(restriction: EditRestriction): EditRestriction.RandomText {
+    return if(restriction is EditRestriction.RandomText) restriction
+    else EditRestriction.RandomText.DEFAULT
 }
 
 

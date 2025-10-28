@@ -9,7 +9,9 @@ sealed interface HomeAction {
     object NewProfile: HomeAction
     data class OpenProfile(val id: Long): HomeAction
     data class DeleteProfile(val profile: Profile): HomeAction
-    data class SwitchProfileState(val profile: Profile): HomeAction
+
+    data class ChangeProfileState(val profile: Profile, val type: ProfileStateAction): HomeAction
+
     data class UpdatePermissionInfo(val permission: Permission): HomeAction
 
     data class PrepareForUnlock(

@@ -103,7 +103,7 @@ fun HomeScreen(
         when(editRestriction) {
             EditRestriction.NoRestriction -> { }
             is EditRestriction.Password -> { passwordDialogVisible = true }
-            is EditRestriction.RandomPassword -> { passwordDialogVisible = true }
+            is EditRestriction.RandomText -> { passwordDialogVisible = true }
         }
     }
 
@@ -171,13 +171,13 @@ fun HomeScreen(
                         )
                     },
                     onActivate = {
-                        onAction(HomeAction.SwitchProfileState(profile.copy(isEnabled = true)))
+                        onAction(HomeAction.ChangeProfileState(profile, ProfileStateAction.Activate))
                     },
                     onPause = { /*TODO*/ },
                     onStop = {
                         tryExecuteProfileAction(
                             profile = profile,
-                            action = HomeAction.SwitchProfileState(profile.copy(isEnabled = false))
+                            action = HomeAction.ChangeProfileState(profile, ProfileStateAction.Stop)
                         )
                     },
                     onDelete = {
@@ -201,6 +201,7 @@ fun HomeScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // TODO(): UsageStatsPermission is not necessary for app blocking. Move to app usage module (when it'll be created)
                 if (!state.hasUsageStatsPermission) {
                     PermissionCard(
                         title = "Usage stats",

@@ -40,7 +40,7 @@ class HomeViewModel @Inject constructor(
 
     fun onAction(action: HomeAction) {
         when(action) {
-            is HomeAction.SwitchProfileState -> {
+            is HomeAction.ChangeProfileState -> {
                 viewModelScope.launch {
                     repository.updateProfile(action.profile)
                 }

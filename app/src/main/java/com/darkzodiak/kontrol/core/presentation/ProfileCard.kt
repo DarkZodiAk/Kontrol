@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.darkzodiak.kontrol.home.ProfileStateAction
 
 @Composable
 fun ProfileCard(
@@ -37,6 +38,7 @@ fun ProfileCard(
     title: String,
     isActive: Boolean,
     onClick: () -> Unit,
+    onChangeProfileState: (ProfileStateAction) -> Unit,
     onActivate: () -> Unit,
     onPause: () -> Unit,
     onStop: () -> Unit,
@@ -85,16 +87,17 @@ fun ProfileCard(
                 Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
                 if(dropdownMenuIsVisible) {
                     KontrolDropdownMenu(
-                        actions = hashMapOf(
-                            "Удалить" to onDelete
-                        ).apply {
-                            if(isActive) {
-                                put("Пауза", onPause)
-                                put("Выключить", onStop)
-                            } else {
-                                put("Включить", onActivate)
-                            }
-                        },
+                        actions = buildMap { put("", onDelete) },
+//                        actions = hashMapOf(
+//                            "Удалить" to onDelete
+//                        ).apply {
+//                            if(isActive) {
+//                                put("Пауза", onPause)
+//                                put("Выключить", onStop)
+//                            } else {
+//                                put("Включить", onActivate)
+//                            }
+//                        },
                         onDismiss = { dropdownMenuIsVisible = false }
                     )
                 }
