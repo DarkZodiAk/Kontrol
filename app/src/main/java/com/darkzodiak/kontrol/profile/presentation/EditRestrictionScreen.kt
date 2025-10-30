@@ -49,7 +49,7 @@ fun EditRestrictionScreenRoot(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditRestrictionScreen(
-    state: ProfileState,
+    state: ProfileScreenState,
     onAction: (ProfileAction.Restriction) -> Unit
 ) {
     var noRestrictionDialogVisible by rememberSaveable { mutableStateOf(false) }
@@ -155,7 +155,7 @@ fun getRandPasswordRestrictionOrDefault(restriction: EditRestriction): EditRestr
 @Composable
 fun EditRestrictionScreenPreview() {
     EditRestrictionScreen(
-        state = ProfileState(),
+        state = ProfileScreenState(),
         onAction = {}
     )
 }

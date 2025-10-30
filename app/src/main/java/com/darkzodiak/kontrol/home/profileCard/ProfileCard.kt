@@ -1,4 +1,4 @@
-package com.darkzodiak.kontrol.core.presentation
+package com.darkzodiak.kontrol.home.profileCard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,43 +30,64 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.darkzodiak.kontrol.home.ProfileStateAction
+import com.darkzodiak.kontrol.core.presentation.KontrolDropdownMenu
+import com.darkzodiak.kontrol.profile.domain.ProfileState
 
 @Composable
 fun ProfileCard(
     infoText: String,
     title: String,
-    isActive: Boolean,
-    onClick: () -> Unit,
-    onChangeProfileState: (ProfileStateAction) -> Unit,
-    onActivate: () -> Unit,
-    onPause: () -> Unit,
-    onStop: () -> Unit,
-    onDelete: () -> Unit,
+    state: ProfileState,
+    onIntent: (ProfileCardIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var dropdownMenuIsVisible by remember { mutableStateOf(false) }
+    val dropdownMenuActions = remember(state) {
+        val actions = buildList {
+            if (state is ProfileState.Active) {
+                add("Пауза" to ProfileCardIntent.PAUSE)
+                add("Выключить" to ProfileCardIntent.STOP)
+            } else if (state is ProfileState.Stopped) {
+                add("Включить" to ProfileCardIntent.ACTIVATE)
+                add("Включить после" to ProfileCardIntent.ACTIVATE_AFTER)
+            } else {
+                add("Включить" to ProfileCardIntent.ACTIVATE)
+                add("Выключить" to ProfileCardIntent.STOP)
+            }
+            add("Удалить" to ProfileCardIntent.DELETE)
+        }
+            .map { it.first to { onIntent(it.second) } }
+            .toTypedArray()
+
+        hashMapOf(*actions)
+    }
+    val infoTextColor = if (state is ProfileState.Active) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    val infoTextBackground = if (state is ProfileState.Active) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        MaterialTheme.colorScheme.surfaceContainerHighest
+    }
 
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .border(0.8.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .clickable { onClick() }
+            .clickable { onIntent(ProfileCardIntent.OPEN) }
     ) {
         Text(
             text = infoText,
-            color = if(isActive) MaterialTheme.colorScheme.onPrimaryContainer
-                    else MaterialTheme.colorScheme.onSurfaceVariant,
+            color = infoTextColor,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight(600),
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    if(isActive) MaterialTheme.colorScheme.primaryContainer
-                    else MaterialTheme.colorScheme.surfaceContainerHighest
-                )
+                .background(infoTextBackground)
                 .padding(horizontal = 10.dp, vertical = 4.dp)
         )
         Row(
@@ -87,17 +108,7 @@ fun ProfileCard(
                 Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
                 if(dropdownMenuIsVisible) {
                     KontrolDropdownMenu(
-                        actions = buildMap { put("", onDelete) },
-//                        actions = hashMapOf(
-//                            "Удалить" to onDelete
-//                        ).apply {
-//                            if(isActive) {
-//                                put("Пауза", onPause)
-//                                put("Выключить", onStop)
-//                            } else {
-//                                put("Включить", onActivate)
-//                            }
-//                        },
+                        actions = dropdownMenuActions,
                         onDismiss = { dropdownMenuIsVisible = false }
                     )
                 }
@@ -113,16 +124,11 @@ private fun ProfileCardPreview() {
         ProfileCard(
             infoText = "Активно",
             title = "Блокировка",
-            isActive = true,
-            onClick = {  },
-            onActivate = {  },
-            onPause = {  },
-            onStop = {  },
-            onDelete = {  },
+            state = ProfileState.Active,
+            onIntent = {  },
             modifier = Modifier
                 .padding(it)
                 .padding(16.dp)
-
         )
     }
 }

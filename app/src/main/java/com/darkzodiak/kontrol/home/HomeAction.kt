@@ -1,21 +1,16 @@
 package com.darkzodiak.kontrol.home
 
+import com.darkzodiak.kontrol.home.profileCard.ProfileCardIntent
 import com.darkzodiak.kontrol.permission.domain.Permission
-import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import com.darkzodiak.kontrol.profile.domain.Profile
 
 sealed interface HomeAction {
-    object None: HomeAction
     object NewProfile: HomeAction
-    data class OpenProfile(val id: Long): HomeAction
-    data class DeleteProfile(val profile: Profile): HomeAction
 
-    data class ChangeProfileState(val profile: Profile, val type: ProfileStateAction): HomeAction
+    data class RequestProfileAction(val profile: Profile, val intent: ProfileCardIntent): HomeAction
+
+    object RestrictionPassed: HomeAction
+    object RestrictionNotPassed: HomeAction
 
     data class UpdatePermissionInfo(val permission: Permission): HomeAction
-
-    data class PrepareForUnlock(
-        val action: HomeAction,
-        val restriction: EditRestriction
-    ): HomeAction
 }

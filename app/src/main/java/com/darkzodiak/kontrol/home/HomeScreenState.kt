@@ -3,11 +3,14 @@ package com.darkzodiak.kontrol.home
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import com.darkzodiak.kontrol.profile.domain.Profile
 
-data class HomeState(
+data class HomeScreenState(
     val profiles: List<Profile> = emptyList(),
 
-    val pendingAction: HomeAction = HomeAction.None,
+    val restrictionDialogVisible: Boolean = false,
     val curRestriction: EditRestriction = EditRestriction.NoRestriction,
+
+    val pauseDialogVisible: Boolean = false,
+    val activateAfter
 
     val hasUsageStatsPermission: Boolean = false,
     val hasAccessibilityPermission: Boolean = false,

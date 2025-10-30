@@ -1,4 +1,4 @@
-package com.darkzodiak.kontrol.core.presentation
+package com.darkzodiak.kontrol.home.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement

@@ -52,7 +52,7 @@ fun AppListScreenRoot(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppListScreen(
-    state: ProfileState,
+    state: ProfileScreenState,
     onAction: (ProfileAction.Apps) -> Unit
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }

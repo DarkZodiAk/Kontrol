@@ -64,7 +64,7 @@ fun ProfileScreenRoot(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    state: ProfileState,
+    state: ProfileScreenState,
     onAction: (ProfileAction) -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -192,7 +192,7 @@ fun ProfileScreen(
 @Composable
 private fun ProfileScreenPreview() {
     ProfileScreen(
-        state = ProfileState(),
+        state = ProfileScreenState(),
         onAction = { }
     )
 }

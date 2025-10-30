@@ -23,7 +23,7 @@ class ProfileViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getAllAppsUseCase: GetAllAppsUseCase
 ) : ViewModel() {
-    var state by mutableStateOf(ProfileState())
+    var state by mutableStateOf(ProfileScreenState())
         private set
 
     private var profile = Profile()

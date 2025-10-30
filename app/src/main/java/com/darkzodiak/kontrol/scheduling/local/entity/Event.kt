@@ -1,9 +1,10 @@
-package com.darkzodiak.kontrol.core.data.local.entity
+package com.darkzodiak.kontrol.scheduling.local.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.darkzodiak.kontrol.profile.data.local.entity.ProfileEntity
+import com.darkzodiak.kontrol.scheduling.local.EventType
 
 @Entity(
     foreignKeys = [
@@ -15,10 +16,10 @@ import com.darkzodiak.kontrol.profile.data.local.entity.ProfileEntity
         )
     ]
 )
-data class ProfileEvent(
+data class Event(
     @PrimaryKey
     val id: Long? = null,
     val profileId: Long,
-//    val eventType: ,
-//    val time Long
+    val eventType: EventType,
+    val scheduledAt: Long
 )
