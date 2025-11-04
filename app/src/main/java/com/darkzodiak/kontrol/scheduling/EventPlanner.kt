@@ -5,7 +5,7 @@ import com.darkzodiak.kontrol.scheduling.local.entity.Event
 
 class EventPlanner {
 
-    fun planEventsFor(profile: Profile): List<Event> {
-
-    }
+//    fun planEventsFor(profile: Profile): List<Event> {
+//
+//    }
 }

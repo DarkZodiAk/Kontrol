@@ -26,7 +26,7 @@ class PermissionObserver @Inject constructor(
     val permissionsState = _permissionState.asStateFlow()
 
     val canRunService = permissionsState
-        .map { it.hasAllPermissions }
+        .map { it.hasEssentialPermissions }
         .stateIn(applicationScope, SharingStarted.Lazily, false)
 
 
@@ -42,7 +42,7 @@ class PermissionObserver @Inject constructor(
             _permissionState.update {
                 it.copy(
                     hasUsageStatsPermission = enabled,
-                    hasAllPermissions = enabled && it.hasAccessibilityPermission && it.hasAlertWindowPermission
+                    hasEssentialPermissions = it.hasAccessibilityPermission && it.hasAlertWindowPermission
                 )
             }
         }
@@ -54,7 +54,7 @@ class PermissionObserver @Inject constructor(
             _permissionState.update {
                 it.copy(
                     hasAccessibilityPermission = enabled,
-                    hasAllPermissions = it.hasUsageStatsPermission && enabled && it.hasAlertWindowPermission
+                    hasEssentialPermissions = enabled && it.hasAlertWindowPermission
                 )
             }
         }
@@ -66,7 +66,7 @@ class PermissionObserver @Inject constructor(
             _permissionState.update {
                 it.copy(
                     hasAlertWindowPermission = enabled,
-                    hasAllPermissions = it.hasUsageStatsPermission && it.hasAccessibilityPermission && enabled
+                    hasEssentialPermissions = it.hasAccessibilityPermission && enabled
                 )
             }
         }

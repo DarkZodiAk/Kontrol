@@ -40,12 +40,11 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
 
         permissionObserver.permissionsState.onEach {
-            state = state.copy(
-                hasUsageStatsPermission = it.hasUsageStatsPermission,
+            state = state.copy(permissions = state.permissions.copy(
                 hasAccessibilityPermission = it.hasAccessibilityPermission,
                 hasAlertWindowPermission = it.hasAlertWindowPermission,
-                hasAllPermissions = it.hasAllPermissions
-            )
+                hasEssentialPermissions = it.hasEssentialPermissions
+            ))
         }.launchIn(viewModelScope)
     }
 

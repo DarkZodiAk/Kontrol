@@ -10,10 +10,13 @@ data class HomeScreenState(
     val curRestriction: EditRestriction = EditRestriction.NoRestriction,
 
     val pauseDialogVisible: Boolean = false,
-    val activateAfter
+    val activateAfterDialogVisible: Boolean = false,
 
-    val hasUsageStatsPermission: Boolean = false,
-    val hasAccessibilityPermission: Boolean = false,
-    val hasAlertWindowPermission: Boolean = false,
-    val hasAllPermissions: Boolean = false
-)
+    val permissions: Permissions = Permissions()
+) {
+    data class Permissions(
+        val hasAccessibilityPermission: Boolean = false,
+        val hasAlertWindowPermission: Boolean = false,
+        val hasEssentialPermissions: Boolean = false
+    )
+}

@@ -51,11 +51,11 @@ class KontrolRepositoryImpl @Inject constructor(
 
 
     override suspend fun isAppInProfiles(packageName: String): Boolean {
-        appDao.getAppByPackageName(packageName)?.id?.let { id ->
-            return profileDao.getProfilesByApp(id).any {
-                it.isEnabled
-            }
-        }
+//        appDao.getAppByPackageName(packageName)?.id?.let { id ->
+//            return profileDao.getProfilesByApp(id).any {
+//                it.isEnabled
+//            }
+//        }
         return false
     }
 

@@ -12,5 +12,8 @@ sealed interface HomeAction {
     object RestrictionPassed: HomeAction
     object RestrictionNotPassed: HomeAction
 
+    data class PauseProfileUntil(val time: Long): HomeAction
+    data class ActivateProfileAfter(val time: Long): HomeAction
+
     data class UpdatePermissionInfo(val permission: Permission): HomeAction
 }

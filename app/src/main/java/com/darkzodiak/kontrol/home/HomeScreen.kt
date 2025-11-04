@@ -2,6 +2,7 @@
 
 package com.darkzodiak.kontrol.home
 
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -24,7 +25,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -43,14 +43,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.darkzodiak.kontrol.core.presentation.getProfileStateTextInfo
-import com.darkzodiak.kontrol.permission.getAccessibilityIntent
-import com.darkzodiak.kontrol.permission.getAlertWindowIntent
-import com.darkzodiak.kontrol.permission.getUsageStatsIntent
 import com.darkzodiak.kontrol.permission.domain.Permission
 import com.darkzodiak.kontrol.profile.domain.Profile
-import com.darkzodiak.kontrol.home.components.PermissionCard
 import com.darkzodiak.kontrol.home.profileCard.ProfileCard
 import com.darkzodiak.kontrol.home.components.EnterPasswordDialog
+import com.darkzodiak.kontrol.home.components.PermissionSheet
 import com.darkzodiak.kontrol.profile.domain.ProfileState
 import kotlinx.coroutines.launch
 
@@ -60,12 +57,16 @@ fun HomeScreenRoot(
     onOpenProfile: (Long) -> Unit,
     onNewProfile: () -> Unit
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             viewModel.events.collect { event ->
-                if (event is HomeEvent.OpenProfile) onOpenProfile(event.id)
+                when (event) {
+                    is HomeEvent.OpenProfile -> onOpenProfile(event.id)
+                    is HomeEvent.ShowError -> Toast.makeText(context, event.text, Toast.LENGTH_SHORT)
+                }
             }
         }
     }
@@ -90,14 +91,6 @@ fun HomeScreen(
     val permissionSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var permissionSheetVisible by rememberSaveable { mutableStateOf(false) }
 
-    var pauseDurationDialog by rememberSaveable { mutableStateOf(false) }
-
-    val context = LocalContext.current
-    val usageStatsLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) {
-        onAction(HomeAction.UpdatePermissionInfo(Permission.USAGE_STATS_ACCESS))
-    }
     val accessibilityLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
@@ -123,7 +116,7 @@ fun HomeScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            if (!state.hasAllPermissions) {
+            if (state.permissions.hasEssentialPermissions.not()) {
                 item {
                     Column(
                         modifier = Modifier
@@ -165,39 +158,13 @@ fun HomeScreen(
         }
 
         if(permissionSheetVisible) {
-            // TODO(): Move to the distinct file?
-            ModalBottomSheet(
+            PermissionSheet(
+                state = state.permissions,
                 sheetState = permissionSheetState,
-                onDismissRequest = { permissionSheetVisible = false }
-            ) {
-                Text(
-                    text = "Предоставьте следующие разрешения:",
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // TODO(): UsageStatsPermission is not necessary for app blocking. Move to app usage module (when it'll be created)
-                if (!state.hasUsageStatsPermission) {
-                    PermissionCard(
-                        title = "Usage stats",
-                        onButtonClick = { usageStatsLauncher.launch(context.getUsageStatsIntent()) }
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
-                if (!state.hasAccessibilityPermission) {
-                    PermissionCard(
-                        title = "Accessibility",
-                        onButtonClick = { accessibilityLauncher.launch(getAccessibilityIntent()) }
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
-                if (!state.hasAlertWindowPermission) {
-                    PermissionCard(
-                        title = "Overlay",
-                        onButtonClick = { alertWindowLauncher.launch(context.getAlertWindowIntent()) }
-                    )
-                }
-            }
+                onDismiss = { permissionSheetVisible = false },
+                accessibilityLauncher = accessibilityLauncher,
+                alertWindowLauncher = alertWindowLauncher
+            )
         }
 
         if(passwordDialogVisible) {
