@@ -1,5 +1,8 @@
 package com.darkzodiak.kontrol.core.presentation.time
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -16,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.time.Instant
@@ -37,6 +41,7 @@ fun DateTimePickerDialog(
     val confirmEnabled by remember { derivedStateOf { datePickerState.selectedDateMillis != null} }
 
     // TODO(): Make ability to move from selecting date to time inside dialog?
+    // TODO(): DatePickerDialog is made specifically for DatePicker. Separate from TimePicker?
     DatePickerDialog(
         onDismissRequest = onDismiss,
         dismissButton = {
@@ -77,6 +82,9 @@ fun DateTimePickerDialog(
 @Preview
 @Composable
 private fun DateTimePickerDialogPreview() {
+    Box(Modifier
+        .fillMaxSize()
+        .background(Color.Black))
     DateTimePickerDialog(
         isPickingDate = false,
         onDateSelected = {},

@@ -15,9 +15,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import kotlin.time.Duration
 
-object TimeSource {
-    private const val MINUTE_MILLIS = 60000L
-
+class TimeSource {
     private var offset = MutableStateFlow(Duration.ZERO)
 
     val currentTime = callbackFlow {
@@ -57,4 +55,8 @@ object TimeSource {
     }
 
     private fun nowWithOffset(): LocalDateTime = LocalDateTime.now().plusDuration(offset.value)
+
+    companion object {
+        private const val MINUTE_MILLIS = 60000L
+    }
 }
