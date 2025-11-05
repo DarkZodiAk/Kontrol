@@ -33,6 +33,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -91,4 +92,7 @@ dependencies {
 
     //Coil
     implementation(libs.coil.compose)
+
+    // Add support for LocalDate/Time to APIs <26
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }
