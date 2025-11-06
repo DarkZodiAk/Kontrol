@@ -49,14 +49,12 @@ class KontrolRepositoryImpl @Inject constructor(
         return profileDao.getProfileAppsById(id)
     }
 
-
-    override suspend fun isAppInProfiles(packageName: String): Boolean {
-//        appDao.getAppByPackageName(packageName)?.id?.let { id ->
-//            return profileDao.getProfilesByApp(id).any {
-//                it.isEnabled
-//            }
-//        }
-        return false
+    override suspend fun getProfilesWithApp(packageName: String): List<Profile> {
+        return appDao.getAppByPackageName(packageName)?.id?.let { id ->
+            profileDao.getProfilesWithApp(id).map {
+                ProfileMapper.profileEntityToProfile(it)
+            }
+        }.orEmpty()
     }
 
     override fun getAllApps(): Flow<List<App>> {
