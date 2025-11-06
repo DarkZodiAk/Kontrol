@@ -8,7 +8,7 @@ import java.time.Duration
 import java.time.LocalDateTime
 
 @Composable
-fun getProfileStateTextInfo(state: ProfileState): String {
+fun getProfileStateTextInfo(state: ProfileState, now: LocalDateTime): String {
     return when (state) {
         ProfileState.Active -> "Активен"
         ProfileState.Stopped -> "Неактивен"
@@ -16,7 +16,6 @@ fun getProfileStateTextInfo(state: ProfileState): String {
         // TODO(): Should be locale-universal in future
         // TODO(): Change/Shorten pause text format?
         is ProfileState.Paused -> {
-            val now = LocalDateTime.now()
             val duration = Duration.between(now, state.until)
 
             val days = duration.toDays().toInt()

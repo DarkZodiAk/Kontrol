@@ -39,6 +39,7 @@ import java.time.LocalDateTime
 fun ProfileCard(
     title: String,
     state: ProfileState,
+    now: LocalDateTime,
     onIntent: (ProfileCardIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -81,7 +82,7 @@ fun ProfileCard(
             .clickable { onIntent(ProfileCardIntent.OPEN) }
     ) {
         Text(
-            text = getProfileStateTextInfo(state),
+            text = getProfileStateTextInfo(state, now),
             color = infoTextColor,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight(600),
@@ -124,7 +125,8 @@ private fun ProfileCardPreview() {
     Scaffold(modifier = Modifier.fillMaxSize()) {
         ProfileCard(
             title = "Блокировка",
-            state = ProfileState.Paused(LocalDateTime.now().plusMinutes(1)),
+            state = ProfileState.Paused(LocalDateTime.now().plusMinutes(7)),
+            now = LocalDateTime.now(),
             onIntent = {  },
             modifier = Modifier
                 .padding(it)

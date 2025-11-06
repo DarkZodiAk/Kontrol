@@ -150,6 +150,7 @@ fun HomeScreen(
                 ProfileCard(
                     title = profile.name,
                     state = profile.state,
+                    now = state.curTime,
                     onIntent = { intent ->
                         onAction(HomeAction.RequestProfileAction(profile, intent))
                     }

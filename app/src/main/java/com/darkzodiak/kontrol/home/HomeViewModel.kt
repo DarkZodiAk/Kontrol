@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
+import com.darkzodiak.kontrol.core.presentation.time.TimeSource
 import com.darkzodiak.kontrol.home.profileCard.PendingProfileIntent
 import com.darkzodiak.kontrol.home.profileCard.ProfileCardIntent
 import com.darkzodiak.kontrol.permission.domain.Permission
@@ -26,6 +27,8 @@ class HomeViewModel @Inject constructor(
     private val repository: KontrolRepository,
     private val permissionObserver: PermissionObserver
 ) : ViewModel() {
+
+    private val timeSource = TimeSource()
 
     private var pendingCardIntent: PendingProfileIntent? = null
     private var pendingDelayProfile: Profile? = null
@@ -47,6 +50,10 @@ class HomeViewModel @Inject constructor(
                 hasAlertWindowPermission = it.hasAlertWindowPermission,
                 hasEssentialPermissions = it.hasEssentialPermissions
             ))
+        }.launchIn(viewModelScope)
+
+        timeSource.currentTime.onEach { time ->
+            state = state.copy(curTime = time)
         }.launchIn(viewModelScope)
     }
 
