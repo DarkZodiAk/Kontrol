@@ -19,5 +19,5 @@ enum class DelayType(val text: String, val delay: Duration) {
     MINUTES_90("Полтора часа", 90.minutes),
     HOURS_2("2 часа", 2.hours),
     HOURS_4("4 часа", 4.hours),
-    HOURS_8("8 часо", 8.hours),
+    HOURS_8("8 часов", 8.hours),
 }

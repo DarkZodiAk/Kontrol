@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +27,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,8 +37,16 @@ fun DateTimePickerDialog(
     onDateSelected: (LocalDateTime) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val datePickerState = rememberDatePickerState()
-    val timePickerState = rememberTimePickerState(is24Hour = true)
+    val now = rememberSaveable { LocalDateTime.now() }
+    val datePickerState = rememberDatePickerState(
+        // TODO(): Make sure it works
+        initialSelectedDateMillis = now.atZone(ZoneOffset.UTC).toInstant().toEpochMilli()
+    )
+    val timePickerState = rememberTimePickerState(
+        is24Hour = true,
+        initialHour = now.hour,
+        initialMinute = now.minute
+    )
 
     val confirmEnabled by remember { derivedStateOf { datePickerState.selectedDateMillis != null} }
 
@@ -61,7 +71,8 @@ fun DateTimePickerDialog(
                         onDateSelected(selectedDateTime)
                     }
                 },
-                enabled = confirmEnabled
+                // TODO(): Change in future to use confirmEnabled
+                enabled = true
             ) {
                 Text(text = "Применить")
             }

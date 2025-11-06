@@ -47,7 +47,7 @@ class DelayDialogViewModel: ViewModel() {
                 selectDialogTimeSource.setTimeOffset(type.delay)
             }
             is DelayDialogAction.SetCustomTime -> {
-                state = state.copy(delayTime = action.time)
+                state = state.copy(delayTime = action.time, delayType = DelayType.CUSTOM)
             }
         }
     }

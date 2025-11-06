@@ -76,22 +76,16 @@ fun DelayDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     AssistChip(
-                        onClick = { datePickerVisible },
+                        onClick = { datePickerVisible = true },
                         label = {
                             Text(text = viewModel.state.delayTime.toDateString())
-                        },
-                        trailingIcon = {
-                            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                         },
                         modifier = Modifier.weight(1f)
                     )
                     AssistChip(
-                        onClick = { datePickerVisible },
+                        onClick = { timePickerVisible = true },
                         label = {
                             Text(text = viewModel.state.delayTime.toTimeString())
-                        },
-                        trailingIcon = {
-                            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                         },
                         modifier = Modifier.weight(0.6f)
                     )
@@ -113,15 +107,21 @@ fun DelayDialog(
     if (datePickerVisible) {
         DateTimePickerDialog(
             isPickingDate = true,
-            onDateSelected = { viewModel.onAction(DelayDialogAction.SetCustomTime(it)) },
+            onDateSelected = {
+                datePickerVisible = false
+                viewModel.onAction(DelayDialogAction.SetCustomTime(it))
+            },
             onDismiss = { datePickerVisible = false }
         )
     }
     if (timePickerVisible) {
         DateTimePickerDialog(
             isPickingDate = false,
-            onDateSelected = { viewModel.onAction(DelayDialogAction.SetCustomTime(it)) },
-            onDismiss = { datePickerVisible = false }
+            onDateSelected = {
+                timePickerVisible = false
+                viewModel.onAction(DelayDialogAction.SetCustomTime(it))
+            },
+            onDismiss = { timePickerVisible = false }
         )
     }
 

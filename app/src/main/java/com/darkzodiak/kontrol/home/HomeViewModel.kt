@@ -61,8 +61,8 @@ class HomeViewModel @Inject constructor(
         when(action) {
             is HomeAction.RequestProfileAction -> {
                 val (profile, intent) = action
-                if (profile.state is ProfileState.Active) {
-                    pendingCardIntent = PendingProfileIntent(profile, intent)
+                pendingCardIntent = PendingProfileIntent(profile, intent)
+                if (profile.state is ProfileState.Active && profile.editRestriction !is EditRestriction.NoRestriction) {
                     state = state.copy(
                         curRestriction = profile.editRestriction,
                         restrictionDialogVisible = true
@@ -103,9 +103,11 @@ class HomeViewModel @Inject constructor(
                     viewModelScope.launch { repository.updateProfile(newProfile) }
                 }
                 pendingDelayProfile = null
+                state = state.copy(pauseDialogVisible = false, activateAfterDialogVisible = false)
             }
             HomeAction.Delay.Dismiss -> {
                 pendingDelayProfile = null
+                state = state.copy(pauseDialogVisible = false, activateAfterDialogVisible = false)
             }
 
             else -> Unit
