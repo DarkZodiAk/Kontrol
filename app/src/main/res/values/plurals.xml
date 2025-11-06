@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="after_minutes">
+        <item quantity="one">минуту</item>
+        <item quantity="few">%d минуты</item>
+        <item quantity="other">%d минут</item>
+    </plurals>
+    <plurals name="after_hours">
+        <item quantity="one">час</item>
+        <item quantity="few">%d часа</item>
+        <item quantity="other">%d часов</item>
+    </plurals>
+    <plurals name="after_days">
+        <item quantity="one">день</item>
+        <item quantity="few">%d дня</item>
+        <item quantity="other">%d дней</item>
+    </plurals>
+</resources>

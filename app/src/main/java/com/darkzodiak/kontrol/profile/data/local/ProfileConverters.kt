@@ -1,6 +1,8 @@
 package com.darkzodiak.kontrol.profile.data.local
 
 import androidx.room.TypeConverter
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class ProfileConverters {
     @TypeConverter
@@ -21,5 +23,19 @@ class ProfileConverters {
     @TypeConverter
     fun fromProfileStateType(value: ProfileStateType): String {
         return value.name
+    }
+
+    @TypeConverter
+    fun toUntilDateTime(value: String?): LocalDateTime? {
+        return value?.let { LocalDateTime.parse(it, dateTimeFormatter) }
+    }
+
+    @TypeConverter
+    fun fromUntilDateTime(date: LocalDateTime?): String? {
+        return date?.format(dateTimeFormatter)
+    }
+
+    companion object {
+        private val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
     }
 }

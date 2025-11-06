@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
 import com.darkzodiak.kontrol.profile.data.local.ProfileStateType
+import java.time.LocalDateTime
 
 @Entity
 data class ProfileEntity(
@@ -12,7 +13,7 @@ data class ProfileEntity(
     val name: String = "",
 
     val state: ProfileStateType = ProfileStateType.STOPPED,
-    val pausedUntil: Long? = null,
+    val pausedUntil: LocalDateTime? = null,
 
     val editRestrictionType: EditRestrictionType = EditRestrictionType.NO_RESTRICTION,
     val password: String? = null,

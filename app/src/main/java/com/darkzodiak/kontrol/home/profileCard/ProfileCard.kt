@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.darkzodiak.kontrol.core.presentation.KontrolDropdownMenu
 import com.darkzodiak.kontrol.core.presentation.getProfileStateTextInfo
 import com.darkzodiak.kontrol.profile.domain.ProfileState
+import java.time.LocalDateTime
 
 @Composable
 fun ProfileCard(
@@ -123,7 +124,7 @@ private fun ProfileCardPreview() {
     Scaffold(modifier = Modifier.fillMaxSize()) {
         ProfileCard(
             title = "Блокировка",
-            state = ProfileState.Active,
+            state = ProfileState.Paused(LocalDateTime.now().plusMinutes(1)),
             onIntent = {  },
             modifier = Modifier
                 .padding(it)

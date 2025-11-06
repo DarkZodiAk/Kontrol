@@ -7,6 +7,7 @@ import com.darkzodiak.kontrol.profile.data.local.entity.ProfileEntity
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.profile.domain.ProfileState
+import java.time.LocalDateTime
 
 object ProfileMapper {
     fun profileEntityToProfile(profile: ProfileEntity): Profile {
@@ -31,7 +32,7 @@ object ProfileMapper {
         private var id: Long? = null
         private var name: String = ""
         private var state: ProfileStateType = ProfileStateType.STOPPED
-        private var pausedUntil: Long? = null
+        private var pausedUntil: LocalDateTime? = null
         private var editRestrictionType: EditRestrictionType = EditRestrictionType.NO_RESTRICTION
         private var password: String? = null
         private var randomTextLength: Int? = null
