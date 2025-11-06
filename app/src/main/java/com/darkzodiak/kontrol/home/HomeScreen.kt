@@ -42,7 +42,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.darkzodiak.kontrol.core.presentation.delayDialog.ActionDelayType
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialog
 import com.darkzodiak.kontrol.permission.domain.Permission
 import com.darkzodiak.kontrol.profile.domain.Profile
@@ -168,9 +167,8 @@ fun HomeScreen(
             )
         }
 
-        if (state.pauseDialogVisible || state.activateAfterDialogVisible) {
+        if (state.delayDialogVisible) {
             DelayDialog(
-                actionDelayType = if (state.pauseDialogVisible) ActionDelayType.PAUSE else ActionDelayType.ACTIVATE_AFTER,
                 onSetPause = { onAction(HomeAction.Delay.Save(it)) },
                 onDismiss = { onAction(HomeAction.Delay.Dismiss) }
             )

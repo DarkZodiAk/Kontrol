@@ -91,11 +91,8 @@ class HomeViewModel @Inject constructor(
                 }
             }
 
-            HomeAction.Delay.OpenPause -> {
-                state = state.copy(pauseDialogVisible = true, activateAfterDialogVisible = false)
-            }
-            HomeAction.Delay.OpenActivateAfter -> {
-                state = state.copy(pauseDialogVisible = false, activateAfterDialogVisible = true)
+            HomeAction.Delay.OpenDialog -> {
+                state = state.copy(delayDialogVisible = true)
             }
             is HomeAction.Delay.Save -> {
                 pendingDelayProfile?.let { profile ->
@@ -103,11 +100,11 @@ class HomeViewModel @Inject constructor(
                     viewModelScope.launch { repository.updateProfile(newProfile) }
                 }
                 pendingDelayProfile = null
-                state = state.copy(pauseDialogVisible = false, activateAfterDialogVisible = false)
+                state = state.copy(delayDialogVisible = false)
             }
             HomeAction.Delay.Dismiss -> {
                 pendingDelayProfile = null
-                state = state.copy(pauseDialogVisible = false, activateAfterDialogVisible = false)
+                state = state.copy(delayDialogVisible = false)
             }
 
             else -> Unit
@@ -131,7 +128,7 @@ class HomeViewModel @Inject constructor(
                 }
                 ProfileCardIntent.DELAYED_ACTIVATE -> {
                     pendingDelayProfile = profile
-                    onAction(HomeAction.Delay.OpenActivateAfter)
+                    onAction(HomeAction.Delay.OpenDialog)
                 }
                 ProfileCardIntent.STOP -> {
                     viewModelScope.launch {
@@ -140,7 +137,7 @@ class HomeViewModel @Inject constructor(
                 }
                 ProfileCardIntent.PAUSE -> {
                     pendingDelayProfile = profile
-                    onAction(HomeAction.Delay.OpenPause)
+                    onAction(HomeAction.Delay.OpenDialog)
                 }
                 ProfileCardIntent.DELETE -> {
                     viewModelScope.launch {

@@ -37,7 +37,6 @@ import java.time.LocalDateTime
 @Composable
 fun DelayDialog(
     viewModel: DelayDialogViewModel = hiltViewModel(),
-    actionDelayType: ActionDelayType,
     onSetPause: (LocalDateTime) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -50,7 +49,7 @@ fun DelayDialog(
         properties = DialogProperties(dismissOnClickOutside = false),
         title = {
             Text(
-                text = actionDelayType.dialogTitle,
+                text = "Выберите время включения",
                 fontSize = 20.sp
             )
         },
@@ -150,7 +149,6 @@ private fun DelayDialogPreview() {
         .fillMaxSize()
         .background(Color.Black))
     DelayDialog(
-        actionDelayType = ActionDelayType.PAUSE,
         onSetPause = {},
         onDismiss = {}
     )
