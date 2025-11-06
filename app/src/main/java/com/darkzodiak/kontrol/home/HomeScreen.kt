@@ -42,7 +42,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.darkzodiak.kontrol.core.presentation.getProfileStateTextInfo
+import com.darkzodiak.kontrol.core.presentation.delayDialog.ActionDelayType
+import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialog
 import com.darkzodiak.kontrol.permission.domain.Permission
 import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.home.profileCard.ProfileCard
@@ -147,7 +148,6 @@ fun HomeScreen(
 
             items(state.profiles) { profile ->
                 ProfileCard(
-                    infoText = getProfileStateTextInfo(profile.state),
                     title = profile.name,
                     state = profile.state,
                     onIntent = { intent ->
@@ -157,7 +157,7 @@ fun HomeScreen(
             }
         }
 
-        if(permissionSheetVisible) {
+        if (permissionSheetVisible) {
             PermissionSheet(
                 state = state.permissions,
                 sheetState = permissionSheetState,
@@ -167,7 +167,15 @@ fun HomeScreen(
             )
         }
 
-        if(passwordDialogVisible) {
+        if (state.pauseDialogVisible || state.activateAfterDialogVisible) {
+            DelayDialog(
+                actionDelayType = if (state.pauseDialogVisible) ActionDelayType.PAUSE else ActionDelayType.ACTIVATE_AFTER,
+                onSetPause = { onAction(HomeAction.Delay.Save(it)) },
+                onDismiss = { onAction(HomeAction.Delay.Dismiss) }
+            )
+        }
+
+        if (passwordDialogVisible) {
             EnterPasswordDialog(
                 passRestriction = state.curRestriction,
                 onDismiss = {

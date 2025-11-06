@@ -31,11 +31,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.darkzodiak.kontrol.core.presentation.KontrolDropdownMenu
+import com.darkzodiak.kontrol.core.presentation.getProfileStateTextInfo
 import com.darkzodiak.kontrol.profile.domain.ProfileState
 
 @Composable
 fun ProfileCard(
-    infoText: String,
     title: String,
     state: ProfileState,
     onIntent: (ProfileCardIntent) -> Unit,
@@ -49,7 +49,7 @@ fun ProfileCard(
                 add("Выключить" to ProfileCardIntent.STOP)
             } else if (state is ProfileState.Stopped) {
                 add("Включить" to ProfileCardIntent.ACTIVATE)
-                add("Включить после" to ProfileCardIntent.ACTIVATE_AFTER)
+                add("Включить после" to ProfileCardIntent.DELAYED_ACTIVATE)
             } else {
                 add("Включить" to ProfileCardIntent.ACTIVATE)
                 add("Выключить" to ProfileCardIntent.STOP)
@@ -80,7 +80,7 @@ fun ProfileCard(
             .clickable { onIntent(ProfileCardIntent.OPEN) }
     ) {
         Text(
-            text = infoText,
+            text = getProfileStateTextInfo(state),
             color = infoTextColor,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight(600),
@@ -122,7 +122,6 @@ fun ProfileCard(
 private fun ProfileCardPreview() {
     Scaffold(modifier = Modifier.fillMaxSize()) {
         ProfileCard(
-            infoText = "Активно",
             title = "Блокировка",
             state = ProfileState.Active,
             onIntent = {  },

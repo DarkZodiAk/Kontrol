@@ -1,5 +1,5 @@
 package com.darkzodiak.kontrol.home.profileCard
 
 enum class ProfileCardIntent {
-    ACTIVATE, ACTIVATE_AFTER, STOP, PAUSE, DELETE, OPEN
+    ACTIVATE, DELAYED_ACTIVATE, STOP, PAUSE, DELETE, OPEN
 }

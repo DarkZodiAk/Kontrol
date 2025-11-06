@@ -3,6 +3,7 @@ package com.darkzodiak.kontrol.home
 import com.darkzodiak.kontrol.home.profileCard.ProfileCardIntent
 import com.darkzodiak.kontrol.permission.domain.Permission
 import com.darkzodiak.kontrol.profile.domain.Profile
+import java.time.LocalDateTime
 
 sealed interface HomeAction {
     object NewProfile: HomeAction
@@ -12,8 +13,12 @@ sealed interface HomeAction {
     object RestrictionPassed: HomeAction
     object RestrictionNotPassed: HomeAction
 
-    data class PauseProfileUntil(val time: Long): HomeAction
-    data class ActivateProfileAfter(val time: Long): HomeAction
+    sealed interface Delay: HomeAction {
+        object OpenPause: HomeAction
+        object OpenActivateAfter: HomeAction
+        data class Save(val delayUntil: LocalDateTime): HomeAction
+        object Dismiss: HomeAction
+    }
 
     data class UpdatePermissionInfo(val permission: Permission): HomeAction
 }

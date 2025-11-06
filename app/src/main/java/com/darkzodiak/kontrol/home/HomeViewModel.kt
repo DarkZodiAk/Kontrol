@@ -11,6 +11,7 @@ import com.darkzodiak.kontrol.home.profileCard.PendingProfileIntent
 import com.darkzodiak.kontrol.home.profileCard.ProfileCardIntent
 import com.darkzodiak.kontrol.permission.domain.Permission
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
+import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.profile.domain.ProfileState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -26,7 +27,8 @@ class HomeViewModel @Inject constructor(
     private val permissionObserver: PermissionObserver
 ) : ViewModel() {
 
-    private var pendingIntent: PendingProfileIntent? = null
+    private var pendingCardIntent: PendingProfileIntent? = null
+    private var pendingDelayProfile: Profile? = null
 
     var state by mutableStateOf(HomeScreenState())
         private set
@@ -53,7 +55,7 @@ class HomeViewModel @Inject constructor(
             is HomeAction.RequestProfileAction -> {
                 val (profile, intent) = action
                 if (profile.state is ProfileState.Active) {
-                    pendingIntent = PendingProfileIntent(profile, intent)
+                    pendingCardIntent = PendingProfileIntent(profile, intent)
                     state = state.copy(
                         curRestriction = profile.editRestriction,
                         restrictionDialogVisible = true
@@ -72,17 +74,33 @@ class HomeViewModel @Inject constructor(
             }
             is HomeAction.UpdatePermissionInfo -> {
                 when(action.permission) {
-                    Permission.USAGE_STATS_ACCESS -> {
-                        permissionObserver.updateUsageStatsPermission()
-                    }
                     Permission.ACCESSIBILITY -> {
                         permissionObserver.updateAccessibilityPermission()
                     }
                     Permission.SYSTEM_ALERT_WINDOW -> {
                         permissionObserver.updateAlertWindowPermission()
                     }
+                    else -> Unit
                 }
             }
+
+            HomeAction.Delay.OpenPause -> {
+                state = state.copy(pauseDialogVisible = true, activateAfterDialogVisible = false)
+            }
+            HomeAction.Delay.OpenActivateAfter -> {
+                state = state.copy(pauseDialogVisible = false, activateAfterDialogVisible = true)
+            }
+            is HomeAction.Delay.Save -> {
+                pendingDelayProfile?.let { profile ->
+                    val newProfile = profile.copy(state = ProfileState.Paused(action.delayUntil))
+                    viewModelScope.launch { repository.updateProfile(newProfile) }
+                }
+                pendingDelayProfile = null
+            }
+            HomeAction.Delay.Dismiss -> {
+                pendingDelayProfile = null
+            }
+
             else -> Unit
         }
     }
@@ -95,15 +113,16 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun executeProfileIntent() {
-        pendingIntent?.run {
+        pendingCardIntent?.run {
             when (intent) {
                 ProfileCardIntent.ACTIVATE -> {
                     viewModelScope.launch {
                         repository.updateProfile(profile.copy(state = ProfileState.Active))
                     }
                 }
-                ProfileCardIntent.ACTIVATE_AFTER -> {
-                    // TODO()
+                ProfileCardIntent.DELAYED_ACTIVATE -> {
+                    pendingDelayProfile = profile
+                    onAction(HomeAction.Delay.OpenActivateAfter)
                 }
                 ProfileCardIntent.STOP -> {
                     viewModelScope.launch {
@@ -111,7 +130,8 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 ProfileCardIntent.PAUSE -> {
-                    // TODO()
+                    pendingDelayProfile = profile
+                    onAction(HomeAction.Delay.OpenPause)
                 }
                 ProfileCardIntent.DELETE -> {
                     viewModelScope.launch {
@@ -126,6 +146,6 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
-        pendingIntent = null
+        pendingCardIntent = null
     }
 }
