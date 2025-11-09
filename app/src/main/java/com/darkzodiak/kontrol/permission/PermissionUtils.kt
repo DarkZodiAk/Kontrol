@@ -31,7 +31,7 @@ fun getAccessibilityIntent(): Intent {
 }
 
 fun Context.hasAccessibilityPermission(): Boolean {
-    val accessibilityServiceName = "$packageName/$packageName.data.KontrolService"
+    val accessibilityServiceName = "$packageName/$packageName.core.data.KontrolService"
     val enabledServices = Settings.Secure.getString(
         contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
     )
