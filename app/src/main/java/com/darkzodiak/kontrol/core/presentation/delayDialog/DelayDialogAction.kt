@@ -3,6 +3,7 @@ package com.darkzodiak.kontrol.core.presentation.delayDialog
 import java.time.LocalDateTime
 
 sealed interface DelayDialogAction {
+    object Close: DelayDialogAction
     data class SelectDelayType(val type: DelayType): DelayDialogAction
     object SaveDelayType: DelayDialogAction
     object DismissDelayType: DelayDialogAction

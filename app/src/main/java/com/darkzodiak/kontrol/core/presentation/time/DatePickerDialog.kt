@@ -8,50 +8,42 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.time.Instant
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DateTimePickerDialog(
-    isPickingDate: Boolean,
+fun DatePickerDialog(
+    initialDateTime: LocalDateTime,
     onDateSelected: (LocalDateTime) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val now = rememberSaveable { LocalDateTime.now() }
     val datePickerState = rememberDatePickerState(
-        // TODO(): Make sure it works
-        initialSelectedDateMillis = now.atZone(ZoneOffset.UTC).toInstant().toEpochMilli()
-    )
-    val timePickerState = rememberTimePickerState(
-        is24Hour = true,
-        initialHour = now.hour,
-        initialMinute = now.minute
+        initialSelectedDateMillis = initialDateTime.toLocalDate()
+            .atStartOfDay(ZoneOffset.UTC)
+            .toInstant()
+            .toEpochMilli(),
+        selectableDates = TodayOrLater
     )
 
-    val confirmEnabled by remember { derivedStateOf { datePickerState.selectedDateMillis != null} }
+    val confirmEnabled = remember(datePickerState.selectedDateMillis) {
+        TodayOrLater.isSelectableDate(datePickerState.selectedDateMillis ?: -1)
+    }
 
-    // TODO(): Make ability to move from selecting date to time inside dialog?
-    // TODO(): DatePickerDialog is made specifically for DatePicker. Separate from TimePicker?
     DatePickerDialog(
         onDismissRequest = onDismiss,
         dismissButton = {
@@ -66,38 +58,37 @@ fun DateTimePickerDialog(
                         val localDate = Instant.ofEpochMilli(millis)
                             .atZone(ZoneId.systemDefault())
                             .toLocalDate()
-                        val localTime = LocalTime.of(timePickerState.hour, timePickerState.minute)
-                        val selectedDateTime = LocalDateTime.of(localDate, localTime)
+                        val selectedDateTime = LocalDateTime.of(localDate, initialDateTime.toLocalTime())
                         onDateSelected(selectedDateTime)
                     }
                 },
-                // TODO(): Change in future to use confirmEnabled
-                enabled = true
+                enabled = confirmEnabled
             ) {
                 Text(text = "Применить")
             }
         }
     ) {
-        if(isPickingDate)
-            DatePicker(state = datePickerState)
-        else
-            TimePicker(
-                state = timePickerState,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 8.dp)
-            )
+        DatePicker(
+            state = datePickerState,
+            title = {
+                Text(
+                    text = "Выберите дату",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(start = 24.dp, end = 12.dp, top = 16.dp)
+                )
+            }
+        )
     }
 }
 
 @Preview
 @Composable
-private fun DateTimePickerDialogPreview() {
+private fun DatePickerDialogPreview() {
     Box(Modifier
         .fillMaxSize()
         .background(Color.Black))
-    DateTimePickerDialog(
-        isPickingDate = false,
+    DatePickerDialog(
+        initialDateTime = LocalDateTime.now(),
         onDateSelected = {},
         onDismiss = {}
     )

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.time.LocalDateTime
 
 class DelayDialogViewModel: ViewModel() {
 
@@ -30,6 +31,11 @@ class DelayDialogViewModel: ViewModel() {
 
     fun onAction(action: DelayDialogAction) {
         when (action) {
+            DelayDialogAction.Close -> {
+                state = DelayDialogState()
+                mainDialogTimeSource.reset()
+                selectDialogTimeSource.reset()
+            }
             DelayDialogAction.SaveDelayType -> {
                 if (state.unsavedDelayType == state.delayType) return
                 val type = state.unsavedDelayType
@@ -47,7 +53,13 @@ class DelayDialogViewModel: ViewModel() {
                 selectDialogTimeSource.setTimeOffset(type.delay)
             }
             is DelayDialogAction.SetCustomTime -> {
-                state = state.copy(delayTime = action.time, delayType = DelayType.CUSTOM)
+                val time = if (action.time < LocalDateTime.now()) {
+                    // TODO(): Show a brief warning that user can't set a pause to the past
+                    LocalDateTime.now()
+                } else {
+                    action.time
+                }
+                state = state.copy(delayTime = time, delayType = DelayType.CUSTOM)
             }
         }
     }

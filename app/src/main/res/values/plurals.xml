@@ -2,8 +2,8 @@
 <resources>
     <plurals name="after_minutes">
         <item quantity="one">минуту</item>
-        <item quantity="many">%d минут</item>
-        <item quantity="other">%d минуты</item>
+        <item quantity="few">%d минуты</item>
+        <item quantity="other">%d минут</item>
     </plurals>
     <plurals name="after_hours">
         <item quantity="one">час</item>

@@ -28,7 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.darkzodiak.kontrol.core.presentation.time.DateTimePickerDialog
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.darkzodiak.kontrol.core.presentation.time.DatePickerDialog
+import com.darkzodiak.kontrol.core.presentation.time.TimePickerDialog
 import com.darkzodiak.kontrol.core.presentation.time.toDateString
 import com.darkzodiak.kontrol.core.presentation.time.toTimeString
 import java.time.LocalDateTime
@@ -36,7 +38,7 @@ import java.time.LocalDateTime
 // Main dialog for getting time with delay (for pause, for example)
 @Composable
 fun DelayDialog(
-    viewModel: DelayDialogViewModel = hiltViewModel(),
+    viewModel: DelayDialogViewModel = viewModel(),
     onSetPause: (LocalDateTime) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -45,7 +47,10 @@ fun DelayDialog(
     var selectDelayTypeDialogVisible by rememberSaveable { mutableStateOf(false) }
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            onDismiss()
+            viewModel.onAction(DelayDialogAction.Close)
+        },
         properties = DialogProperties(dismissOnClickOutside = false),
         title = {
             Text(
@@ -92,20 +97,30 @@ fun DelayDialog(
             }
         },
         dismissButton = {
-            OutlinedButton(onClick = onDismiss) {
+            OutlinedButton(
+                onClick = {
+                    onDismiss()
+                    viewModel.onAction(DelayDialogAction.Close)
+                }
+            ) {
                 Text(text = "Отмена")
             }
         },
         confirmButton = {
-            Button(onClick = { onSetPause(viewModel.state.delayTime) }) {
+            Button(
+                onClick = {
+                    onSetPause(viewModel.state.delayTime)
+                    viewModel.onAction(DelayDialogAction.Close)
+                }
+            ) {
                 Text(text = "Применить")
             }
         }
     )
 
     if (datePickerVisible) {
-        DateTimePickerDialog(
-            isPickingDate = true,
+        DatePickerDialog(
+            initialDateTime = viewModel.state.delayTime,
             onDateSelected = {
                 datePickerVisible = false
                 viewModel.onAction(DelayDialogAction.SetCustomTime(it))
@@ -114,8 +129,8 @@ fun DelayDialog(
         )
     }
     if (timePickerVisible) {
-        DateTimePickerDialog(
-            isPickingDate = false,
+        TimePickerDialog(
+            initialDateTime = viewModel.state.delayTime,
             onDateSelected = {
                 timePickerVisible = false
                 viewModel.onAction(DelayDialogAction.SetCustomTime(it))

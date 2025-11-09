@@ -54,6 +54,10 @@ class TimeSource {
         offset.update { duration }
     }
 
+    fun reset() {
+        offset.update { Duration.ZERO }
+    }
+
     private fun nowWithOffset(): LocalDateTime = LocalDateTime.now().plusDuration(offset.value)
 
     companion object {
