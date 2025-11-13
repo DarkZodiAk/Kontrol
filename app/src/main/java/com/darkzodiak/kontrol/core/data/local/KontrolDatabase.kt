@@ -9,14 +9,12 @@ import com.darkzodiak.kontrol.core.data.local.entity.App
 import com.darkzodiak.kontrol.profile.data.local.entity.AppToProfile
 import com.darkzodiak.kontrol.profile.data.local.entity.ProfileEntity
 import com.darkzodiak.kontrol.profile.data.local.ProfileConverters
-import com.darkzodiak.kontrol.scheduling.local.EventConverters
-import com.darkzodiak.kontrol.scheduling.local.entity.Event
 
 @Database(
-    entities = [ProfileEntity::class, App::class, AppToProfile::class, Event::class],
-    version = 7
+    entities = [ProfileEntity::class, App::class, AppToProfile::class],
+    version = 8
 )
-@TypeConverters(ProfileConverters::class, EventConverters::class)
+@TypeConverters(ProfileConverters::class)
 abstract class KontrolDatabase: RoomDatabase() {
     abstract val profileDao: ProfileDao
     abstract val appDao: AppDao

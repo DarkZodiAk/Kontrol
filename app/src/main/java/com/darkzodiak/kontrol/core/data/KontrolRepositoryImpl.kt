@@ -7,24 +7,30 @@ import com.darkzodiak.kontrol.profile.data.local.entity.AppToProfile
 import com.darkzodiak.kontrol.profile.data.ProfileMapper
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.profile.domain.Profile
+import com.darkzodiak.kontrol.scheduling.EventScheduler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class KontrolRepositoryImpl @Inject constructor(
     private val profileDao: ProfileDao,
-    private val appDao: AppDao
+    private val appDao: AppDao,
+    private val eventScheduler: EventScheduler
 ): KontrolRepository {
     override suspend fun addProfile(profile: Profile): Long {
-        return profileDao.insertProfile(ProfileMapper.profileToProfileEntity(profile))
+        val id = profileDao.insertProfile(ProfileMapper.profileToProfileEntity(profile))
+        eventScheduler.addEvent(id)
+        return id
     }
 
     override suspend fun updateProfile(profile: Profile) {
         profileDao.updateProfile(ProfileMapper.profileToProfileEntity(profile))
+        eventScheduler.updateEvent(profile.id ?: return)
     }
 
     override suspend fun deleteProfile(profile: Profile) {
         profileDao.deleteProfile(ProfileMapper.profileToProfileEntity(profile))
+        eventScheduler.deleteEvent(profile.id ?: return)
     }
 
     override fun getProfiles(): Flow<List<Profile>> {

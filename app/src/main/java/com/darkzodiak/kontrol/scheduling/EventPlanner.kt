@@ -1,11 +1,18 @@
 package com.darkzodiak.kontrol.scheduling
 
-import com.darkzodiak.kontrol.profile.domain.Profile
-import com.darkzodiak.kontrol.scheduling.local.entity.Event
+import com.darkzodiak.kontrol.profile.data.local.dao.ProfileDao
+import java.time.LocalDateTime
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class EventPlanner {
+@Singleton
+class EventPlanner @Inject constructor(
+    private val profileDao: ProfileDao
+) {
 
-//    fun planEventsFor(profile: Profile): List<Event> {
-//
-//    }
+    suspend fun getNearestEventTime(profileId: Long): LocalDateTime? {
+        val profile = profileDao.getProfileById(profileId)
+
+        return profile.pausedUntil
+    }
 }
