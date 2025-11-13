@@ -13,9 +13,7 @@ interface KontrolRepository {
     suspend fun addAppToProfile(appId: Long, profileId: Long)
     suspend fun deleteAppFromProfile(appId: Long, profileId: Long)
     fun getProfileAppsById(id: Long): Flow<List<App>>
-
-    suspend fun getProfilesWithApp(packageName: String): List<Profile>
-
+    suspend fun getProfilesWithApp(packageName: String): Flow<List<Profile>>
     fun getAllApps(): Flow<List<App>>
     suspend fun getAppById(id: Long): App
 }

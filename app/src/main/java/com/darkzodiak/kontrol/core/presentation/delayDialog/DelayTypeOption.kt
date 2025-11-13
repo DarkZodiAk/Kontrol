@@ -35,7 +35,7 @@ fun DelayTypeOption(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .then(backgroundModifier)
-            .clickable(onClick = onClick) // TODO(): Replace with selectable?
+            .clickable(onClick = onClick)
             .border(
                 width = 1.dp,
                 color = Color.DarkGray,

@@ -15,7 +15,7 @@ class SimpleBlockOverlay(
     override fun init(data: OverlayData) {
         if (data !is OverlayData.SimpleBlock) return
 
-        val text = "${data.appName} заблокирован" //TODO(): Move into resources
+        val text = "${data.appName} заблокирован"
         view.findViewById<TextView>(R.id.appName).text = text
         view.findViewById<Button>(R.id.okButton).setOnClickListener { close() }
     }

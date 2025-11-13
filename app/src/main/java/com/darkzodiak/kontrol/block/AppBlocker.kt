@@ -8,6 +8,8 @@ import com.darkzodiak.kontrol.overlay.OverlayManager
 import com.darkzodiak.kontrol.profile.domain.ProfileState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -22,6 +24,7 @@ class AppBlocker @Inject constructor(
 ) { // TODO(): Call this like Observer or what?
 
     private val scope = CoroutineScope(Dispatchers.IO)
+    private var profileCheckJob: Job? = null
     private var appCloser: AppCloser? = null
 
     init {
@@ -36,16 +39,23 @@ class AppBlocker @Inject constructor(
     }
 
     private suspend fun processApp(packageName: String) {
+        cancelProfileCheckJob()
         if (appCloser == null) return
 
-        val profiles = repository.getProfilesWithApp(packageName)
-        if (profiles.isEmpty()) return
+        profileCheckJob = repository.getProfilesWithApp(packageName)
+            .filter { it.isNotEmpty() }
+            .onEach { profiles ->
+                if (profiles.any { it.state is ProfileState.Active }) {
+                    withContext(Dispatchers.Main) {
+                        appCloser?.closeApp(packageName)
+                        overlayManager.openOverlay(OverlayData.SimpleBlock(packageName)) {}
+                    }
+                }
+            }.launchIn(scope)
+    }
 
-        if (profiles.any { it.state is ProfileState.Active }) {
-            withContext(Dispatchers.Main) {
-                appCloser?.closeApp(packageName)
-                overlayManager.openOverlay(OverlayData.SimpleBlock(packageName)) {}
-            }
-        }
+    private fun cancelProfileCheckJob() {
+        profileCheckJob?.cancel()
+        profileCheckJob = null
     }
 }

@@ -9,6 +9,7 @@ import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.scheduling.EventScheduler
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -55,12 +56,14 @@ class KontrolRepositoryImpl @Inject constructor(
         return profileDao.getProfileAppsById(id)
     }
 
-    override suspend fun getProfilesWithApp(packageName: String): List<Profile> {
-        return appDao.getAppByPackageName(packageName)?.id?.let { id ->
-            profileDao.getProfilesWithApp(id).map {
-                ProfileMapper.profileEntityToProfile(it)
-            }
-        }.orEmpty()
+    override suspend fun getProfilesWithApp(packageName: String): Flow<List<Profile>> {
+        val appId = appDao.getAppByPackageName(packageName)?.id
+        // TODO(): Empty flow or null?
+        if (appId == null) return emptyFlow()
+
+        return profileDao.getProfilesWithApp(appId).map {
+            it.map { ProfileMapper.profileEntityToProfile(it) }
+        }
     }
 
     override fun getAllApps(): Flow<List<App>> {
