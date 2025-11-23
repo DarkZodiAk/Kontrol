@@ -20,7 +20,7 @@ class DelayDialogViewModel: ViewModel() {
 
     init {
         mainDialogTimeSource.currentTime.onEach { time ->
-            if (state.delayType == DelayType.CUSTOM && state.delayTime >= time) return@onEach
+            if (state.delayType == DelayType.CUSTOM && state.delayTime > time) return@onEach
             state = state.copy(delayTime = time)
         }.launchIn(viewModelScope)
 

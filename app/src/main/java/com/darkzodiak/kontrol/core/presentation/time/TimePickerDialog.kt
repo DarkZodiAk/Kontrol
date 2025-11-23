@@ -54,7 +54,7 @@ fun TimePickerDialog(
         derivedStateOf {
             val selectedMinutes = timePickerState.hour * 60 + timePickerState.minute
             val nowMinutes = now.hour * 60 + now.minute
-            isToday.not() || selectedMinutes >= nowMinutes
+            isToday.not() || selectedMinutes > nowMinutes
         }
     }
 
