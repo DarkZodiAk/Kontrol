@@ -11,6 +11,7 @@ import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.core.domain.usecase.GetAllAppsUseCase
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
+import com.darkzodiak.kontrol.profile.domain.ProfileUploader
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -25,6 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: KontrolRepository,
+    private val profileUploader: ProfileUploader,
     savedStateHandle: SavedStateHandle,
     getAllAppsUseCase: GetAllAppsUseCase
 ) : ViewModel() {
@@ -68,30 +70,11 @@ class ProfileViewModel @Inject constructor(
     fun onAction(action: ProfileAction) {
         when(action) {
             ProfileAction.Done -> {
-                if(state.name.isBlank() && state.selectedApps.isEmpty()) {
-                    return
-                }
-                viewModelScope.launch {
-                    var id = profile.id
-                    if(id != null) {
-                        repository.updateProfile(profile.copy(name = state.name, editRestriction = state.editRestriction))
-                    } else {
-                        id = repository.addProfile(profile.copy(name = state.name, editRestriction = state.editRestriction))
-                    }
-
-                    state.selectedApps.forEach { app ->
-                        repository.addAppToProfile(profileId = id, appId = app.id!!)
-                    }
-                    (profileApps.map { it.id } - state.selectedApps.map { it.id }).forEach { appId ->
-                        repository.deleteAppFromProfile(profileId = id, appId = appId!!)
-                    }
-                    // TODO(): May be incomplete because app exits from screen at this time. Wait for process to finish
-                }
+                profileUploader.uploadProfile(profile, profileApps, state)
             }
             is ProfileAction.ModifyName -> {
                 state = state.copy(name = action.text)
             }
-
 
             is ProfileAction.Apps.SelectApp -> {
                 state = state.copy(
