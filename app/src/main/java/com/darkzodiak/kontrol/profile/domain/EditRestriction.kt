@@ -1,5 +1,7 @@
 package com.darkzodiak.kontrol.profile.domain
 
+import java.time.LocalDateTime
+
 sealed interface EditRestriction {
     object NoRestriction: EditRestriction
     data class RandomText(val length: Int): EditRestriction {
@@ -7,5 +9,13 @@ sealed interface EditRestriction {
     }
     data class Password(val password: String): EditRestriction {
         companion object { val DEFAULT = Password("") }
+    }
+    data class UntilDate(
+        val date: LocalDateTime,
+        val stopAfterReachingDate: Boolean
+    ): EditRestriction {
+        companion object {
+            val DEFAULT = UntilDate(LocalDateTime.MIN, false)
+        }
     }
 }

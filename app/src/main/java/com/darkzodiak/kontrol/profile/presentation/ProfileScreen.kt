@@ -1,5 +1,6 @@
 package com.darkzodiak.kontrol.profile.presentation
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,9 +29,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,6 +49,19 @@ fun ProfileScreenRoot(
     toRestrictions: () -> Unit,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is ProfileEvent.ShowWarning -> {
+                    Toast.makeText(context, event.text, Toast.LENGTH_SHORT).show()
+                }
+                else -> Unit
+            }
+        }
+    }
+
     ProfileScreen(
         state = viewModel.state,
         onAction = { action ->
@@ -180,9 +196,10 @@ fun ProfileScreen(
                 )
             }
             KontrolOutlinedRow(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable { onAction(ProfileAction.OpenEditRestriction) }
             ) {
-                RestrictionIconText(state.editRestriction, showDetails = true)
+                RestrictionIconText(state.editRestriction, showInfo = true, showOptionsInfo = true)
             }
         }
     }

@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun KontrolDropdownMenu(
-    actions: HashMap<String, () -> Unit>,
+    actions: List<Pair<String, () -> Unit>>,
     onDismiss: () -> Unit
 ) {
     DropdownMenu(
@@ -20,12 +20,12 @@ fun KontrolDropdownMenu(
         actions.forEach { action ->
             DropdownMenuItem(
                 onClick = {
-                    action.value()
+                    action.second()
                     onDismiss()
                 },
                 text = {
                     Text(
-                        text = action.key,
+                        text = action.first,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 },

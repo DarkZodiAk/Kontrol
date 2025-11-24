@@ -14,9 +14,9 @@ sealed interface HomeAction {
     object RestrictionNotPassed: HomeAction
 
     sealed interface Delay: HomeAction {
-        object OpenDialog: HomeAction
-        data class Save(val delayUntil: LocalDateTime): HomeAction
-        object Dismiss: HomeAction
+        object OpenDialog: Delay
+        data class Save(val delayUntil: LocalDateTime): Delay
+        object Dismiss: Delay
     }
 
     data class UpdatePermissionInfo(val permission: Permission): HomeAction

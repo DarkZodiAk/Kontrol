@@ -10,11 +10,16 @@ import com.darkzodiak.kontrol.core.data.local.entity.App
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.core.domain.usecase.GetAllAppsUseCase
+import com.darkzodiak.kontrol.core.presentation.time.TimeSource
+import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,8 +28,14 @@ class ProfileViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getAllAppsUseCase: GetAllAppsUseCase
 ) : ViewModel() {
+
+    private val timeSource = TimeSource()
+
     var state by mutableStateOf(ProfileScreenState())
         private set
+
+    private val channel = Channel<ProfileEvent>()
+    val events = channel.receiveAsFlow()
 
     private var profile = Profile()
     private var profileApps = emptyList<App>()
@@ -48,6 +59,10 @@ class ProfileViewModel @Inject constructor(
             }
             state = state.copy(isNewProfile = false)
         }
+
+        timeSource.currentTime.onEach { time ->
+            checkTimedRestriction(time)
+        }.launchIn(viewModelScope)
     }
 
     fun onAction(action: ProfileAction) {
@@ -106,6 +121,30 @@ class ProfileViewModel @Inject constructor(
             }
 
             else -> Unit
+        }
+    }
+
+    private fun checkTimedRestriction(currentTime: LocalDateTime) {
+        val editRestriction = state.editRestriction as? EditRestriction.UntilDate
+        val editRestrictionUnsaved = state.editRestrictionUnsaved as? EditRestriction.UntilDate
+
+        if (editRestriction == null && editRestrictionUnsaved == null) return
+
+        if (editRestriction != null && editRestriction.date <= currentTime) {
+            state = state.copy(editRestriction = EditRestriction.NoRestriction)
+            viewModelScope.launch {
+                channel.send(ProfileEvent.ShowWarning(
+                    text = "Блокировка профиля достигла отмеченной даты и была отключена"
+                ))
+            }
+        }
+        if (editRestrictionUnsaved != null && editRestrictionUnsaved.date <= currentTime) {
+            state = state.copy(editRestrictionUnsaved = EditRestriction.NoRestriction)
+            viewModelScope.launch {
+                channel.send(ProfileEvent.ShowWarningOnRestriction(
+                    text = "Блокировка профиля достигла отмеченной даты и была отключена"
+                ))
+            }
         }
     }
 }

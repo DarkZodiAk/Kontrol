@@ -12,6 +12,7 @@ data class HomeScreenState(
     val curRestriction: EditRestriction = EditRestriction.NoRestriction,
 
     val delayDialogVisible: Boolean = false,
+    val oldPauseDate: LocalDateTime? = null,
 
     val permissions: Permissions = Permissions()
 ) {

@@ -76,7 +76,7 @@ fun TimePickerDialog(
             ) {
                 if (confirmEnabled.not()) {
                     Text(
-                        text = "Выбранное время раньше текущего",
+                        text = "Выбранное время должно быть хотя бы на минуту позже текущего",
                         color = MaterialTheme.colorScheme.error
                     )
                 }

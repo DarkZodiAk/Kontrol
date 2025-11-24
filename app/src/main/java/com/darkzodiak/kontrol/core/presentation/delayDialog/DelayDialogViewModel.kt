@@ -9,9 +9,11 @@ import com.darkzodiak.kontrol.core.presentation.time.TimeSource
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class DelayDialogViewModel: ViewModel() {
 
+    private var initialized = false
     private val mainDialogTimeSource = TimeSource()
     private val selectDialogTimeSource = TimeSource()
 
@@ -21,7 +23,7 @@ class DelayDialogViewModel: ViewModel() {
     init {
         mainDialogTimeSource.currentTime.onEach { time ->
             if (state.delayType == DelayType.CUSTOM && state.delayTime > time) return@onEach
-            state = state.copy(delayTime = time)
+            state = state.copy(delayTime = time.plusMinutes(1).truncatedTo(ChronoUnit.MINUTES))
         }.launchIn(viewModelScope)
 
         selectDialogTimeSource.currentTime.onEach { time ->
@@ -29,9 +31,17 @@ class DelayDialogViewModel: ViewModel() {
         }.launchIn(viewModelScope)
     }
 
+    fun setInitialData(value: LocalDateTime?) {
+        if (initialized) return
+        initialized = true
+        if (value == null) return
+        state = state.copy(delayTime = value)
+    }
+
     fun onAction(action: DelayDialogAction) {
         when (action) {
             DelayDialogAction.Close -> {
+                initialized = false
                 state = DelayDialogState()
                 mainDialogTimeSource.reset()
                 selectDialogTimeSource.reset()

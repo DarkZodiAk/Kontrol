@@ -36,6 +36,8 @@ object ProfileMapper {
         private var editRestrictionType: EditRestrictionType = EditRestrictionType.NO_RESTRICTION
         private var password: String? = null
         private var randomTextLength: Int? = null
+        private var restrictUntilDate: LocalDateTime? = null
+        private var unlockAfterReachingUntilDate: Boolean? = null
 
         fun withId(id: Long?) = apply { this.id = id }
         fun withName(name: String) = apply { this.name = name }
@@ -66,6 +68,11 @@ object ProfileMapper {
                     editRestrictionType = EditRestrictionType.RANDOM_TEXT
                     randomTextLength = restriction.length
                 }
+                is EditRestriction.UntilDate -> {
+                    editRestrictionType = EditRestrictionType.UNTIL_DATE
+                    restrictUntilDate = restriction.date
+                    unlockAfterReachingUntilDate = restriction.stopAfterReachingDate
+                }
             }
         }
 
@@ -76,7 +83,9 @@ object ProfileMapper {
             pausedUntil = pausedUntil,
             editRestrictionType = editRestrictionType,
             password = password,
-            randomTextLength = randomTextLength
+            randomTextLength = randomTextLength,
+            restrictUntilDate = restrictUntilDate,
+            unlockAfterReachingUntilDate = unlockAfterReachingUntilDate
         )
     }
 
@@ -95,12 +104,21 @@ object ProfileMapper {
 
         return when (editRestrictionType) {
             EditRestrictionType.NO_RESTRICTION -> EditRestriction.NoRestriction
-            EditRestrictionType.PASSWORD ->
-                password?.let { EditRestriction.Password(it) }
-                    ?: handleDataError()
-            EditRestrictionType.RANDOM_TEXT ->
-                randomTextLength?.let { EditRestriction.RandomText(it) }
-                    ?: handleDataError()
+            EditRestrictionType.PASSWORD -> {
+                if (password == null) handleDataError()
+                else EditRestriction.Password(password)
+            }
+            EditRestrictionType.RANDOM_TEXT -> {
+                if (randomTextLength == null) handleDataError()
+                else EditRestriction.RandomText(randomTextLength)
+            }
+            EditRestrictionType.UNTIL_DATE -> {
+                if (restrictUntilDate == null || unlockAfterReachingUntilDate == null) {
+                    handleDataError()
+                } else {
+                    EditRestriction.UntilDate(restrictUntilDate, unlockAfterReachingUntilDate)
+                }
+            }
         }
     }
 

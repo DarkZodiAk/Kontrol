@@ -1,6 +1,7 @@
 package com.darkzodiak.kontrol.profile.data
 
 import com.darkzodiak.kontrol.core.data.millisUntil
+import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
 import com.darkzodiak.kontrol.profile.data.local.ProfileStateType
 import com.darkzodiak.kontrol.profile.data.local.dao.ProfileDao
 import com.darkzodiak.kontrol.scheduling.EventCache
@@ -33,6 +34,21 @@ class ProfileActualizer @Inject constructor(
                     state = ProfileStateType.ACTIVE,
                     pausedUntil = null
                 )
+            }
+        }
+
+        if (profile.editRestrictionType == EditRestrictionType.UNTIL_DATE) {
+            val untilDate = profile.restrictUntilDate
+            val unlockAfterDate = profile.unlockAfterReachingUntilDate
+            if (untilDate != null && unlockAfterDate != null) {
+                if (millisUntil(untilDate) <= 0) {
+                    newProfile = newProfile.copy(
+                        state = if (unlockAfterDate) ProfileStateType.STOPPED else ProfileStateType.ACTIVE,
+                        editRestrictionType = EditRestrictionType.NO_RESTRICTION,
+                        restrictUntilDate = null,
+                        unlockAfterReachingUntilDate = null
+                    )
+                }
             }
         }
 

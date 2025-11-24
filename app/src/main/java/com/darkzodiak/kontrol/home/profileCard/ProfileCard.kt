@@ -45,7 +45,7 @@ fun ProfileCard(
 ) {
     var dropdownMenuIsVisible by remember { mutableStateOf(false) }
     val dropdownMenuActions = remember(state) {
-        val actions = buildList {
+        buildList {
             if (state is ProfileState.Active) {
                 add("Пауза" to ProfileCardIntent.PAUSE)
                 add("Выключить" to ProfileCardIntent.STOP)
@@ -54,14 +54,11 @@ fun ProfileCard(
                 add("Включить после" to ProfileCardIntent.DELAYED_ACTIVATE)
             } else {
                 add("Включить" to ProfileCardIntent.ACTIVATE)
+                add("Изменить паузу" to ProfileCardIntent.CHANGE_PAUSE)
                 add("Выключить" to ProfileCardIntent.STOP)
             }
             add("Удалить" to ProfileCardIntent.DELETE)
-        }
-            .map { it.first to { onIntent(it.second) } }
-            .toTypedArray()
-
-        hashMapOf(*actions)
+        }.map { it.first to { onIntent(it.second) } }
     }
     val infoTextColor = if (state is ProfileState.Active) {
         MaterialTheme.colorScheme.onPrimaryContainer

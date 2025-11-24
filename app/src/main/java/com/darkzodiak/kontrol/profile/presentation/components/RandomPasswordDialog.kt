@@ -32,10 +32,10 @@ import androidx.compose.ui.unit.dp
 fun RandomPasswordDialog(
     onSave: (Int) -> Unit,
     onDismiss: () -> Unit,
-    oldLength: String,
+    oldValue: String,
     modifier: Modifier = Modifier
 ) {
-    var length by rememberSaveable { mutableStateOf(oldLength) }
+    var length by rememberSaveable { mutableStateOf(oldValue) }
 
     val errorMessage = remember(length) {
         if(length.isEmpty() || length.toInt() < 4) "Длина пароля должна быть не менее 4 символов"

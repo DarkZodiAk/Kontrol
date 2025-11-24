@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -43,13 +42,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialog
+import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialogType
 import com.darkzodiak.kontrol.permission.domain.Permission
 import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.home.profileCard.ProfileCard
 import com.darkzodiak.kontrol.home.components.EnterPasswordDialog
 import com.darkzodiak.kontrol.home.components.PermissionSheet
 import com.darkzodiak.kontrol.profile.domain.ProfileState
-import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreenRoot(
@@ -58,14 +57,13 @@ fun HomeScreenRoot(
     onNewProfile: () -> Unit
 ) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            viewModel.events.collect { event ->
-                when (event) {
-                    is HomeEvent.OpenProfile -> onOpenProfile(event.id)
-                    is HomeEvent.ShowError -> Toast.makeText(context, event.text, Toast.LENGTH_SHORT)
+        viewModel.events.collect { event ->
+            when (event) {
+                is HomeEvent.OpenProfile -> onOpenProfile(event.id)
+                is HomeEvent.ShowError -> {
+                    Toast.makeText(context, event.text, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -169,8 +167,10 @@ fun HomeScreen(
 
         if (state.delayDialogVisible) {
             DelayDialog(
+                type = DelayDialogType.PAUSE,
                 onSetPause = { onAction(HomeAction.Delay.Save(it)) },
-                onDismiss = { onAction(HomeAction.Delay.Dismiss) }
+                onDismiss = { onAction(HomeAction.Delay.Dismiss) },
+                oldValue = state.oldPauseDate
             )
         }
 

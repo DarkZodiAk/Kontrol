@@ -2,6 +2,7 @@ package com.darkzodiak.kontrol.core.presentation.time
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -30,17 +31,17 @@ class TimeSource {
             }
         }
 
-        var timerJob = launchTimerJob()
+        var timerJob: Job? = null
         var offsetJob = launch {
             offset.collect {
-                timerJob.cancel()
+                timerJob?.cancel()
                 timerJob = launchTimerJob()
             }
         }
 
         awaitClose {
             offsetJob.cancel()
-            timerJob.cancel()
+            timerJob?.cancel()
             offset.update { Duration.ZERO }
         }
     }
@@ -59,6 +60,7 @@ class TimeSource {
     }
 
     private fun nowWithOffset(): LocalDateTime = LocalDateTime.now().plusDuration(offset.value)
+
 
     companion object {
         private const val MINUTE_MILLIS = 60000L

@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
+import com.darkzodiak.kontrol.core.presentation.time.toFullString
+import com.darkzodiak.kontrol.home.HomeEvent.*
 import com.darkzodiak.kontrol.home.profileCard.PendingProfileIntent
 import com.darkzodiak.kontrol.home.profileCard.ProfileCardIntent
 import com.darkzodiak.kontrol.permission.domain.Permission
@@ -21,11 +23,12 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.reflect.KClass
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: KontrolRepository,
-    private val permissionObserver: PermissionObserver
+    private val permissionObserver: PermissionObserver,
 ) : ViewModel() {
 
     private val timeSource = TimeSource()
@@ -60,16 +63,7 @@ class HomeViewModel @Inject constructor(
     fun onAction(action: HomeAction) {
         when(action) {
             is HomeAction.RequestProfileAction -> {
-                val (profile, intent) = action
-                pendingCardIntent = PendingProfileIntent(profile, intent)
-                if (profile.state is ProfileState.Active && profile.editRestriction !is EditRestriction.NoRestriction) {
-                    state = state.copy(
-                        curRestriction = profile.editRestriction,
-                        restrictionDialogVisible = true
-                    )
-                    return
-                }
-                executeProfileIntent()
+                processProfileActionRequest(action.profile, action.intent)
             }
             HomeAction.RestrictionPassed -> {
                 closeRestrictionDialog()
@@ -92,7 +86,10 @@ class HomeViewModel @Inject constructor(
             }
 
             HomeAction.Delay.OpenDialog -> {
-                state = state.copy(delayDialogVisible = true)
+                state = state.copy(
+                    delayDialogVisible = true,
+                    oldPauseDate = (pendingDelayProfile?.state as? ProfileState.Paused)?.until
+                )
             }
             is HomeAction.Delay.Save -> {
                 pendingDelayProfile?.let { profile ->
@@ -118,6 +115,27 @@ class HomeViewModel @Inject constructor(
         )
     }
 
+    private fun processProfileActionRequest(profile: Profile, intent: ProfileCardIntent) {
+        pendingCardIntent = PendingProfileIntent(profile, intent)
+        val restriction = profile.editRestriction
+        if (profile.state is ProfileState.Active && restriction !is EditRestriction.NoRestriction) {
+
+            if (restriction.isOneOf(dialogBasedRestrictions)) {
+                state = state.copy(
+                    curRestriction = restriction,
+                    restrictionDialogVisible = true
+                )
+            } else if (restriction.isOneOf(strictRestrictions)) {
+                pendingCardIntent = null
+                viewModelScope.launch {
+                    channel.send(ShowError(getErrorTextForStrictRestriction(restriction)))
+                }
+            }
+            return
+        }
+        executeProfileIntent()
+    }
+
     private fun executeProfileIntent() {
         pendingCardIntent?.run {
             when (intent) {
@@ -126,32 +144,59 @@ class HomeViewModel @Inject constructor(
                         repository.updateProfile(profile.copy(state = ProfileState.Active))
                     }
                 }
-                ProfileCardIntent.DELAYED_ACTIVATE -> {
-                    pendingDelayProfile = profile
-                    onAction(HomeAction.Delay.OpenDialog)
-                }
                 ProfileCardIntent.STOP -> {
                     viewModelScope.launch {
                         repository.updateProfile(profile.copy(state = ProfileState.Stopped))
                     }
                 }
-                ProfileCardIntent.PAUSE -> {
-                    pendingDelayProfile = profile
-                    onAction(HomeAction.Delay.OpenDialog)
+                ProfileCardIntent.OPEN -> {
+                    viewModelScope.launch {
+                        if (profile.id == null) channel.send(ShowError("Profile open error"))
+                        else channel.send(OpenProfile(profile.id))
+                    }
                 }
                 ProfileCardIntent.DELETE -> {
                     viewModelScope.launch {
                         repository.deleteProfile(profile)
                     }
                 }
-                ProfileCardIntent.OPEN -> {
-                    viewModelScope.launch {
-                        if (profile.id == null) channel.send(HomeEvent.ShowError("Profile open error"))
-                        else channel.send(HomeEvent.OpenProfile(profile.id))
-                    }
+                ProfileCardIntent.DELAYED_ACTIVATE -> {
+                    openDelayDialog(profile)
+                }
+                ProfileCardIntent.PAUSE -> {
+                    openDelayDialog(profile)
+                }
+                ProfileCardIntent.CHANGE_PAUSE -> {
+                    openDelayDialog(profile)
                 }
             }
         }
         pendingCardIntent = null
+    }
+
+    private fun openDelayDialog(profile: Profile) {
+        pendingDelayProfile = profile
+        onAction(HomeAction.Delay.OpenDialog)
+    }
+
+    companion object {
+        private val dialogBasedRestrictions = setOf(
+            EditRestriction.Password::class,
+            EditRestriction.RandomText::class
+        )
+        private val strictRestrictions = setOf(
+            EditRestriction.UntilDate::class
+        )
+
+        private fun EditRestriction.isOneOf(types: Set<KClass<out EditRestriction>>): Boolean {
+            return types.any { it.isInstance(this) }
+        }
+
+        private fun getErrorTextForStrictRestriction(restriction: EditRestriction): String {
+            return when (restriction) {
+                is EditRestriction.UntilDate -> "Редактирование заблокировано до ${restriction.date.toFullString()}"
+                else -> "Что-то пошло не так, профиль заблокирован для редактирования"
+            }
+        }
     }
 }

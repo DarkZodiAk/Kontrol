@@ -20,11 +20,11 @@ import androidx.compose.ui.unit.dp
 fun PasswordDialog(
     onSave: (String) -> Unit,
     onDismiss: () -> Unit,
-    oldPassword: String,
+    oldValue: String,
     modifier: Modifier = Modifier
 ) {
-    var password by rememberSaveable { mutableStateOf(oldPassword) }
-    var repeatPassword by rememberSaveable { mutableStateOf(oldPassword) }
+    var password by rememberSaveable { mutableStateOf(oldValue) }
+    var repeatPassword by rememberSaveable { mutableStateOf(oldValue) }
 
     val passwordError = remember(password) {
         if(password.isEmpty()) "Пароль не записан"

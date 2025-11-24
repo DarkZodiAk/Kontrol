@@ -17,5 +17,7 @@ data class ProfileEntity(
 
     val editRestrictionType: EditRestrictionType = EditRestrictionType.NO_RESTRICTION,
     val password: String? = null,
-    val randomTextLength: Int? = null
+    val randomTextLength: Int? = null,
+    val restrictUntilDate: LocalDateTime? = null,
+    val unlockAfterReachingUntilDate: Boolean? = null
 )

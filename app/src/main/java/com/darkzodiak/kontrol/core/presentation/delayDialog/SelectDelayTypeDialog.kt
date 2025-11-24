@@ -28,6 +28,7 @@ import com.darkzodiak.kontrol.core.presentation.time.toFullString
 @Composable
 fun SelectDelayTypeDialog(
     state: DelayDialogState,
+    type: DelayDialogType,
     onSelectDelay: (DelayType) -> Unit,
     onSaveDelay: () -> Unit,
     onDismiss: () -> Unit
@@ -61,7 +62,7 @@ fun SelectDelayTypeDialog(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text(text = "Время включения профиля:")
+                    Text(text = getDelayInfoText(type))
                     Text(text = state.selectDelayTime.toFullString())
                 }
             }
@@ -80,6 +81,12 @@ fun SelectDelayTypeDialog(
     }
 }
 
+@Composable
+fun getDelayInfoText(type: DelayDialogType) = when (type) {
+    DelayDialogType.PAUSE -> "Время включения профиля:"
+    DelayDialogType.RESTRICT_UNTIL -> "Блокировка профиля до:"
+}
+
 @Preview
 @Composable
 private fun SelectDelayTypeDialogPreview() {
@@ -88,6 +95,7 @@ private fun SelectDelayTypeDialogPreview() {
         .background(Color.Black))
     SelectDelayTypeDialog(
         state = DelayDialogState(unsavedDelayType = DelayType.HOURS_1),
+        type = DelayDialogType.RESTRICT_UNTIL,
         onSelectDelay = {},
         onSaveDelay = {},
         onDismiss = {}

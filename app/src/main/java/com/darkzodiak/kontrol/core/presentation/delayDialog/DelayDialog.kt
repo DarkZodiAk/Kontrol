@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,12 +39,18 @@ import java.time.LocalDateTime
 @Composable
 fun DelayDialog(
     viewModel: DelayDialogViewModel = viewModel(),
+    type: DelayDialogType,
     onSetPause: (LocalDateTime) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    oldValue: LocalDateTime?
 ) {
     var datePickerVisible by rememberSaveable { mutableStateOf(false) }
     var timePickerVisible by rememberSaveable { mutableStateOf(false) }
     var selectDelayTypeDialogVisible by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.setInitialData(oldValue)
+    }
 
     AlertDialog(
         onDismissRequest = {
@@ -53,7 +60,7 @@ fun DelayDialog(
         properties = DialogProperties(dismissOnClickOutside = false),
         title = {
             Text(
-                text = "Выберите время включения",
+                text = getDelayDialogTitle(type),
                 fontSize = 20.sp
             )
         },
@@ -141,6 +148,7 @@ fun DelayDialog(
     if (selectDelayTypeDialogVisible) {
         SelectDelayTypeDialog(
             state = viewModel.state,
+            type = type,
             onSelectDelay = {
                 viewModel.onAction(DelayDialogAction.SelectDelayType(it))
             },
@@ -156,6 +164,12 @@ fun DelayDialog(
     }
 }
 
+@Composable
+fun getDelayDialogTitle(type: DelayDialogType) = when (type) {
+    DelayDialogType.PAUSE -> "Выберите время включения"
+    DelayDialogType.RESTRICT_UNTIL -> "Блокировать профиль до"
+}
+
 @Preview
 @Composable
 private fun DelayDialogPreview() {
@@ -163,7 +177,9 @@ private fun DelayDialogPreview() {
         .fillMaxSize()
         .background(Color.Black))
     DelayDialog(
+        type = DelayDialogType.RESTRICT_UNTIL,
         onSetPause = {},
-        onDismiss = {}
+        onDismiss = {},
+        oldValue = null
     )
 }
