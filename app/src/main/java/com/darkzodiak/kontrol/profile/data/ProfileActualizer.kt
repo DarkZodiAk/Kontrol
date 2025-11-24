@@ -1,24 +1,30 @@
 package com.darkzodiak.kontrol.profile.data
 
+import android.content.Context
+import com.darkzodiak.kontrol.core.data.FirstLaunchPostBootDetector
 import com.darkzodiak.kontrol.core.data.millisUntil
 import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
 import com.darkzodiak.kontrol.profile.data.local.ProfileStateType
 import com.darkzodiak.kontrol.profile.data.local.dao.ProfileDao
 import com.darkzodiak.kontrol.scheduling.EventCache
 import com.darkzodiak.kontrol.scheduling.EventScheduler
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ProfileActualizer @Inject constructor(
+    @ApplicationContext context: Context,
     private val profileDao: ProfileDao,
     private val eventScheduler: EventScheduler
 ) {
     private val scope = CoroutineScope(Dispatchers.IO)
+    private var firstCallAfterBoot = FirstLaunchPostBootDetector(context).isFirstLaunch()
 
     init {
         EventCache.profileActualizer = this
@@ -28,7 +34,7 @@ class ProfileActualizer @Inject constructor(
         val profile = profileDao.getProfileById(profileId)
         var newProfile = profile.copy()
 
-        profile.pausedUntil?.let { resumeTime ->
+        newProfile.pausedUntil?.let { resumeTime ->
             if (millisUntil(resumeTime) <= 0) {
                 newProfile = newProfile.copy(
                     state = ProfileStateType.ACTIVE,
@@ -37,18 +43,30 @@ class ProfileActualizer @Inject constructor(
             }
         }
 
-        if (profile.editRestrictionType == EditRestrictionType.UNTIL_DATE) {
-            val untilDate = profile.restrictUntilDate
-            val unlockAfterDate = profile.unlockAfterReachingUntilDate
-            if (untilDate != null && unlockAfterDate != null) {
+        if (newProfile.editRestrictionType == EditRestrictionType.UNTIL_DATE) {
+            val untilDate = newProfile.restrictUntilDate
+            val stopAfterDate = newProfile.stopAfterReachingUntilDate
+            if (untilDate != null && stopAfterDate != null) {
                 if (millisUntil(untilDate) <= 0) {
                     newProfile = newProfile.copy(
-                        state = if (unlockAfterDate) ProfileStateType.STOPPED else ProfileStateType.ACTIVE,
+                        state = if (stopAfterDate) ProfileStateType.STOPPED else ProfileStateType.ACTIVE,
                         editRestrictionType = EditRestrictionType.NO_RESTRICTION,
                         restrictUntilDate = null,
-                        unlockAfterReachingUntilDate = null
+                        stopAfterReachingUntilDate = null
                     )
                 }
+            }
+        }
+
+        if (newProfile.editRestrictionType == EditRestrictionType.UNTIL_REBOOT
+            && newProfile.state == ProfileStateType.ACTIVE && firstCallAfterBoot) {
+            val stopAfterReboot = newProfile.stopAfterReboot
+            if (stopAfterReboot != null) {
+                newProfile = newProfile.copy(
+                    state = if (stopAfterReboot) ProfileStateType.STOPPED else ProfileStateType.ACTIVE,
+                    editRestrictionType = EditRestrictionType.NO_RESTRICTION,
+                    stopAfterReboot = null
+                )
             }
         }
 
@@ -60,8 +78,10 @@ class ProfileActualizer @Inject constructor(
 
     fun actualizeAll() = scope.launch {
         val profiles = profileDao.getProfiles().first()
-        profiles.forEach { profile ->
-            actualize(profile.id ?: return@forEach)
+        val jobs = profiles.mapNotNull { profile ->
+            if (profile.id != null) actualize(profile.id) else null
         }
+        jobs.joinAll()
+        firstCallAfterBoot = false
     }
 }

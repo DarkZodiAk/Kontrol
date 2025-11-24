@@ -185,7 +185,8 @@ class HomeViewModel @Inject constructor(
             EditRestriction.RandomText::class
         )
         private val strictRestrictions = setOf(
-            EditRestriction.UntilDate::class
+            EditRestriction.UntilDate::class,
+            EditRestriction.UntilReboot::class
         )
 
         private fun EditRestriction.isOneOf(types: Set<KClass<out EditRestriction>>): Boolean {
@@ -195,6 +196,7 @@ class HomeViewModel @Inject constructor(
         private fun getErrorTextForStrictRestriction(restriction: EditRestriction): String {
             return when (restriction) {
                 is EditRestriction.UntilDate -> "Редактирование заблокировано до ${restriction.date.toFullString()}"
+                is EditRestriction.UntilReboot -> "Редактирование заблокировано до перезагрузки устройства"
                 else -> "Что-то пошло не так, профиль заблокирован для редактирования"
             }
         }

@@ -28,8 +28,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.darkzodiak.kontrol.core.presentation.KontrolOption
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialog
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialogType
+import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
-import com.darkzodiak.kontrol.profile.presentation.components.NoRestrictionDialog
 import com.darkzodiak.kontrol.profile.presentation.components.PasswordDialog
 import com.darkzodiak.kontrol.profile.presentation.components.RandomPasswordDialog
 import com.darkzodiak.kontrol.profile.presentation.components.RestrictionRow
@@ -72,9 +72,9 @@ fun EditRestrictionScreen(
     state: ProfileScreenState,
     onAction: (ProfileAction.Restriction) -> Unit
 ) {
-    var noRestrictionDialogVisible by rememberSaveable { mutableStateOf(false) }
+//    var restrictionDataLossDialogVisible by rememberSaveable { mutableStateOf(false) }
     var passwordDialogVisible by rememberSaveable { mutableStateOf(false) }
-    var randomPasswordDialogVisible by rememberSaveable { mutableStateOf(false) }
+    var randomTextDialogVisible by rememberSaveable { mutableStateOf(false) }
     var untilDateDialogVisible by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
@@ -97,7 +97,6 @@ fun EditRestrictionScreen(
         },
         modifier = Modifier.fillMaxSize()
     ) { padding ->
-        //Column with Restrictions
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
@@ -106,30 +105,26 @@ fun EditRestrictionScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             RestrictionRow(
-                restriction = EditRestriction.NoRestriction,
-                active = state.editRestrictionUnsaved is EditRestriction.NoRestriction,
-                onClick = {
-                    if(state.editRestrictionUnsaved !is EditRestriction.NoRestriction) {
-                        noRestrictionDialogVisible = true
-                    }
-                }
+                type = EditRestrictionType.NO_RESTRICTION,
+                data = state.editRestrictionUnsaved,
+                onClick = { onAction(ProfileAction.Restriction.UpdateType(EditRestriction.NoRestriction)) }
             )
 
             RestrictionRow(
-                restriction = getPasswordRestrictionOrDefault(state.editRestrictionUnsaved),
-                active = state.editRestrictionUnsaved is EditRestriction.Password,
+                type = EditRestrictionType.PASSWORD,
+                data = state.editRestrictionUnsaved,
                 onClick = { passwordDialogVisible = true }
             )
 
             RestrictionRow(
-                restriction = getRandPasswordRestrictionOrDefault(state.editRestrictionUnsaved),
-                active = state.editRestrictionUnsaved is EditRestriction.RandomText,
-                onClick = { randomPasswordDialogVisible = true }
+                type = EditRestrictionType.RANDOM_TEXT,
+                data = state.editRestrictionUnsaved,
+                onClick = { randomTextDialogVisible = true }
             )
 
             RestrictionRow(
-                restriction = getUntilDateRestrictionOrDefault(state.editRestrictionUnsaved),
-                active = state.editRestrictionUnsaved is EditRestriction.UntilDate,
+                type = EditRestrictionType.UNTIL_DATE,
+                data = state.editRestrictionUnsaved,
                 onClick = { untilDateDialogVisible = true }
             )
 
@@ -145,16 +140,37 @@ fun EditRestrictionScreen(
                     }
                 )
             }
+
+            RestrictionRow(
+                type = EditRestrictionType.UNTIL_REBOOT,
+                data = state.editRestrictionUnsaved,
+                // TODO(): Actually a bummer. Will be fixed on ProfileViewModel separation
+                onClick = { onAction(ProfileAction.Restriction.UpdateType(EditRestriction.UntilReboot(false))) }
+            )
+
+            if (state.editRestrictionUnsaved is EditRestriction.UntilReboot) {
+                val restriction = state.editRestrictionUnsaved
+                KontrolOption(
+                    checked = restriction.stopAfterReboot,
+                    text = "Отключить после перезапуска",
+                    onClick = {
+                        onAction(ProfileAction.Restriction.UpdateType(
+                            restriction.copy(stopAfterReboot = true)
+                        ))
+                    }
+                )
+            }
         }
 
-        if (noRestrictionDialogVisible) {
-            NoRestrictionDialog(
-                onConfirm = {
-                    onAction(ProfileAction.Restriction.UpdateType(EditRestriction.NoRestriction))
-                },
-                onDismiss = { noRestrictionDialogVisible = false }
-            )
-        }
+        // TODO(): We should somehow deal with restriction changes (user-friendly caching?)
+//        if (restrictionDataLossDialogVisible) {
+//            NoRestrictionDialog(
+//                onConfirm = {
+//                    onAction(ProfileAction.Restriction.UpdateType(EditRestriction.NoRestriction))
+//                },
+//                onDismiss = { restrictionDataLossDialogVisible = false }
+//            )
+//        }
 
         if (passwordDialogVisible) {
             PasswordDialog(
@@ -163,18 +179,19 @@ fun EditRestrictionScreen(
                     passwordDialogVisible = false
                 },
                 onDismiss = { passwordDialogVisible = false },
-                oldValue = getPasswordRestrictionOrDefault(state.editRestrictionUnsaved).password
+                oldValue = (state.editRestrictionUnsaved as? EditRestriction.Password)?.password ?: ""
             )
         }
 
-        if (randomPasswordDialogVisible) {
+        if (randomTextDialogVisible) {
             RandomPasswordDialog(
                 onSave = {
                     onAction(ProfileAction.Restriction.UpdateType(EditRestriction.RandomText(it)))
-                    randomPasswordDialogVisible = false
+                    randomTextDialogVisible = false
                 },
-                onDismiss = { randomPasswordDialogVisible = false },
-                oldValue = getRandPasswordRestrictionOrDefault(state.editRestrictionUnsaved).length.toString()
+                onDismiss = { randomTextDialogVisible = false },
+                // TODO(): Change this behavior when splitting ProfileViewModel
+                oldValue = (state.editRestrictionUnsaved as? EditRestriction.RandomText)?.length.toString()
             )
         }
 
@@ -182,11 +199,11 @@ fun EditRestrictionScreen(
             DelayDialog(
                 type = DelayDialogType.RESTRICT_UNTIL,
                 onSetPause = {
-                    val restriction = getUntilDateRestrictionOrDefault(state.editRestrictionUnsaved)
+                    val restriction = state.editRestrictionUnsaved
                     onAction(ProfileAction.Restriction.UpdateType(
-                        restriction.copy(
+                        EditRestriction.UntilDate(
                             date = it,
-                            stopAfterReachingDate = restriction.stopAfterReachingDate
+                            stopAfterReachingDate = restriction is EditRestriction.UntilDate && restriction.stopAfterReachingDate
                         )
                     ))
                     untilDateDialogVisible = false
@@ -198,18 +215,6 @@ fun EditRestrictionScreen(
             )
         }
     }
-}
-
-fun getPasswordRestrictionOrDefault(restriction: EditRestriction): EditRestriction.Password {
-    return restriction as? EditRestriction.Password ?: EditRestriction.Password.DEFAULT
-}
-
-fun getRandPasswordRestrictionOrDefault(restriction: EditRestriction): EditRestriction.RandomText {
-    return restriction as? EditRestriction.RandomText ?: EditRestriction.RandomText.DEFAULT
-}
-
-fun getUntilDateRestrictionOrDefault(restriction: EditRestriction): EditRestriction.UntilDate {
-    return restriction as? EditRestriction.UntilDate ?: EditRestriction.UntilDate.DEFAULT
 }
 
 @Preview

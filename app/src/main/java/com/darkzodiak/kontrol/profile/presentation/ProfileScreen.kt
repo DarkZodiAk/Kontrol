@@ -199,7 +199,11 @@ fun ProfileScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable { onAction(ProfileAction.OpenEditRestriction) }
             ) {
-                RestrictionIconText(state.editRestriction, showInfo = true, showOptionsInfo = true)
+                RestrictionIconText(
+                    type = state.editRestriction.toType(),
+                    data = state.editRestriction,
+                    showInfo = true,
+                    showOptionsInfo = true)
             }
         }
     }

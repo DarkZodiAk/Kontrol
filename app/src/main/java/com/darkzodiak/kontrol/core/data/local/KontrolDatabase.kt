@@ -12,7 +12,7 @@ import com.darkzodiak.kontrol.profile.data.local.ProfileConverters
 
 @Database(
     entities = [ProfileEntity::class, App::class, AppToProfile::class],
-    version = 9
+    version = 10
 )
 @TypeConverters(ProfileConverters::class)
 abstract class KontrolDatabase: RoomDatabase() {

@@ -84,8 +84,6 @@ fun HomeScreen(
     state: HomeScreenState,
     onAction: (HomeAction) -> Unit
 ) {
-    var passwordDialogVisible by rememberSaveable { mutableStateOf(false) }
-
     val permissionSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var permissionSheetVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -174,17 +172,11 @@ fun HomeScreen(
             )
         }
 
-        if (passwordDialogVisible) {
+        if (state.restrictionDialogVisible) {
             EnterPasswordDialog(
                 passRestriction = state.curRestriction,
-                onDismiss = {
-                    onAction(HomeAction.RestrictionNotPassed)
-                    passwordDialogVisible = false
-                },
-                onSuccess = {
-                    onAction(HomeAction.RestrictionPassed)
-                    passwordDialogVisible = false
-                }
+                onDismiss = { onAction(HomeAction.RestrictionNotPassed) },
+                onSuccess = { onAction(HomeAction.RestrictionPassed) }
             )
         }
     }

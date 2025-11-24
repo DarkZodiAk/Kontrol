@@ -37,7 +37,8 @@ object ProfileMapper {
         private var password: String? = null
         private var randomTextLength: Int? = null
         private var restrictUntilDate: LocalDateTime? = null
-        private var unlockAfterReachingUntilDate: Boolean? = null
+        private var stopAfterReachingUntilDate: Boolean? = null
+        private var stopAfterReboot: Boolean? = null
 
         fun withId(id: Long?) = apply { this.id = id }
         fun withName(name: String) = apply { this.name = name }
@@ -71,7 +72,11 @@ object ProfileMapper {
                 is EditRestriction.UntilDate -> {
                     editRestrictionType = EditRestrictionType.UNTIL_DATE
                     restrictUntilDate = restriction.date
-                    unlockAfterReachingUntilDate = restriction.stopAfterReachingDate
+                    stopAfterReachingUntilDate = restriction.stopAfterReachingDate
+                }
+                is EditRestriction.UntilReboot -> {
+                    editRestrictionType = EditRestrictionType.UNTIL_REBOOT
+                    stopAfterReboot = restriction.stopAfterReboot
                 }
             }
         }
@@ -85,7 +90,8 @@ object ProfileMapper {
             password = password,
             randomTextLength = randomTextLength,
             restrictUntilDate = restrictUntilDate,
-            unlockAfterReachingUntilDate = unlockAfterReachingUntilDate
+            stopAfterReachingUntilDate = stopAfterReachingUntilDate,
+            stopAfterReboot = stopAfterReboot
         )
     }
 
@@ -113,15 +119,23 @@ object ProfileMapper {
                 else EditRestriction.RandomText(randomTextLength)
             }
             EditRestrictionType.UNTIL_DATE -> {
-                if (restrictUntilDate == null || unlockAfterReachingUntilDate == null) {
+                if (restrictUntilDate == null || stopAfterReachingUntilDate == null) {
                     handleDataError()
                 } else {
-                    EditRestriction.UntilDate(restrictUntilDate, unlockAfterReachingUntilDate)
+                    EditRestriction.UntilDate(restrictUntilDate, stopAfterReachingUntilDate)
+                }
+            }
+            EditRestrictionType.UNTIL_REBOOT -> {
+                if (stopAfterReboot == null) {
+                    handleDataError()
+                } else {
+                    EditRestriction.UntilReboot(stopAfterReboot)
                 }
             }
         }
     }
 
+    // TODO(): Those error functions spit out profile that doesn't exist in DB, so it can't be deleted
     private fun handleInconsistentState(type: ProfileStateType): ProfileState {
         Log.d("Kontrol Log", "Data inconsistency: data for profile state ${type.name} is null")
         return ProfileState.Stopped
