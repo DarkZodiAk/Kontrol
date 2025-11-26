@@ -1,6 +1,7 @@
 package com.darkzodiak.kontrol.core.presentation
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,7 +32,7 @@ fun KontrolOption(
                 width = 1.dp,
                 color = Color(202, 196, 208),
                 shape = RoundedCornerShape(12.dp)
-            )
+            ).clickable(onClick = { onClick(checked.not()) })
     ) {
         Checkbox(
             checked = checked,
