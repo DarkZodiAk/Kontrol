@@ -16,6 +16,16 @@ class ProfileConverters {
     }
 
     @TypeConverter
+    fun toAppRestrictionType(value: String): AppRestrictionType {
+        return AppRestrictionType.valueOf(value)
+    }
+
+    @TypeConverter
+    fun fromAppRestrictionType(value: AppRestrictionType): String {
+        return value.name
+    }
+
+    @TypeConverter
     fun toProfileStateType(value: String): ProfileStateType {
         return ProfileStateType.valueOf(value)
     }

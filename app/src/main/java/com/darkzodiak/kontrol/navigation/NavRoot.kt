@@ -9,6 +9,7 @@ import com.darkzodiak.kontrol.home.HomeScreenRoot
 import com.darkzodiak.kontrol.profile.presentation.appList.AppListScreenRoot
 import com.darkzodiak.kontrol.profile.presentation.editRestriction.EditRestrictionScreenRoot
 import com.darkzodiak.kontrol.profile.presentation.ProfileScreenRoot
+import com.darkzodiak.kontrol.profile.presentation.appRestriction.AppRestrictionScreenRoot
 
 @Composable
 fun NavRoot(
@@ -30,6 +31,7 @@ fun NavRoot(
         composable<Route.ProfileScreen> {
             ProfileScreenRoot(
                 toAppList = { navController.navigate(Route.AppListScreen) },
+                toAppRestrictions = { navController.navigate(Route.AppRestrictionScreen) },
                 toEditRestrictions = { navController.navigate(Route.EditRestrictionScreen) },
                 onBack = { navController.navigateUp() }
             )
@@ -37,6 +39,10 @@ fun NavRoot(
 
         composable<Route.AppListScreen> {
             AppListScreenRoot(onBack = { navController.navigateUp() })
+        }
+
+        composable<Route.AppRestrictionScreen> {
+            AppRestrictionScreenRoot(onBack = { navController.navigateUp() })
         }
 
         composable<Route.EditRestrictionScreen> {

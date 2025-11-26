@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.outlined.ErrorOutline
@@ -40,12 +39,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.darkzodiak.kontrol.core.presentation.KontrolOutlinedRow
 import com.darkzodiak.kontrol.core.presentation.KontrolTextField
-import com.darkzodiak.kontrol.profile.presentation.components.RestrictionIconText
+import com.darkzodiak.kontrol.profile.presentation.components.AppRestrictionIconText
+import com.darkzodiak.kontrol.profile.presentation.components.EditRestrictionIconText
 
 @Composable
 fun ProfileScreenRoot(
     viewModel: ProfileViewModel = hiltViewModel(),
     toAppList: () -> Unit,
+    toAppRestrictions: () -> Unit,
     toEditRestrictions: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -69,6 +70,7 @@ fun ProfileScreenRoot(
                 ProfileAction.Back -> onBack()
                 ProfileAction.Done -> onBack()
                 ProfileAction.OpenAppsList -> toAppList()
+                ProfileAction.OpenAppRestriction -> toAppRestrictions()
                 ProfileAction.OpenEditRestriction -> toEditRestrictions()
                 else -> Unit
             }
@@ -173,14 +175,18 @@ fun ProfileScreen(
                 }
             }
             Text(
-                text = "Ограничения",
+                text = "Ограничениe",
                 style = MaterialTheme.typography.titleMedium
             )
-            KontrolOutlinedRow {
-                Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                Text(
-                    text = "Добавить",
-                    style = MaterialTheme.typography.titleMedium
+            KontrolOutlinedRow(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onAction(ProfileAction.OpenAppRestriction) }
+            ) {
+                AppRestrictionIconText(
+                    type = state.appRestriction.toType(),
+                    data = state.appRestriction,
+                    showText = true,
+                    showOptionsText = true
                 )
             }
             Column(
@@ -199,11 +205,12 @@ fun ProfileScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable { onAction(ProfileAction.OpenEditRestriction) }
             ) {
-                RestrictionIconText(
+                EditRestrictionIconText(
                     type = state.editRestriction.toType(),
                     data = state.editRestriction,
-                    showInfo = true,
-                    showOptionsInfo = true)
+                    showText = true,
+                    showOptionsText = true
+                )
             }
         }
     }

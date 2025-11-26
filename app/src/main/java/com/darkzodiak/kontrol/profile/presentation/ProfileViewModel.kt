@@ -49,6 +49,7 @@ class ProfileViewModel @Inject constructor(
                 state = state.copy(
                     name = profile.name,
                     apps = profileApps,
+                    appRestriction = profile.appRestriction,
                     editRestriction = profile.editRestriction,
                 )
             }
@@ -67,10 +68,9 @@ class ProfileViewModel @Inject constructor(
             state = state.copy(editRestriction = it)
         }.launchIn(viewModelScope)
 
-        // TODO(): Uncomment on implementing AppRestrictions
-//        interScreenCache.appRestriction.onEach {
-//
-//        }.launchIn(viewModelScope)
+        interScreenCache.appRestriction.onEach {
+            state = state.copy(appRestriction = it)
+        }.launchIn(viewModelScope)
     }
 
     fun onAction(action: ProfileAction) {
@@ -81,11 +81,14 @@ class ProfileViewModel @Inject constructor(
             is ProfileAction.ModifyName -> {
                 state = state.copy(name = action.text)
             }
-            ProfileAction.OpenEditRestriction -> {
-                interScreenCache.sendEditRestriction(state.editRestriction)
-            }
             ProfileAction.OpenAppsList -> {
                 interScreenCache.sendAppList(state.apps)
+            }
+            ProfileAction.OpenAppRestriction -> {
+                interScreenCache.sendAppRestriction(state.appRestriction)
+            }
+            ProfileAction.OpenEditRestriction -> {
+                interScreenCache.sendEditRestriction(state.editRestriction)
             }
             else -> Unit
         }

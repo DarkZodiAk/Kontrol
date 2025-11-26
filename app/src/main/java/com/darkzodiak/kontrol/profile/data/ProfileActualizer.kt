@@ -44,15 +44,15 @@ class ProfileActualizer @Inject constructor(
         }
 
         if (newProfile.editRestrictionType == EditRestrictionType.UNTIL_DATE) {
-            val untilDate = newProfile.restrictUntilDate
-            val stopAfterDate = newProfile.stopAfterReachingUntilDate
+            val untilDate = newProfile.eRestrictUntilDate
+            val stopAfterDate = newProfile.eStopAfterReachingUntilDate
             if (untilDate != null && stopAfterDate != null) {
                 if (millisUntil(untilDate) <= 0) {
                     newProfile = newProfile.copy(
                         state = if (stopAfterDate) ProfileStateType.STOPPED else ProfileStateType.ACTIVE,
                         editRestrictionType = EditRestrictionType.NO_RESTRICTION,
-                        restrictUntilDate = null,
-                        stopAfterReachingUntilDate = null
+                        eRestrictUntilDate = null,
+                        eStopAfterReachingUntilDate = null
                     )
                 }
             }
@@ -60,12 +60,12 @@ class ProfileActualizer @Inject constructor(
 
         if (newProfile.editRestrictionType == EditRestrictionType.UNTIL_REBOOT
             && newProfile.state == ProfileStateType.ACTIVE && firstCallAfterBoot) {
-            val stopAfterReboot = newProfile.stopAfterReboot
+            val stopAfterReboot = newProfile.eStopAfterReboot
             if (stopAfterReboot != null) {
                 newProfile = newProfile.copy(
                     state = if (stopAfterReboot) ProfileStateType.STOPPED else ProfileStateType.ACTIVE,
                     editRestrictionType = EditRestrictionType.NO_RESTRICTION,
-                    stopAfterReboot = null
+                    eStopAfterReboot = null
                 )
             }
         }

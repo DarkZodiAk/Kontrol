@@ -28,7 +28,7 @@ import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import com.darkzodiak.kontrol.profile.presentation.components.PasswordDialog
 import com.darkzodiak.kontrol.profile.presentation.components.RandomTextDialog
-import com.darkzodiak.kontrol.profile.presentation.components.RestrictionRow
+import com.darkzodiak.kontrol.profile.presentation.components.EditRestrictionRow
 
 @Composable
 fun EditRestrictionScreenRoot(
@@ -95,25 +95,25 @@ fun EditRestrictionScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            RestrictionRow(
+            EditRestrictionRow(
                 type = EditRestrictionType.NO_RESTRICTION,
                 data = state.restriction,
                 onClick = { onAction(EditRestrictionAction.SetRestriction(EditRestrictionType.NO_RESTRICTION)) }
             )
 
-            RestrictionRow(
+            EditRestrictionRow(
                 type = EditRestrictionType.PASSWORD,
                 data = state.restriction,
                 onClick = { onAction(EditRestrictionAction.SetRestriction(EditRestrictionType.PASSWORD)) }
             )
 
-            RestrictionRow(
+            EditRestrictionRow(
                 type = EditRestrictionType.RANDOM_TEXT,
                 data = state.restriction,
                 onClick = { onAction(EditRestrictionAction.SetRestriction(EditRestrictionType.RANDOM_TEXT)) }
             )
 
-            RestrictionRow(
+            EditRestrictionRow(
                 type = EditRestrictionType.UNTIL_DATE,
                 data = state.restriction,
                 onClick = { onAction(EditRestrictionAction.SetRestriction(EditRestrictionType.UNTIL_DATE)) }
@@ -130,7 +130,7 @@ fun EditRestrictionScreen(
                 )
             }
 
-            RestrictionRow(
+            EditRestrictionRow(
                 type = EditRestrictionType.UNTIL_REBOOT,
                 data = state.restriction,
                 onClick = { onAction(EditRestrictionAction.SetRestriction(EditRestrictionType.UNTIL_REBOOT)) }

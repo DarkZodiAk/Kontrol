@@ -21,7 +21,7 @@ import com.darkzodiak.kontrol.core.presentation.time.toFullString
 import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
 
 @Composable
-fun RestrictionRow(
+fun EditRestrictionRow(
     type: EditRestrictionType,
     data: EditRestriction,
     onClick: () -> Unit,
@@ -38,16 +38,16 @@ fun RestrictionRow(
             )
             .clickable { onClick() }
     ) {
-        RestrictionIconText(type, data, active, false)
+        EditRestrictionIconText(type, data, active, false)
     }
 }
 
 @Composable
-fun RestrictionIconText(
+fun EditRestrictionIconText(
     type: EditRestrictionType,
     data: EditRestriction,
-    showInfo: Boolean,
-    showOptionsInfo: Boolean
+    showText: Boolean,
+    showOptionsText: Boolean
 ) {
     Icon(
         imageVector = when (type) {
@@ -60,22 +60,22 @@ fun RestrictionIconText(
         contentDescription = null
     )
     Text(
-        text = buildEditRestrictionString(type, data, showInfo, showOptionsInfo),
+        text = buildEditRestrictionText(type, data, showText, showOptionsText),
         style = MaterialTheme.typography.titleMedium
     )
 }
 
 @Composable
-fun buildEditRestrictionString(
+fun buildEditRestrictionText(
     type: EditRestrictionType,
     data: EditRestriction,
-    showInfo: Boolean,
-    showOptionsInfo: Boolean
+    showText: Boolean,
+    showOptionsText: Boolean
 ) = when (type) {
     EditRestrictionType.NO_RESTRICTION -> "Нет"
     EditRestrictionType.PASSWORD -> {
         val start = "Пароль"
-        val end = if (showInfo && data is EditRestriction.Password) {
+        val end = if (showText && data is EditRestriction.Password) {
             " (${data.password.length} символов)"
         } else ""
 
@@ -83,7 +83,7 @@ fun buildEditRestrictionString(
     }
     EditRestrictionType.RANDOM_TEXT -> {
         val start = "Случайный текст"
-        val end = if (showInfo && data is EditRestriction.RandomText) {
+        val end = if (showText && data is EditRestriction.RandomText) {
             " (${data.length} символов)"
         } else ""
 
@@ -91,9 +91,9 @@ fun buildEditRestrictionString(
     }
     EditRestrictionType.UNTIL_DATE -> {
         val start = "До даты"
-        val end = if (showInfo && data is EditRestriction.UntilDate) {
+        val end = if (showText && data is EditRestriction.UntilDate) {
             val part1 = " (${data.date.toFullString()})"
-            val part2 = if (showOptionsInfo && data.stopAfterReachingDate) {
+            val part2 = if (showOptionsText && data.stopAfterReachingDate) {
                 "\nВыключится по достижении даты"
             } else ""
             part1 + part2
@@ -104,40 +104,10 @@ fun buildEditRestrictionString(
     }
     EditRestrictionType.UNTIL_REBOOT -> {
         val start = "До перезагрузки устройства"
-        val end = if (showOptionsInfo && data is EditRestriction.UntilReboot && data.stopAfterReboot) {
+        val end = if (showOptionsText && data is EditRestriction.UntilReboot && data.stopAfterReboot) {
             "\nВыключится после перезагрузки"
         } else ""
 
         start + end
     }
 }
-
-//) = when (restriction) {
-//
-//    EditRestriction.NoRestriction -> "Нет"
-//    is EditRestriction.Password -> {
-//        val start = "Пароль"
-//        val end = if (showInfo) " (${restriction.password.length} символов)"
-//        else ""
-//        start + end
-//    }
-//    is EditRestriction.RandomText -> {
-//        val start = "Случайный текст"
-//        val end = if (showInfo) " (${restriction.length} символов)"
-//        else ""
-//        start + end
-//    }
-//    is EditRestriction.UntilDate -> {
-//        val start = "До даты"
-//        val end = if (showInfo) {
-//            val part1 = " (${restriction.date.toFullString()})"
-//            val part2 = if (showOptionsInfo && restriction.stopAfterReachingDate) {
-//                "\nВыключится по достижении даты"
-//            } else ""
-//            part1 + part2
-//        }
-//        else ""
-//        start + end
-//    }
-//    is EditRestriction.UntilReboot -> "До перезагрузки устройства"
-//}

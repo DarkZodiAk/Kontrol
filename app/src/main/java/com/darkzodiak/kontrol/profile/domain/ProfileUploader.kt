@@ -23,9 +23,17 @@ class ProfileUploader @Inject constructor(
         scope.launch {
             var id = profile.id
             if(id != null) {
-                repository.updateProfile(profile.copy(name = state.name, editRestriction = state.editRestriction))
+                repository.updateProfile(profile.copy(
+                    name = state.name,
+                    appRestriction = state.appRestriction,
+                    editRestriction = state.editRestriction
+                ))
             } else {
-                id = repository.addProfile(profile.copy(name = state.name, editRestriction = state.editRestriction))
+                id = repository.addProfile(profile.copy(
+                    name = state.name,
+                    appRestriction = state.appRestriction,
+                    editRestriction = state.editRestriction
+                ))
             }
 
             state.apps.forEach { app ->

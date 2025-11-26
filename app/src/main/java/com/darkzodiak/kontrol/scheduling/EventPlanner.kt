@@ -15,7 +15,7 @@ class EventPlanner @Inject constructor(
         val profile = profileDao.getProfileById(profileId)
 
         return if (profile.pausedUntil != null) profile.pausedUntil
-        else if (profile.editRestrictionType == EditRestrictionType.UNTIL_DATE) profile.restrictUntilDate
+        else if (profile.editRestrictionType == EditRestrictionType.UNTIL_DATE) profile.eRestrictUntilDate
         else null
     }
 }

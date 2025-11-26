@@ -19,12 +19,13 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun KontrolOutlinedRow(
     verticalAlignment: Alignment.Vertical = Alignment.Top,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(16.dp),
     modifier: Modifier = Modifier,
     content: @Composable (RowScope.() -> Unit)
 ) {
     Row(
         verticalAlignment = verticalAlignment,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = horizontalArrangement,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
