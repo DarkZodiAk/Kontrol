@@ -46,7 +46,7 @@ import com.darkzodiak.kontrol.profile.presentation.components.RestrictionIconTex
 fun ProfileScreenRoot(
     viewModel: ProfileViewModel = hiltViewModel(),
     toAppList: () -> Unit,
-    toRestrictions: () -> Unit,
+    toEditRestrictions: () -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -69,7 +69,7 @@ fun ProfileScreenRoot(
                 ProfileAction.Back -> onBack()
                 ProfileAction.Done -> onBack()
                 ProfileAction.OpenAppsList -> toAppList()
-                ProfileAction.OpenEditRestriction -> toRestrictions()
+                ProfileAction.OpenEditRestriction -> toEditRestrictions()
                 else -> Unit
             }
             viewModel.onAction(action)
@@ -155,14 +155,14 @@ fun ProfileScreen(
                 modifier = Modifier.clickable { onAction(ProfileAction.OpenAppsList) }
             ) {
                 Icon(imageVector = Icons.Default.Apps, contentDescription = null)
-                if (state.selectedApps.isEmpty()) {
+                if (state.apps.isEmpty()) {
                     Text(
                         text = "Выберите приложения",
                         style = MaterialTheme.typography.titleMedium
                     )
                 } else {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        items(state.selectedApps) { app ->
+                        items(state.apps) { app ->
                             AsyncImage(
                                 model = app.icon,
                                 contentDescription = null,

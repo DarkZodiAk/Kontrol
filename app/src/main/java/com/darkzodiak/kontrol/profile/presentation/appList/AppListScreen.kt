@@ -1,4 +1,4 @@
-package com.darkzodiak.kontrol.profile.presentation
+package com.darkzodiak.kontrol.profile.presentation.appList
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +20,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,18 +34,23 @@ import com.darkzodiak.kontrol.core.presentation.KontrolTextField
 
 @Composable
 fun AppListScreenRoot(
-    viewModel: ProfileViewModel = hiltViewModel(),
+    viewModel: AppListViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
+
+    LaunchedEffect(Unit) {
+        viewModel.render()
+    }
+
     AppListScreen(
         state = viewModel.state,
         onAction = { action ->
+            viewModel.onAction(action)
             when(action) {
-                ProfileAction.Apps.Dismiss -> onBack()
-                ProfileAction.Apps.Save -> onBack()
+                AppListAction.Dismiss -> onBack()
+                AppListAction.Save -> onBack()
                 else -> Unit
             }
-            viewModel.onAction(action)
         }
     )
 }
@@ -52,8 +58,8 @@ fun AppListScreenRoot(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppListScreen(
-    state: ProfileScreenState,
-    onAction: (ProfileAction.Apps) -> Unit
+    state: AppListState,
+    onAction: (AppListAction) -> Unit
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
@@ -62,13 +68,13 @@ fun AppListScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { onAction(ProfileAction.Apps.Dismiss) }) {
+                    IconButton(onClick = { onAction(AppListAction.Dismiss) }) {
                         Icon(imageVector = Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
                     }
                 },
                 title = {  },
                 actions = {
-                    IconButton(onClick = { onAction(ProfileAction.Apps.Save) }) {
+                    IconButton(onClick = { onAction(AppListAction.Save) }) {
                         Icon(imageVector = Icons.Default.Done, contentDescription = null)
                     }
                 }
@@ -97,10 +103,8 @@ fun AppListScreen(
                             .fillMaxWidth()
                             .clickable {
                                 onAction(
-                                    if (state.selectedUnsaved.any { it.id == app.id }) ProfileAction.Apps.UnselectApp(
-                                        app
-                                    )
-                                    else ProfileAction.Apps.SelectApp(app)
+                                    if (state.selectedApps.any { it.id == app.id }) AppListAction.UnselectApp(app)
+                                    else AppListAction.SelectApp(app)
                                 )
                             }
                             .padding(8.dp)
@@ -113,13 +117,11 @@ fun AppListScreen(
                             text = app.title,
                         )
                         RadioButton(
-                            selected = state.selectedUnsaved.any { it.id == app.id },
+                            selected = state.selectedApps.any { it.id == app.id },
                             onClick = {
                                 onAction(
-                                    if(state.selectedUnsaved.any { it.id == app.id }) ProfileAction.Apps.UnselectApp(
-                                        app
-                                    )
-                                    else ProfileAction.Apps.SelectApp(app)
+                                    if(state.selectedApps.any { it.id == app.id }) AppListAction.UnselectApp(app)
+                                    else AppListAction.SelectApp(app)
                                 )
                             },
                         )

@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.core.data.local.entity.App
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.profile.domain.Profile
-import com.darkzodiak.kontrol.core.domain.usecase.GetAllAppsUseCase
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
 import com.darkzodiak.kontrol.profile.domain.ProfileUploader
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
@@ -28,10 +27,10 @@ class ProfileViewModel @Inject constructor(
     private val repository: KontrolRepository,
     private val profileUploader: ProfileUploader,
     savedStateHandle: SavedStateHandle,
-    getAllAppsUseCase: GetAllAppsUseCase
 ) : ViewModel() {
 
     private val timeSource = TimeSource()
+    private val interScreenCache = ProfileInterScreenBus.get()
 
     var state by mutableStateOf(ProfileScreenState())
         private set
@@ -43,20 +42,14 @@ class ProfileViewModel @Inject constructor(
     private var profileApps = emptyList<App>()
 
     init {
-        getAllAppsUseCase().onEach { apps ->
-            state = state.copy(apps = apps)
-        }.launchIn(viewModelScope)
-
         savedStateHandle.get<Long>("id")?.let { id ->
             viewModelScope.launch {
                 profile = repository.getProfileById(id)
                 profileApps = repository.getProfileAppsById(id).first()
                 state = state.copy(
                     name = profile.name,
-                    selectedApps = profileApps,
-                    selectedUnsaved = profileApps,
+                    apps = profileApps,
                     editRestriction = profile.editRestriction,
-                    editRestrictionUnsaved = profile.editRestriction
                 )
             }
             state = state.copy(isNewProfile = false)
@@ -65,6 +58,19 @@ class ProfileViewModel @Inject constructor(
         timeSource.currentTime.onEach { time ->
             checkTimedRestriction(time)
         }.launchIn(viewModelScope)
+
+        interScreenCache.appList.onEach {
+            state = state.copy(apps = it)
+        }.launchIn(viewModelScope)
+
+        interScreenCache.editRestriction.onEach {
+            state = state.copy(editRestriction = it)
+        }.launchIn(viewModelScope)
+
+        // TODO(): Uncomment on implementing AppRestrictions
+//        interScreenCache.appRestriction.onEach {
+//
+//        }.launchIn(viewModelScope)
     }
 
     fun onAction(action: ProfileAction) {
@@ -75,56 +81,28 @@ class ProfileViewModel @Inject constructor(
             is ProfileAction.ModifyName -> {
                 state = state.copy(name = action.text)
             }
-
-            is ProfileAction.Apps.SelectApp -> {
-                state = state.copy(
-                    selectedUnsaved = state.selectedUnsaved + action.app
-                )
+            ProfileAction.OpenEditRestriction -> {
+                interScreenCache.sendEditRestriction(state.editRestriction)
             }
-            is ProfileAction.Apps.UnselectApp -> {
-                state = state.copy(
-                    selectedUnsaved = state.selectedUnsaved.filter { it.id != action.app.id }
-                )
+            ProfileAction.OpenAppsList -> {
+                interScreenCache.sendAppList(state.apps)
             }
-            ProfileAction.Apps.Dismiss -> {
-                state = state.copy(selectedUnsaved = state.selectedApps)
-            }
-            ProfileAction.Apps.Save -> {
-                state = state.copy(selectedApps = state.selectedUnsaved)
-            }
-
-            is ProfileAction.Restriction.UpdateType -> {
-                state = state.copy(editRestrictionUnsaved = action.type)
-            }
-            ProfileAction.Restriction.Dismiss -> {
-                state = state.copy(editRestrictionUnsaved = state.editRestriction)
-            }
-            ProfileAction.Restriction.Save -> {
-                state = state.copy(editRestriction = state.editRestrictionUnsaved)
-            }
-
             else -> Unit
         }
     }
 
+    override fun onCleared() {
+        ProfileInterScreenBus.clear()
+        super.onCleared()
+    }
+
     private fun checkTimedRestriction(currentTime: LocalDateTime) {
         val editRestriction = state.editRestriction as? EditRestriction.UntilDate
-        val editRestrictionUnsaved = state.editRestrictionUnsaved as? EditRestriction.UntilDate
-
-        if (editRestriction == null && editRestrictionUnsaved == null) return
 
         if (editRestriction != null && editRestriction.date <= currentTime) {
             state = state.copy(editRestriction = EditRestriction.NoRestriction)
             viewModelScope.launch {
                 channel.send(ProfileEvent.ShowWarning(
-                    text = "Блокировка профиля достигла отмеченной даты и была отключена"
-                ))
-            }
-        }
-        if (editRestrictionUnsaved != null && editRestrictionUnsaved.date <= currentTime) {
-            state = state.copy(editRestrictionUnsaved = EditRestriction.NoRestriction)
-            viewModelScope.launch {
-                channel.send(ProfileEvent.ShowWarningOnRestriction(
                     text = "Блокировка профиля достигла отмеченной даты и была отключена"
                 ))
             }

@@ -8,11 +8,7 @@ data class ProfileScreenState(
     val name: String = "",
     val apps: List<App> = emptyList(),
 
-    val selectedApps: List<App> = emptyList(),
-    val selectedUnsaved: List<App> = emptyList(),
-
     val editRestriction: EditRestriction = EditRestriction.NoRestriction,
-    val editRestrictionUnsaved: EditRestriction = EditRestriction.NoRestriction,
 
     val warning: String? = null,
 )

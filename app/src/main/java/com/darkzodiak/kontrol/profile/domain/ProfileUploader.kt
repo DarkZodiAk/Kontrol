@@ -17,7 +17,7 @@ class ProfileUploader @Inject constructor(
 
     // TODO(): Make signature decoupled from ProfileViewModel
     fun uploadProfile(profile: Profile, profileApps: List<App>, state: ProfileScreenState) {
-        if(state.name.isBlank() && state.selectedApps.isEmpty()) {
+        if(state.name.isBlank() && state.apps.isEmpty()) {
             return
         }
         scope.launch {
@@ -28,10 +28,10 @@ class ProfileUploader @Inject constructor(
                 id = repository.addProfile(profile.copy(name = state.name, editRestriction = state.editRestriction))
             }
 
-            state.selectedApps.forEach { app ->
+            state.apps.forEach { app ->
                 repository.addAppToProfile(profileId = id, appId = app.id!!)
             }
-            (profileApps.map { it.id } - state.selectedApps.map { it.id }).forEach { appId ->
+            (profileApps.map { it.id } - state.apps.map { it.id }).forEach { appId ->
                 repository.deleteAppFromProfile(profileId = id, appId = appId!!)
             }
         }

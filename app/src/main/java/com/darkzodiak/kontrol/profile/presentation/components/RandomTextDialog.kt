@@ -29,13 +29,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun RandomPasswordDialog(
+fun RandomTextDialog(
     onSave: (Int) -> Unit,
     onDismiss: () -> Unit,
-    oldValue: String,
+    oldValue: Int?,
     modifier: Modifier = Modifier
 ) {
-    var length by rememberSaveable { mutableStateOf(oldValue) }
+    var length by rememberSaveable { mutableStateOf(
+        oldValue?.toString() ?: ""
+    ) }
 
     val errorMessage = remember(length) {
         if(length.isEmpty() || length.toInt() < 4) "Длина пароля должна быть не менее 4 символов"
@@ -103,6 +105,6 @@ fun NumberTextField(
 
 @Preview
 @Composable
-private fun RandomPasswordDialogPreview() {
-    RandomPasswordDialog({}, {}, "")
+private fun RandomTextDialogPreview() {
+    RandomTextDialog({}, {}, 4)
 }
