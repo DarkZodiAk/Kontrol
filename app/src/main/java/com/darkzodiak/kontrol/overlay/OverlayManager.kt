@@ -3,23 +3,28 @@ package com.darkzodiak.kontrol.overlay
 import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Build
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import androidx.core.content.getSystemService
+import com.darkzodiak.kontrol.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class OverlayManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext appContext: Context,
 ) {
+    private val themedContext = ContextThemeWrapper(
+        appContext, R.style.Theme_Kontrol
+    )
     private val windowManager by lazy {
-        context.getSystemService<WindowManager>()!!
+        themedContext.getSystemService<WindowManager>()!!
     }
     private val layoutInflater by lazy {
-        context.getSystemService<LayoutInflater>()!!
+        themedContext.getSystemService<LayoutInflater>()!!
     }
 
     private var blockCallback: (() -> Unit)? = null

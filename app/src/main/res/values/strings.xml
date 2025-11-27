@@ -2,4 +2,8 @@
     <string name="app_name">Kontrol</string>
     <string name="accessibility_service_label">Kontrol Accessibility</string>
     <string name="title_activity_block">BlockActivity</string>
+
+    <string name="password_hint">Пароль</string>
+    <string name="submit_password">Продолжить</string>
+    <string name="invalid_password">Неверный пароль. Попробуйте еще раз.</string>
 </resources>
