@@ -50,10 +50,9 @@ class OverlayManager @Inject constructor(
             WindowManager.LayoutParams.TYPE_PHONE
         },
         WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
-        PixelFormat.OPAQUE
+        PixelFormat.TRANSLUCENT
     )
 
     fun openOverlay(data: OverlayData, callback: () -> Unit) {

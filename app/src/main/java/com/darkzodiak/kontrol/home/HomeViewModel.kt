@@ -120,12 +120,12 @@ class HomeViewModel @Inject constructor(
         val restriction = profile.editRestriction
         if (profile.state is ProfileState.Active && restriction !is EditRestriction.NoRestriction) {
 
-            if (restriction.isOneOf(dialogBasedRestrictions)) {
+            if (restriction.isOneOf(softRestrictions)) {
                 state = state.copy(
                     curRestriction = restriction,
                     restrictionDialogVisible = true
                 )
-            } else if (restriction.isOneOf(strictRestrictions)) {
+            } else if (restriction.isOneOf(hardRestrictions)) {
                 pendingCardIntent = null
                 viewModelScope.launch {
                     channel.send(ShowError(getErrorTextForStrictRestriction(restriction)))
@@ -180,11 +180,11 @@ class HomeViewModel @Inject constructor(
     }
 
     companion object {
-        private val dialogBasedRestrictions = setOf(
+        private val softRestrictions = setOf(
             EditRestriction.Password::class,
             EditRestriction.RandomText::class
         )
-        private val strictRestrictions = setOf(
+        private val hardRestrictions = setOf(
             EditRestriction.UntilDate::class,
             EditRestriction.UntilReboot::class
         )
