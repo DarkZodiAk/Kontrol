@@ -33,3 +33,8 @@ fun getProfileStateTextInfo(state: ProfileState, now: LocalDateTime): String {
         }
     }
 }
+
+fun getRandomAlphaString(length: Int): String {
+    val allowedChars = ('A'..'Z') + ('a'..'z')
+    return String(CharArray(length) { allowedChars.random() })
+}

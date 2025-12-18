@@ -18,7 +18,7 @@ class SimpleBlockOverlay(
         if (data !is OverlayData.SimpleBlock) return
 
         val text = "${data.appName} заблокирован"
-        view.findViewById<TextView>(R.id.simpleBlockText).text = text
+        view.findViewById<TextView>(R.id.info_text).text = text
         view.findViewById<Button>(R.id.okButton).setOnClickListener { close() }
     }
 

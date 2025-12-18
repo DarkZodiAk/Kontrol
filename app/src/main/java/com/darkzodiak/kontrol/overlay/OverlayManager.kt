@@ -28,6 +28,7 @@ class OverlayManager @Inject constructor(
     }
 
     private var blockCallback: (() -> Unit)? = null
+    private var proceedCallback: (() -> Unit)? = null
     private var blockView: View? = null
 
     private val overlaysMap = OverlaysMapFactory().build(
@@ -36,8 +37,11 @@ class OverlayManager @Inject constructor(
             closeOverlay()
             if (appShouldClose) {
                 blockCallback?.invoke()
+            } else {
+                proceedCallback?.invoke()
             }
             blockCallback = null
+            proceedCallback = null
         }
     )
 
@@ -49,16 +53,20 @@ class OverlayManager @Inject constructor(
         } else {
             WindowManager.LayoutParams.TYPE_PHONE
         },
-        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
         PixelFormat.TRANSLUCENT
     )
 
-    fun openOverlay(data: OverlayData, callback: () -> Unit) {
+    fun openOverlay(
+        data: OverlayData,
+        onBlock: () -> Unit = { },
+        onProceed: () -> Unit = { }
+    ) {
         val overlay = overlaysMap[data.appRestrictionType] ?: return
         overlay.init(data)
-        blockCallback = callback
+        blockCallback = onBlock
+        proceedCallback = onProceed
         blockView = overlay.view
 
         try {

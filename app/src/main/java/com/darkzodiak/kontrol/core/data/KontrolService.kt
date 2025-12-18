@@ -32,7 +32,11 @@ class KontrolService: AccessibilityService(), AppCloser {
     private var deviceLauncher = ""
 
     // TODO(): Maybe relocate and move package names into constants
-    private val ignoredPackages = listOf("com.android.systemui", "com.google.android.inputmethod.latin")
+    private val ignoredPackages = listOf(
+        "com.android.systemui",
+        "com.google.android.inputmethod.latin",
+        "com.android.inputmethod.latin"
+    )
 
 
     override fun onCreate() {

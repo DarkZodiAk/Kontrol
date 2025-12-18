@@ -3,72 +3,67 @@ package com.darkzodiak.kontrol.overlay.restrictions
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
-import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import com.darkzodiak.kontrol.R
+import com.darkzodiak.kontrol.core.presentation.getRandomAlphaString
 import com.darkzodiak.kontrol.overlay.Overlay
 import com.darkzodiak.kontrol.overlay.OverlayData
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.internal.CheckableImageButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
-class PasswordOverlay(
+class RandomTextOverlay(
     layoutInflater: LayoutInflater,
     @LayoutRes layoutID: Int,
     onClose: (Boolean) -> Unit
 ): Overlay(layoutInflater, layoutID, onClose) {
 
     private val infoText = view.findViewById<TextView>(R.id.info_text)
-    private val closeButton = view.findViewById<MaterialButton>(R.id.password_close)
-    private val submitButton = view.findViewById<MaterialButton>(R.id.password_submit)
-    private val passwordInput = view.findViewById<TextInputEditText>(R.id.password_edit_text)
-    private val inputLayout = view.findViewById<TextInputLayout>(R.id.password_input_layout)
+    private val randomText = view.findViewById<TextView>(R.id.random_text)
+    private val closeButton = view.findViewById<MaterialButton>(R.id.random_close)
+    private val inputLayout = view.findViewById<TextInputLayout>(R.id.random_input_layout)
+    private val randomTextInput = view.findViewById<TextInputEditText>(R.id.random_edit_text)
+    private val submitButton = view.findViewById<MaterialButton>(R.id.random_submit)
 
     override fun init(data: OverlayData) {
-        if (data !is OverlayData.Password) return
-        val text = "Введите пароль для получения доступа к ${data.appName}"
+        if (data !is OverlayData.RandomText) return
+
+        val text = "Введите текст ниже для получения доступа к ${data.appName}"
+        val randomString = getRandomAlphaString(data.randomTextLength)
 
         infoText.text = text
+        randomText.text = randomString
 
         closeButton.setOnClickListener {
-            passwordInput.setText("")
+            randomTextInput.setText("")
             close()
         }
 
         submitButton.setOnClickListener {
-            val password = passwordInput.text.toString()
-            if (password == data.password) {
-                passwordInput.setText("")
+            val input = randomTextInput.text.toString()
+            if (input == randomString) {
+                randomTextInput.setText("")
                 onClose(false)
             } else {
                 inputLayout.isErrorEnabled = true
-                inputLayout.error = "Неверный пароль"
+                inputLayout.error = "Текст введен неверно"
             }
         }
 
-        passwordInput.addTextChangedListener(object : TextWatcher {
+        randomTextInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                if (inputLayout.isErrorEnabled) {
-                    clearError(inputLayout)
+                if (inputLayout.error != null) {
+                    clearError()
                 }
             }
         })
-
-        passwordInput.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                submitButton.performClick()
-                true
-            } else {
-                false
-            }
-        }
     }
 
-    private fun clearError(inputLayout: TextInputLayout) {
-        inputLayout.isErrorEnabled = false
+    private fun clearError() {
         inputLayout.error = null
     }
 

@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import com.darkzodiak.kontrol.core.presentation.KontrolTextField
+import com.darkzodiak.kontrol.core.presentation.getRandomAlphaString
 
 @Composable
 fun EnterPasswordDialog(
@@ -78,9 +79,4 @@ fun EnterPasswordDialog(
         },
         modifier = modifier
     )
-}
-
-fun getRandomAlphaString(length: Int): String {
-    val allowedChars = ('A'..'Z') + ('a'..'z')
-    return String(CharArray(length) { allowedChars.random() })
 }

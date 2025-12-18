@@ -6,4 +6,6 @@
     <string name="password_hint">Пароль</string>
     <string name="submit_password">Продолжить</string>
     <string name="invalid_password">Неверный пароль. Попробуйте еще раз.</string>
+    <string name="random_text_hint">Текст</string>
+    <string name="invalid_text_copy">Текст выше неверно записан. Попробуйте еще раз</string>
 </resources>
