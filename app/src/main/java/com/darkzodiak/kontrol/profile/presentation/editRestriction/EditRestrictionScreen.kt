@@ -1,6 +1,7 @@
 package com.darkzodiak.kontrol.profile.presentation.editRestriction
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.darkzodiak.kontrol.core.presentation.KontrolOption
+import com.darkzodiak.kontrol.core.presentation.KontrolUnsavedCard
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialog
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialogType
 import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
@@ -95,6 +97,10 @@ fun EditRestrictionScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
+            AnimatedVisibility(state.unsaved) {
+                KontrolUnsavedCard()
+            }
+
             EditRestrictionRow(
                 type = EditRestrictionType.NO_RESTRICTION,
                 data = state.restriction,
@@ -119,10 +125,10 @@ fun EditRestrictionScreen(
                 onClick = { onAction(EditRestrictionAction.SetRestriction(EditRestrictionType.UNTIL_DATE)) }
             )
 
-            if (state.restriction is EditRestriction.UntilDate) {
+            AnimatedVisibility(state.restriction is EditRestriction.UntilDate) {
                 val restriction = state.restriction
                 KontrolOption(
-                    checked = restriction.stopAfterReachingDate,
+                    checked = (restriction as? EditRestriction.UntilDate)?.stopAfterReachingDate ?: false,
                     text = "Отключить по достижении даты",
                     onClick = {
                         onAction(EditRestrictionAction.SwitchOption(OptionType.STOP_AFTER_DATE))
@@ -136,10 +142,10 @@ fun EditRestrictionScreen(
                 onClick = { onAction(EditRestrictionAction.SetRestriction(EditRestrictionType.UNTIL_REBOOT)) }
             )
 
-            if (state.restriction is EditRestriction.UntilReboot) {
+            AnimatedVisibility(state.restriction is EditRestriction.UntilReboot) {
                 val restriction = state.restriction
                 KontrolOption(
-                    checked = restriction.stopAfterReboot,
+                    checked = (restriction as? EditRestriction.UntilReboot)?.stopAfterReboot ?: false,
                     text = "Отключить после перезапуска",
                     onClick = {
                         onAction(EditRestrictionAction.SwitchOption(OptionType.STOP_AFTER_REBOOT))
@@ -187,7 +193,7 @@ fun EditRestrictionScreen(
 @Composable
 fun EditRestrictionScreenPreview() {
     EditRestrictionScreen(
-        state = EditRestrictionState(),
+        state = EditRestrictionState(unsaved = true),
         onAction = {}
     )
 }

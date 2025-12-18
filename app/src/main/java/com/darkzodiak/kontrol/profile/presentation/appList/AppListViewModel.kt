@@ -51,12 +51,14 @@ class AppListViewModel @Inject constructor(
             }
             is AppListAction.SelectApp -> {
                 state = state.copy(
-                    selectedApps = state.selectedApps + action.app
+                    selectedApps = state.selectedApps + action.app,
+                    unsaved = true
                 )
             }
             is AppListAction.UnselectApp -> {
                 state = state.copy(
-                    apps = state.selectedApps.filter { it.id != action.app.id }
+                    selectedApps = state.selectedApps.filter { it.id != action.app.id },
+                    unsaved = true
                 )
             }
         }

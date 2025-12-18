@@ -48,7 +48,7 @@ fun PasswordTextField(
             BasicTextField(
                 value = text,
                 onValueChange = onTextChange,
-                textStyle = MaterialTheme.typography.bodyLarge,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                 visualTransformation = if(!visible) PasswordVisualTransformation() else VisualTransformation.None,
                 modifier = Modifier.weight(1f)
 

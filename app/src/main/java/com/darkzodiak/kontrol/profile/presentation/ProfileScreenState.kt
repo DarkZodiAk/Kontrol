@@ -12,5 +12,6 @@ data class ProfileScreenState(
     val appRestriction: AppRestriction = AppRestriction.SimpleBlock,
     val editRestriction: EditRestriction = EditRestriction.NoRestriction,
 
-    val warning: String? = null,
+    val unsaved: Boolean = false,
+    val warning: String? = null
 )

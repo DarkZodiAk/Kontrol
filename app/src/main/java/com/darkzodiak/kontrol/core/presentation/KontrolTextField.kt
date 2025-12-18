@@ -41,7 +41,7 @@ fun KontrolTextField(
         BasicTextField(
             value = if(text.isNotBlank() || isFocused) text else placeholder,
             onValueChange = onTextChange,
-            textStyle = MaterialTheme.typography.bodyLarge,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
             modifier = Modifier
                 .weight(1f)
                 .onFocusChanged { focusState ->

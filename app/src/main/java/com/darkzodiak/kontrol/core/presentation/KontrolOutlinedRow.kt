@@ -32,7 +32,7 @@ fun KontrolOutlinedRow(
             .then(modifier)
             .border(
                 width = 1.dp,
-                color = Color(202, 196, 208),
+                color = Color(121, 116, 126), //Color(202, 196, 208),
                 shape = RoundedCornerShape(12.dp)
             )
             .padding(horizontal = 16.dp, vertical = 12.dp)

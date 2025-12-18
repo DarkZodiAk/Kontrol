@@ -21,7 +21,7 @@ class AppRestrictionViewModel: ViewModel() {
 
     init {
         viewModelScope.launch {
-            setRestriction(interScreenCache.appRestriction.first())
+            setRestriction(interScreenCache.appRestriction.first(), true)
         }
     }
     
@@ -45,7 +45,7 @@ class AppRestrictionViewModel: ViewModel() {
 
             is AppRestrictionAction.SetRestriction -> when (action.type) {
                 AppRestrictionType.SIMPLE_BLOCK -> {
-                    state = state.copy(restriction = AppRestriction.SimpleBlock)
+                    setRestriction(AppRestriction.SimpleBlock)
                 }
                 AppRestrictionType.RANDOM_TEXT -> {
                     openDialog(DialogType.RANDOM_TEXT)
@@ -62,12 +62,10 @@ class AppRestrictionViewModel: ViewModel() {
             is AppRestrictionAction.SendDialogData -> {
                 when (action.data) {
                     is DialogData.Password -> {
-                        val restriction = AppRestriction.Password(action.data.text)
-                        setRestriction(restriction)
+                        setRestriction(AppRestriction.Password(action.data.text))
                     }
                     is DialogData.RandomText -> {
-                        val restriction = AppRestriction.RandomText(action.data.length)
-                        setRestriction(restriction)
+                        setRestriction(AppRestriction.RandomText(action.data.length))
                     }
                 }
                 closeDialog()
@@ -82,8 +80,8 @@ class AppRestrictionViewModel: ViewModel() {
         }
     }
 
-    private fun setRestriction(restriction: AppRestriction) {
-        state = state.copy(restriction = restriction)
+    private fun setRestriction(restriction: AppRestriction, initialSet: Boolean = false) {
+        state = state.copy(restriction = restriction, unsaved = initialSet.not())
     }
 
     private fun openDialog(type: DialogType) {

@@ -31,7 +31,7 @@ class EditRestrictionViewModel: ViewModel() {
 
     init {
         viewModelScope.launch {
-            setRestriction(interScreenCache.editRestriction.first())
+            setRestriction(interScreenCache.editRestriction.first(), true)
         }
 
         timeSource.currentTime.onEach { time ->
@@ -59,7 +59,7 @@ class EditRestrictionViewModel: ViewModel() {
 
             is EditRestrictionAction.SetRestriction -> when (action.type) {
                 EditRestrictionType.NO_RESTRICTION -> {
-                    state = state.copy(restriction = EditRestriction.NoRestriction)
+                    setRestriction(EditRestriction.NoRestriction)
                 }
                 EditRestrictionType.RANDOM_TEXT -> {
                     openDialog(DialogType.RANDOM_TEXT)
@@ -72,7 +72,7 @@ class EditRestrictionViewModel: ViewModel() {
                 }
                 EditRestrictionType.UNTIL_REBOOT -> {
                     if (state.restriction is EditRestriction.UntilReboot) return
-                    state = state.copy(restriction = EditRestriction.UntilReboot(false))
+                    setRestriction(EditRestriction.UntilReboot(false))
                 }
             }
 
@@ -83,19 +83,16 @@ class EditRestrictionViewModel: ViewModel() {
             is EditRestrictionAction.SendDialogData -> {
                 when (action.data) {
                     is DialogData.Password -> {
-                        val restriction = EditRestriction.Password(action.data.text)
-                        setRestriction(restriction)
+                        setRestriction(EditRestriction.Password(action.data.text))
                     }
                     is DialogData.RandomText -> {
-                        val restriction = EditRestriction.RandomText(action.data.length)
-                        setRestriction(restriction)
+                        setRestriction(EditRestriction.RandomText(action.data.length))
                     }
                     is DialogData.UntilDate -> {
                         val stopAfterDate = (state.restriction as? EditRestriction.UntilReboot)?.stopAfterReboot
                             ?: false
 
-                        val restriction = EditRestriction.UntilDate(action.data.date, stopAfterDate)
-                        setRestriction(restriction)
+                        setRestriction(EditRestriction.UntilDate(action.data.date, stopAfterDate))
                     }
                 }
                 closeDialog()
@@ -105,23 +102,19 @@ class EditRestrictionViewModel: ViewModel() {
                 OptionType.STOP_AFTER_DATE -> {
                     val restriction = state.restriction
                     if (restriction !is EditRestriction.UntilDate) return
-                    state = state.copy(
-                        restriction = restriction.copy(stopAfterReachingDate = restriction.stopAfterReachingDate.not())
-                    )
+                    setRestriction(restriction.copy(stopAfterReachingDate = restriction.stopAfterReachingDate.not()))
                 }
                 OptionType.STOP_AFTER_REBOOT -> {
                     val restriction = state.restriction
                     if (restriction !is EditRestriction.UntilReboot) return
-                    state = state.copy(
-                        restriction = restriction.copy(stopAfterReboot = restriction.stopAfterReboot.not())
-                    )
+                    setRestriction(restriction.copy(stopAfterReboot = restriction.stopAfterReboot.not()))
                 }
             }
         }
     }
 
-    private fun setRestriction(restriction: EditRestriction) {
-        state = state.copy(restriction = restriction)
+    private fun setRestriction(restriction: EditRestriction, initialSet: Boolean = false) {
+        state = state.copy(restriction = restriction, unsaved = initialSet.not())
     }
 
     private fun openDialog(type: DialogType) {

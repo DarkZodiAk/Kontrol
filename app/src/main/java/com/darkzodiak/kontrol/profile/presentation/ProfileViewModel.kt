@@ -30,7 +30,8 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val timeSource = TimeSource()
-    private val interScreenCache = ProfileInterScreenBus.get()
+    private val interScreenBus = ProfileInterScreenBus.get()
+    private var ignoreBus = false
 
     var state by mutableStateOf(ProfileScreenState())
         private set
@@ -60,16 +61,31 @@ class ProfileViewModel @Inject constructor(
             checkTimedRestriction(time)
         }.launchIn(viewModelScope)
 
-        interScreenCache.appList.onEach {
-            state = state.copy(apps = it)
+        interScreenBus.appList.onEach {
+            if (ignoreBus) {
+                ignoreBus = false
+                return@onEach
+            }
+            val unsaved = state.apps != it
+            state = state.copy(apps = it, unsaved = unsaved)
         }.launchIn(viewModelScope)
 
-        interScreenCache.editRestriction.onEach {
-            state = state.copy(editRestriction = it)
+        interScreenBus.editRestriction.onEach {
+            if (ignoreBus) {
+                ignoreBus = false
+                return@onEach
+            }
+            val unsaved = state.editRestriction != it
+            state = state.copy(editRestriction = it, unsaved = unsaved)
         }.launchIn(viewModelScope)
 
-        interScreenCache.appRestriction.onEach {
-            state = state.copy(appRestriction = it)
+        interScreenBus.appRestriction.onEach {
+            if (ignoreBus) {
+                ignoreBus = false
+                return@onEach
+            }
+            val unsaved = state.appRestriction != it
+            state = state.copy(appRestriction = it, unsaved = unsaved)
         }.launchIn(viewModelScope)
     }
 
@@ -79,16 +95,19 @@ class ProfileViewModel @Inject constructor(
                 profileUploader.uploadProfile(profile, profileApps, state)
             }
             is ProfileAction.ModifyName -> {
-                state = state.copy(name = action.text)
+                state = state.copy(name = action.text, unsaved = true)
             }
             ProfileAction.OpenAppsList -> {
-                interScreenCache.sendAppList(state.apps)
+                ignoreBus = true
+                interScreenBus.sendAppList(state.apps)
             }
             ProfileAction.OpenAppRestriction -> {
-                interScreenCache.sendAppRestriction(state.appRestriction)
+                ignoreBus = true
+                interScreenBus.sendAppRestriction(state.appRestriction)
             }
             ProfileAction.OpenEditRestriction -> {
-                interScreenCache.sendEditRestriction(state.editRestriction)
+                ignoreBus = true
+                interScreenBus.sendEditRestriction(state.editRestriction)
             }
             else -> Unit
         }

@@ -1,5 +1,6 @@
 package com.darkzodiak.kontrol.profile.presentation.appRestriction
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.darkzodiak.kontrol.core.presentation.KontrolUnsavedCard
 import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
 import com.darkzodiak.kontrol.profile.domain.AppRestriction
 import com.darkzodiak.kontrol.profile.presentation.components.AppRestrictionRow
@@ -81,6 +83,9 @@ fun AppRestrictionScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
+            AnimatedVisibility(state.unsaved) {
+                KontrolUnsavedCard()
+            }
             AppRestrictionType.entries.forEach { type ->
                 AppRestrictionRow(
                     type = type,
@@ -119,7 +124,7 @@ fun AppRestrictionScreen(
 @Composable
 fun AppRestrictionScreenPreview() {
     AppRestrictionScreen(
-        state = AppRestrictionState(),
+        state = AppRestrictionState(unsaved = true),
         onAction = {}
     )
 }
