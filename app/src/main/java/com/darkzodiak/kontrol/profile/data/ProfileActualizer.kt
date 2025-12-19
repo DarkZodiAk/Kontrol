@@ -43,15 +43,13 @@ class ProfileActualizer @Inject constructor(
             }
         }
 
-        if (
-            newProfile.editRestrictionType == EditRestrictionType.UNTIL_DATE &&
-            newProfile.state == ProfileStateType.ACTIVE) {
+        if (newProfile.editRestrictionType == EditRestrictionType.UNTIL_DATE) {
             val untilDate = newProfile.eRestrictUntilDate
             val stopAfterDate = newProfile.eStopAfterReachingUntilDate
             if (untilDate != null && stopAfterDate != null) {
                 if (millisUntil(untilDate) <= 0) {
                     newProfile = newProfile.copy(
-                        state = if (stopAfterDate) ProfileStateType.STOPPED else ProfileStateType.ACTIVE,
+                        state = if (stopAfterDate) ProfileStateType.STOPPED else newProfile.state,
                         editRestrictionType = EditRestrictionType.NO_RESTRICTION,
                         eRestrictUntilDate = null,
                         eStopAfterReachingUntilDate = null
