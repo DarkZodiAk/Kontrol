@@ -16,7 +16,6 @@ class EventScheduler @Inject constructor(
     private val scope = CoroutineScope(Dispatchers.IO)
     private val handler = Handler(Looper.getMainLooper())
 
-    // TODO(): Pass ProfileEntity directly to the scheduler?
     fun addEvent(profileId: Long) = scope.launch {
         createEvent(profileId)
     }
@@ -26,13 +25,14 @@ class EventScheduler @Inject constructor(
         createEvent(profileId)
     }
 
-    fun deleteEvent(profileId: Long) = scope.launch {
+    fun deleteEvent(profileId: Long) {
         EventCache.deleteEvent(profileId)
     }
 
     private suspend fun createEvent(profileId: Long) {
         val time = planner.getNearestEventTime(profileId) ?: return
-        val runnable = EventRunnable(profileId)
+        if (EventCache.getScheduledEventTimeForProfile(profileId) == time) return
+        val runnable = EventRunnable(profileId, time)
         EventCache.addEvent(profileId, runnable)
         val delay = millisUntil(time)
         handler.postDelayed(runnable, delay)

@@ -4,12 +4,13 @@ import com.darkzodiak.kontrol.profile.data.ProfileActualizer
 
 object EventCache {
     private val shouldRun = mutableSetOf<Runnable>()
-    private val profileToRunnable = hashMapOf<Long, Runnable>()
+
+    private val profileToRunnable = hashMapOf<Long, EventRunnable>()
     private val runnableToProfile = hashMapOf<Runnable, Long>()
 
     lateinit var profileActualizer: ProfileActualizer
 
-    fun addEvent(profileId: Long, runnable: Runnable) {
+    fun addEvent(profileId: Long, runnable: EventRunnable) {
         shouldRun.add(runnable)
         profileToRunnable[profileId] = runnable
         runnableToProfile[runnable] = profileId
@@ -20,7 +21,6 @@ object EventCache {
         runnableToProfile.remove(runnable)
         val profileId = runnableToProfile[runnable] ?: return
         profileToRunnable.remove(profileId)
-
     }
 
     fun deleteEvent(profileId: Long) {
@@ -31,4 +31,6 @@ object EventCache {
     }
 
     fun shouldRun(runnable: Runnable) = runnable in shouldRun
+
+    fun getScheduledEventTimeForProfile(profileId: Long) = profileToRunnable[profileId]?.eventTime
 }
