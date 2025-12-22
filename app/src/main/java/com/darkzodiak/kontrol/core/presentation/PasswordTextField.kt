@@ -1,4 +1,4 @@
-package com.darkzodiak.kontrol.profile.presentation.components
+package com.darkzodiak.kontrol.core.presentation
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable

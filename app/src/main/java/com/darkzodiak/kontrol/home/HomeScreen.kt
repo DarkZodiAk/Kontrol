@@ -46,8 +46,10 @@ import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialogType
 import com.darkzodiak.kontrol.permission.domain.Permission
 import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.home.profileCard.ProfileCard
-import com.darkzodiak.kontrol.home.components.EnterPasswordDialog
+import com.darkzodiak.kontrol.home.components.PasswordDialog
 import com.darkzodiak.kontrol.home.components.PermissionSheet
+import com.darkzodiak.kontrol.home.components.RandomTextDialog
+import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import com.darkzodiak.kontrol.profile.domain.ProfileState
 
 @Composable
@@ -172,13 +174,23 @@ fun HomeScreen(
             )
         }
 
-        if (state.restrictionDialogVisible) {
-            EnterPasswordDialog(
-                passRestriction = state.curRestriction,
-                onDismiss = { onAction(HomeAction.RestrictionNotPassed) },
-                onSuccess = { onAction(HomeAction.RestrictionPassed) }
-            )
-        }
+        if (state.restrictionDialogVisible) { when(state.curRestriction) {
+            is EditRestriction.Password -> {
+                PasswordDialog(
+                    password = state.curRestriction.password,
+                    onDismiss = { onAction(HomeAction.RestrictionNotPassed) },
+                    onSuccess = { onAction(HomeAction.RestrictionPassed) }
+                )
+            }
+            is EditRestriction.RandomText -> {
+                RandomTextDialog(
+                    textLength = state.curRestriction.length,
+                    onDismiss = { onAction(HomeAction.RestrictionNotPassed) },
+                    onSuccess = { onAction(HomeAction.RestrictionPassed) }
+                )
+            }
+            else -> Unit
+        } }
     }
 }
 

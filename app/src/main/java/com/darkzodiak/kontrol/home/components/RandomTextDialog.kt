@@ -16,48 +16,37 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import com.darkzodiak.kontrol.core.presentation.KontrolTextField
 import com.darkzodiak.kontrol.core.presentation.getRandomAlphaString
 
 @Composable
-fun EnterPasswordDialog(
-    passRestriction: EditRestriction,
+fun RandomTextDialog(
+    textLength: Int,
     onDismiss: () -> Unit,
     onSuccess: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val targetPassword by rememberSaveable {
-        mutableStateOf(
-            when(passRestriction) {
-                is EditRestriction.Password -> passRestriction.password
-                is EditRestriction.RandomText -> getRandomAlphaString(passRestriction.length)
-                else -> throw IllegalArgumentException("Passed non-password restriction")
-            }
-        )
-    }
-    var password by rememberSaveable { mutableStateOf("") }
+    val target = rememberSaveable { getRandomAlphaString(textLength) }
+    var entered by rememberSaveable { mutableStateOf("") }
     var mismatchError by rememberSaveable { mutableStateOf(false) }
 
     AlertDialog(
-        title = { Text("Введите пароль") },
+        title = { Text("Введите текст ниже") },
         text = {
             Column {
-                if(passRestriction is EditRestriction.RandomText) {
-                    Text(targetPassword, style = MaterialTheme.typography.bodyMedium)
-                    Spacer(Modifier.height(8.dp))
-                }
+                Text(target, style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(8.dp))
                 KontrolTextField(
-                    text = password,
+                    text = entered,
                     placeholder = "",
                     onTextChange = {
                         mismatchError = false
-                        password = it
+                        entered = it
                     }
                 )
                 if(mismatchError) {
                     Spacer(Modifier.height(4.dp))
-                    Text("Пароль введен неверно", color = Color.Red)
+                    Text("Текст введен неверно", color = Color.Red)
                 }
             }
         },
@@ -70,7 +59,7 @@ fun EnterPasswordDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    if(password == targetPassword) onSuccess()
+                    if(entered == target) onSuccess()
                     else mismatchError = true
                 }
             ) {
