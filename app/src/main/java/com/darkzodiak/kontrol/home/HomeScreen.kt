@@ -145,8 +145,7 @@ fun HomeScreen(
 
             items(state.profiles) { profile ->
                 ProfileCard(
-                    title = profile.name,
-                    state = profile.state,
+                    profile = profile,
                     now = state.curTime,
                     onIntent = { intent ->
                         onAction(HomeAction.RequestProfileAction(profile, intent))

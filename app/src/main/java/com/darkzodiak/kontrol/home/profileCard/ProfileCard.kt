@@ -31,25 +31,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.darkzodiak.kontrol.core.presentation.KontrolDropdownMenu
-import com.darkzodiak.kontrol.core.presentation.getProfileStateTextInfo
+import com.darkzodiak.kontrol.core.presentation.getProfileTextInfo
+import com.darkzodiak.kontrol.profile.domain.EditRestriction
+import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.profile.domain.ProfileState
 import java.time.LocalDateTime
 
 @Composable
 fun ProfileCard(
-    title: String,
-    state: ProfileState,
+    profile: Profile,
     now: LocalDateTime,
     onIntent: (ProfileCardIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var dropdownMenuIsVisible by remember { mutableStateOf(false) }
-    val dropdownMenuActions = remember(state) {
+    val dropdownMenuActions = remember(profile.state) {
         buildList {
-            if (state is ProfileState.Active) {
+            if (profile.state is ProfileState.Active) {
                 add("Пауза" to ProfileCardIntent.PAUSE)
                 add("Выключить" to ProfileCardIntent.STOP)
-            } else if (state is ProfileState.Stopped) {
+            } else if (profile.state is ProfileState.Stopped) {
                 add("Включить" to ProfileCardIntent.ACTIVATE)
                 add("Включить после" to ProfileCardIntent.DELAYED_ACTIVATE)
             } else {
@@ -60,12 +61,12 @@ fun ProfileCard(
             add("Удалить" to ProfileCardIntent.DELETE)
         }.map { it.first to { onIntent(it.second) } }
     }
-    val infoTextColor = if (state is ProfileState.Active) {
+    val infoTextColor = if (profile.state is ProfileState.Active) {
         MaterialTheme.colorScheme.onPrimaryContainer
     } else {
         MaterialTheme.colorScheme.onSurfaceVariant
     }
-    val infoTextBackground = if (state is ProfileState.Active) {
+    val infoTextBackground = if (profile.state is ProfileState.Active) {
         MaterialTheme.colorScheme.primaryContainer
     } else {
         MaterialTheme.colorScheme.surfaceContainerHighest
@@ -79,7 +80,7 @@ fun ProfileCard(
             .clickable { onIntent(ProfileCardIntent.OPEN) }
     ) {
         Text(
-            text = getProfileStateTextInfo(state, now),
+            text = getProfileTextInfo(profile, now),
             color = infoTextColor,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight(600),
@@ -98,7 +99,7 @@ fun ProfileCard(
         ) {
             Icon(imageVector = Icons.Outlined.Lock, contentDescription = null)
             Text(
-                text = title,
+                text = profile.name,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight(500),
                 modifier = Modifier.weight(1f)
@@ -121,8 +122,12 @@ fun ProfileCard(
 private fun ProfileCardPreview() {
     Scaffold(modifier = Modifier.fillMaxSize()) {
         ProfileCard(
-            title = "Блокировка",
-            state = ProfileState.Paused(LocalDateTime.now().plusMinutes(7)),
+            profile = Profile(
+                name = "Блокировка",
+                state = ProfileState.Active,
+//                state = ProfileState.Paused(LocalDateTime.now().plusMinutes(7)),
+                editRestriction = EditRestriction.NoRestriction
+            ),
             now = LocalDateTime.now(),
             onIntent = {  },
             modifier = Modifier

@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.time.Duration
 
+// TODO(): May break if user changes locale
 val UIDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy HH:mm")
     .withLocale(Locale.getDefault(Locale.Category.FORMAT))
 
@@ -12,6 +13,9 @@ val UIDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyy
     .withLocale(Locale.getDefault(Locale.Category.FORMAT))
 
 val UITimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    .withLocale(Locale.getDefault(Locale.Category.FORMAT))
+
+val UIDayPlusTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM HH:mm")
     .withLocale(Locale.getDefault(Locale.Category.FORMAT))
 
 fun LocalDateTime.plusDuration(duration: Duration): LocalDateTime = this
@@ -22,3 +26,4 @@ fun LocalDateTime.plusDuration(duration: Duration): LocalDateTime = this
 fun LocalDateTime.toFullString(): String = this.format(UIDateTimeFormatter)
 fun LocalDateTime.toDateString(): String = this.format(UIDateFormatter)
 fun LocalDateTime.toTimeString(): String = this.format(UITimeFormatter)
+fun LocalDateTime.toDayPlusTimeString(): String = this.format(UIDayPlusTimeFormatter)

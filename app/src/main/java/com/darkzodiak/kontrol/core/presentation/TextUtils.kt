@@ -3,20 +3,24 @@ package com.darkzodiak.kontrol.core.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.pluralStringResource
 import com.darkzodiak.kontrol.R
+import com.darkzodiak.kontrol.core.presentation.time.toDayPlusTimeString
+import com.darkzodiak.kontrol.core.presentation.time.toFullString
+import com.darkzodiak.kontrol.core.presentation.time.toTimeString
+import com.darkzodiak.kontrol.profile.domain.EditRestriction
+import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.profile.domain.ProfileState
 import java.time.Duration
 import java.time.LocalDateTime
 
 @Composable
-fun getProfileStateTextInfo(state: ProfileState, now: LocalDateTime): String {
-    return when (state) {
-        ProfileState.Active -> "Активен"
+fun getProfileTextInfo(profile: Profile, now: LocalDateTime): String {
+    return when (profile.state) {
+        ProfileState.Active -> "Активен" + getActiveProfileRestrictionInfo(profile.editRestriction, now)
         ProfileState.Stopped -> "Неактивен"
 
         // TODO(): Should be locale-universal in future
-        // TODO(): Change/Shorten pause text format?
         is ProfileState.Paused -> {
-            val duration = Duration.between(now, state.until)
+            val duration = Duration.between(now, profile.state.until)
 
             val days = duration.toDays().toInt()
             val hours = duration.toHours().toInt()
@@ -31,6 +35,24 @@ fun getProfileStateTextInfo(state: ProfileState, now: LocalDateTime): String {
                 pluralStringResource(R.plurals.after_minutes, minutes, minutes)
             } else pluralStringResource(R.plurals.after_minutes, 1)
         }
+    }
+}
+
+@Composable
+fun getActiveProfileRestrictionInfo(restriction: EditRestriction, now: LocalDateTime): String {
+    return when(restriction) {
+        is EditRestriction.Password -> ", защищен паролем"
+        is EditRestriction.RandomText -> ", защищен случайным текстом"
+        is EditRestriction.UntilDate -> {
+            val date = restriction.date
+            val currentDate = now.toLocalDate()
+            val targetDate = date.toLocalDate()
+            " до " + if (targetDate == currentDate) date.toTimeString()
+            else if (targetDate.year == currentDate.year) date.toDayPlusTimeString()
+            else date.toFullString()
+        }
+        is EditRestriction.UntilReboot -> " до перезагрузки устройства"
+        else -> ""
     }
 }
 
