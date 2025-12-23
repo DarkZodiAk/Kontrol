@@ -7,6 +7,8 @@ import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import androidx.core.content.getSystemService
 import com.darkzodiak.kontrol.R
 import com.darkzodiak.kontrol.external_events.ExternalEvent
@@ -84,7 +86,13 @@ class OverlayManager @Inject constructor(
         blockView = overlay.view
 
         try {
+            blockView!!.alpha = 0f
             windowManager.addView(blockView, windowParams)
+            blockView!!.animate()
+                .alpha(1f)
+                .setDuration(300)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
         } catch (e: Exception) {
             // TODO(): Find out what exceptions we may encounter here
         }
@@ -93,11 +101,17 @@ class OverlayManager @Inject constructor(
     private fun closeOverlay() {
         if (blockView == null) return
         try {
-            windowManager.removeView(blockView)
+            blockView!!.animate()
+                .alpha(0f)
+                .setDuration(300)
+                .setInterpolator(AccelerateInterpolator())
+                .withEndAction {
+                    windowManager.removeViewImmediate(blockView)
+                    blockView = null
+                }
         } catch (e: Exception) {
             // TODO(): Find out what exceptions we may encounter here
         }
-        blockView = null
         blockCallback = null
         proceedCallback = null
     }
