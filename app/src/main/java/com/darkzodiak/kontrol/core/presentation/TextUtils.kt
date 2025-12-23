@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 @Composable
 fun getProfileTextInfo(profile: Profile, now: LocalDateTime): String {
     return when (profile.state) {
-        ProfileState.Active -> "Активен" + getActiveProfileRestrictionInfo(profile.editRestriction, now)
+        ProfileState.Active -> getActiveProfileRestrictionInfo(profile.editRestriction, now)
         ProfileState.Stopped -> "Неактивен"
 
         // TODO(): Should be locale-universal in future
@@ -41,18 +41,23 @@ fun getProfileTextInfo(profile: Profile, now: LocalDateTime): String {
 @Composable
 fun getActiveProfileRestrictionInfo(restriction: EditRestriction, now: LocalDateTime): String {
     return when(restriction) {
-        is EditRestriction.Password -> ", защищен паролем"
-        is EditRestriction.RandomText -> ", защищен случайным текстом"
+        is EditRestriction.Password -> "Активен, защищен паролем"
+        is EditRestriction.RandomText -> "Активен, защищен случайным текстом"
         is EditRestriction.UntilDate -> {
+            val prefix = if (restriction.stopAfterReachingDate) "Активен до " else "Заблокирован до "
+
             val date = restriction.date
             val currentDate = now.toLocalDate()
             val targetDate = date.toLocalDate()
-            " до " + if (targetDate == currentDate) date.toTimeString()
+            prefix + if (targetDate == currentDate) date.toTimeString()
             else if (targetDate.year == currentDate.year) date.toDayPlusTimeString()
             else date.toFullString()
         }
-        is EditRestriction.UntilReboot -> " до перезагрузки устройства"
-        else -> ""
+        is EditRestriction.UntilReboot -> {
+            if (restriction.stopAfterReboot) "Активен до перезагрузки устройства"
+            else "Заблокирован до перезагрузки устройства"
+        }
+        else -> "Активен"
     }
 }
 
