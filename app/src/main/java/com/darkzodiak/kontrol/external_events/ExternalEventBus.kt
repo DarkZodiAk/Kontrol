@@ -1,4 +1,4 @@
-package com.darkzodiak.kontrol.block.external_events
+package com.darkzodiak.kontrol.external_events
 
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow

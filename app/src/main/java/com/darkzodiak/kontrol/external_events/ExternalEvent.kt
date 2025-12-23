@@ -1,4 +1,4 @@
-package com.darkzodiak.kontrol.block.external_events
+package com.darkzodiak.kontrol.external_events
 
 sealed interface ExternalEvent {
     data class OpenApp(val packageName: String): ExternalEvent

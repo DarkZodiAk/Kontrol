@@ -9,7 +9,14 @@ import android.view.View
 import android.view.WindowManager
 import androidx.core.content.getSystemService
 import com.darkzodiak.kontrol.R
+import com.darkzodiak.kontrol.external_events.ExternalEvent
+import com.darkzodiak.kontrol.external_events.ExternalEventBus
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,22 +33,22 @@ class OverlayManager @Inject constructor(
     private val layoutInflater by lazy {
         themedContext.getSystemService<LayoutInflater>()!!
     }
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     private var blockCallback: (() -> Unit)? = null
     private var proceedCallback: (() -> Unit)? = null
     private var blockView: View? = null
 
     private val overlaysMap = OverlaysMapFactory().build(
+        context = themedContext,
         layoutInflater = layoutInflater,
         onClose = { appShouldClose ->
-            closeOverlay()
             if (appShouldClose) {
                 blockCallback?.invoke()
             } else {
                 proceedCallback?.invoke()
             }
-            blockCallback = null
-            proceedCallback = null
+            closeOverlay()
         }
     )
 
@@ -57,6 +64,13 @@ class OverlayManager @Inject constructor(
                 WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
         PixelFormat.TRANSLUCENT
     )
+
+    init {
+        ExternalEventBus.bus
+            .filterIsInstance(ExternalEvent.ReturnToLauncher::class)
+            .onEach { closeOverlay() }
+            .launchIn(scope)
+    }
 
     fun openOverlay(
         data: OverlayData,
@@ -84,5 +98,7 @@ class OverlayManager @Inject constructor(
             // TODO(): Find out what exceptions we may encounter here
         }
         blockView = null
+        blockCallback = null
+        proceedCallback = null
     }
 }

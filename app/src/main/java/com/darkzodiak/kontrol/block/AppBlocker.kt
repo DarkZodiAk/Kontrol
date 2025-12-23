@@ -1,7 +1,7 @@
 package com.darkzodiak.kontrol.block
 
-import com.darkzodiak.kontrol.block.external_events.ExternalEvent
-import com.darkzodiak.kontrol.block.external_events.ExternalEventBus
+import com.darkzodiak.kontrol.external_events.ExternalEvent
+import com.darkzodiak.kontrol.external_events.ExternalEventBus
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.overlay.OverlayDataCreator
 import com.darkzodiak.kontrol.overlay.OverlayManager

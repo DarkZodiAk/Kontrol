@@ -1,11 +1,11 @@
 package com.darkzodiak.kontrol.overlay.restrictions
 
+import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
-import androidx.annotation.LayoutRes
 import com.darkzodiak.kontrol.R
 import com.darkzodiak.kontrol.overlay.Overlay
 import com.darkzodiak.kontrol.overlay.OverlayData
@@ -14,10 +14,10 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
 class PasswordOverlay(
+    context: Context,
     layoutInflater: LayoutInflater,
-    @LayoutRes layoutID: Int,
     onClose: (Boolean) -> Unit
-): Overlay(layoutInflater, layoutID, onClose) {
+): Overlay(context, layoutInflater, R.layout.password_overlay, onClose) {
 
     private val infoText = view.findViewById<TextView>(R.id.info_text)
     private val closeButton = view.findViewById<MaterialButton>(R.id.password_close)

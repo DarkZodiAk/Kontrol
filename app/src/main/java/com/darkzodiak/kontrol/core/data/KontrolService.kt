@@ -6,8 +6,8 @@ import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
 import com.darkzodiak.kontrol.block.AppBlocker
 import com.darkzodiak.kontrol.block.AppCloser
-import com.darkzodiak.kontrol.block.external_events.ExternalEvent
-import com.darkzodiak.kontrol.block.external_events.ExternalEventBus
+import com.darkzodiak.kontrol.external_events.ExternalEvent
+import com.darkzodiak.kontrol.external_events.ExternalEventBus
 import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope

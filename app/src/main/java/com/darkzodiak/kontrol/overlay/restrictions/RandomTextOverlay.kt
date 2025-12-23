@@ -1,24 +1,23 @@
 package com.darkzodiak.kontrol.overlay.restrictions
 
+import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.widget.TextView
-import androidx.annotation.LayoutRes
 import com.darkzodiak.kontrol.R
 import com.darkzodiak.kontrol.core.presentation.getRandomAlphaString
 import com.darkzodiak.kontrol.overlay.Overlay
 import com.darkzodiak.kontrol.overlay.OverlayData
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.internal.CheckableImageButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
 class RandomTextOverlay(
+    context: Context,
     layoutInflater: LayoutInflater,
-    @LayoutRes layoutID: Int,
     onClose: (Boolean) -> Unit
-): Overlay(layoutInflater, layoutID, onClose) {
+): Overlay(context, layoutInflater, R.layout.random_text_overlay, onClose) {
 
     private val infoText = view.findViewById<TextView>(R.id.info_text)
     private val randomText = view.findViewById<TextView>(R.id.random_text)
