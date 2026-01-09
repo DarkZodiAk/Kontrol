@@ -18,10 +18,7 @@ val UITimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 val UIDayPlusTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM HH:mm")
     .withLocale(Locale.getDefault(Locale.Category.FORMAT))
 
-fun LocalDateTime.plusDuration(duration: Duration): LocalDateTime = this
-    .plusDays(duration.inWholeDays)
-    .plusHours(duration.inWholeHours)
-    .plusMinutes(duration.inWholeMinutes)
+fun LocalDateTime.plusDuration(duration: Duration): LocalDateTime = this.plusMinutes(duration.inWholeMinutes)
 
 fun LocalDateTime.toFullString(): String = this.format(UIDateTimeFormatter)
 fun LocalDateTime.toDateString(): String = this.format(UIDateFormatter)

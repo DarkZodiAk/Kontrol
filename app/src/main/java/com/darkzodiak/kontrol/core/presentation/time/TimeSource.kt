@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import kotlin.time.Duration
 
-class TimeSource {
+class TimeSource() {
     private var offset = MutableStateFlow(Duration.ZERO)
 
     val currentTime = callbackFlow {
@@ -32,8 +32,17 @@ class TimeSource {
         }
 
         var timerJob: Job? = null
+        // Resets time if the offset was changed
         var offsetJob = launch {
             offset.collect {
+                timerJob?.cancel()
+                timerJob = launchTimerJob()
+            }
+        }
+
+        // Resets time if the time of system was changed
+        launch {
+            timeChangedCounter.collect {
                 timerJob?.cancel()
                 timerJob = launchTimerJob()
             }
@@ -48,7 +57,7 @@ class TimeSource {
         .stateIn(
             scope = CoroutineScope(Dispatchers.Default + SupervisorJob()),
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
-            initialValue = LocalDateTime.now()
+            initialValue = nowWithOffset()
         )
 
     fun setTimeOffset(duration: Duration) {
@@ -59,10 +68,15 @@ class TimeSource {
         offset.update { Duration.ZERO }
     }
 
-    private fun nowWithOffset(): LocalDateTime = LocalDateTime.now().plusDuration(offset.value)
+    private fun nowWithOffset() = LocalDateTime.now().plusDuration(offset.value)
 
 
     companion object {
         private const val MINUTE_MILLIS = 60000L
+        private val timeChangedCounter = MutableStateFlow(0)
+
+        fun onTimeChanged() {
+            timeChangedCounter.update { timeChangedCounter.value + 1 }
+        }
     }
 }
