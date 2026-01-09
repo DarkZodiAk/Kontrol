@@ -70,13 +70,6 @@ class AppRestrictionViewModel: ViewModel() {
                 }
                 closeDialog()
             }
-
-            AppRestrictionAction.CloseInfo -> {
-                // TODO(): Implement later
-            }
-            is AppRestrictionAction.ShowInfo -> {
-                // TODO(): Implement later
-            }
         }
     }
 

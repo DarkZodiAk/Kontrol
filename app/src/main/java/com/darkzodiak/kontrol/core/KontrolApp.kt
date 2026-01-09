@@ -26,7 +26,7 @@ class KontrolApp: Application() {
     lateinit var profileActualizer: ProfileActualizer
 
     override fun onCreate() {
-        super.onCreate() // TODO(): Check how context changes in transition from direct boot mode
+        super.onCreate()
         appScanner.updateAll()
         DynamicReceiverRegistrator(this).register()
         profileActualizer.actualizeAll()

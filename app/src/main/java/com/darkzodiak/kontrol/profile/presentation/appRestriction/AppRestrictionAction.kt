@@ -10,9 +10,6 @@ sealed interface AppRestrictionAction {
 
     object DismissDialog: AppRestrictionAction
     data class SendDialogData(val data: DialogData): AppRestrictionAction
-
-    data class ShowInfo(val restrictionType: AppRestrictionType): AppRestrictionAction
-    object CloseInfo: AppRestrictionAction
 }
 
 sealed interface DialogData {

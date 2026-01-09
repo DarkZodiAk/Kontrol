@@ -161,8 +161,6 @@ fun EditRestrictionScreen(
             }
         }
 
-        // TODO(): We should somehow deal with restriction changes (user-friendly caching?)
-
         if (state.openedDialogType == DialogType.PASSWORD) {
             PasswordDialog(
                 onSave = {

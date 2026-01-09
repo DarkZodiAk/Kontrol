@@ -91,12 +91,9 @@ fun AppRestrictionScreen(
                     type = type,
                     data = state.restriction,
                     onClick = { onAction(AppRestrictionAction.SetRestriction(type)) },
-//                    onInfo = { onAction(AppRestrictionAction.ShowInfo(type)) }
                 )
             }
         }
-
-        // TODO(): We should somehow deal with restriction changes (user-friendly caching?)
 
         if (state.openedDialogType == DialogType.PASSWORD) {
             PasswordDialog(

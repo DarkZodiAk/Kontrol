@@ -23,6 +23,6 @@ class SimpleBlockOverlay(
     }
 
     override fun close() {
-        onClose(false)
+        onClose(true)
     }
 }

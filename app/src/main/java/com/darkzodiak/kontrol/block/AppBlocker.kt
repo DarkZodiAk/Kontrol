@@ -24,7 +24,7 @@ import kotlin.reflect.KClass
 class AppBlocker @Inject constructor(
     private val repository: KontrolRepository,
     private val overlayManager: OverlayManager
-) { // TODO(): Call this like Observer or what?
+) {
 
     private val overlayDataCreator = OverlayDataCreator()
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -71,9 +71,11 @@ class AppBlocker @Inject constructor(
 
         withContext(Dispatchers.Main) {
             if (hardProfile != null) {
-                appCloser?.closeApp(packageName)
                 val data = overlayDataCreator.createDataFrom(packageName, hardProfile)
-                overlayManager.openOverlay(data) { }
+                overlayManager.openOverlay(
+                    data = data,
+                    onBlock = { appCloser?.closeApp(packageName) }
+                )
             } else {
                 val softProfile = activeProfiles.first()
                 val data = overlayDataCreator.createDataFrom(packageName, softProfile)
