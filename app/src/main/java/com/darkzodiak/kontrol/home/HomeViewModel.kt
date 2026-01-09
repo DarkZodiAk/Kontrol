@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
-import com.darkzodiak.kontrol.core.presentation.time.toFullString
+import com.darkzodiak.kontrol.core.presentation.time.UITimeUtils
 import com.darkzodiak.kontrol.home.HomeEvent.*
 import com.darkzodiak.kontrol.home.profileCard.PendingProfileIntent
 import com.darkzodiak.kontrol.home.profileCard.ProfileCardIntent
@@ -195,7 +195,8 @@ class HomeViewModel @Inject constructor(
 
         private fun getErrorTextForStrictRestriction(restriction: EditRestriction): String {
             return when (restriction) {
-                is EditRestriction.UntilDate -> "Редактирование заблокировано до ${restriction.date.toFullString()}"
+                is EditRestriction.UntilDate -> "Редактирование заблокировано до " +
+                        UITimeUtils.formatDateTime(restriction.date)
                 is EditRestriction.UntilReboot -> "Редактирование заблокировано до перезагрузки устройства"
                 else -> "Что-то пошло не так, профиль заблокирован для редактирования"
             }

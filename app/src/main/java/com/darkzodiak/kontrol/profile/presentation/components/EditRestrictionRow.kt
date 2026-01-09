@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import com.darkzodiak.kontrol.core.presentation.KontrolOutlinedRow
-import com.darkzodiak.kontrol.core.presentation.time.toFullString
+import com.darkzodiak.kontrol.core.presentation.time.UITimeUtils
 import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
 
 @Composable
@@ -92,7 +92,7 @@ fun buildEditRestrictionText(
     EditRestrictionType.UNTIL_DATE -> {
         val start = "До даты"
         val end = if (showText && data is EditRestriction.UntilDate) {
-            val part1 = " (${data.date.toFullString()})"
+            val part1 = " (${UITimeUtils.formatDateTime(data.date)})"
             val part2 = if (showOptionsText && data.stopAfterReachingDate) {
                 "\nВыключится по достижении даты"
             } else ""

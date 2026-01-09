@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.darkzodiak.kontrol.core.presentation.time.toFullString
+import com.darkzodiak.kontrol.core.presentation.time.UITimeUtils
 
 @Composable
 fun SelectDelayTypeDialog(
@@ -63,7 +63,7 @@ fun SelectDelayTypeDialog(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(text = getDelayInfoText(type))
-                    Text(text = state.selectDelayTime.toFullString())
+                    Text(text = UITimeUtils.formatDateTime(state.selectDelayTime))
                 }
             }
             Row(

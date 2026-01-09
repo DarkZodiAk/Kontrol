@@ -64,7 +64,6 @@ class DelayDialogViewModel: ViewModel() {
             }
             is DelayDialogAction.SetCustomTime -> {
                 val time = if (action.time < LocalDateTime.now()) {
-                    // TODO(): Show a brief warning that user can't set a pause to the past
                     LocalDateTime.now()
                 } else {
                     action.time

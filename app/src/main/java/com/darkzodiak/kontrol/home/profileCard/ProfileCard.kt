@@ -126,7 +126,7 @@ private fun ProfileCardPreview() {
                 name = "Блокировка",
                 state = ProfileState.Active,
 //                state = ProfileState.Paused(LocalDateTime.now().plusMinutes(7)),
-                editRestriction = EditRestriction.NoRestriction
+                editRestriction = EditRestriction.UntilDate(date = LocalDateTime.now().plusDays(2), false)
             ),
             now = LocalDateTime.now(),
             onIntent = {  },

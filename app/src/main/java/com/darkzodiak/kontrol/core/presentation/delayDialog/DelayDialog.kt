@@ -31,8 +31,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.darkzodiak.kontrol.core.presentation.time.DatePickerDialog
 import com.darkzodiak.kontrol.core.presentation.time.TimePickerDialog
-import com.darkzodiak.kontrol.core.presentation.time.toDateString
-import com.darkzodiak.kontrol.core.presentation.time.toTimeString
+import com.darkzodiak.kontrol.core.presentation.time.UITimeUtils
 import java.time.LocalDateTime
 
 // Main dialog for getting time with delay (for pause, for example)
@@ -88,14 +87,14 @@ fun DelayDialog(
                     AssistChip(
                         onClick = { datePickerVisible = true },
                         label = {
-                            Text(text = viewModel.state.delayTime.toDateString())
+                            Text(text = UITimeUtils.formatDate(viewModel.state.delayTime))
                         },
                         modifier = Modifier.weight(1f)
                     )
                     AssistChip(
                         onClick = { timePickerVisible = true },
                         label = {
-                            Text(text = viewModel.state.delayTime.toTimeString())
+                            Text(text = UITimeUtils.formatTime(viewModel.state.delayTime))
                         },
                         modifier = Modifier.weight(0.6f)
                     )

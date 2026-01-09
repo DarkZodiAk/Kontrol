@@ -68,8 +68,9 @@ class TimeSource() {
         offset.update { Duration.ZERO }
     }
 
-    private fun nowWithOffset() = LocalDateTime.now().plusDuration(offset.value)
-
+    private fun nowWithOffset(): LocalDateTime {
+        return UITimeUtils.addDuration(LocalDateTime.now(), offset.value)
+    }
 
     companion object {
         private const val MINUTE_MILLIS = 60000L

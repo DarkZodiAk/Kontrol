@@ -3,9 +3,7 @@ package com.darkzodiak.kontrol.core.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.pluralStringResource
 import com.darkzodiak.kontrol.R
-import com.darkzodiak.kontrol.core.presentation.time.toDayPlusTimeString
-import com.darkzodiak.kontrol.core.presentation.time.toFullString
-import com.darkzodiak.kontrol.core.presentation.time.toTimeString
+import com.darkzodiak.kontrol.core.presentation.time.UITimeUtils
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.profile.domain.ProfileState
@@ -18,7 +16,6 @@ fun getProfileTextInfo(profile: Profile, now: LocalDateTime): String {
         ProfileState.Active -> getActiveProfileRestrictionInfo(profile.editRestriction, now)
         ProfileState.Stopped -> "Неактивен"
 
-        // TODO(): Should be locale-universal in future
         is ProfileState.Paused -> {
             val duration = Duration.between(now, profile.state.until)
 
@@ -49,9 +46,13 @@ fun getActiveProfileRestrictionInfo(restriction: EditRestriction, now: LocalDate
             val date = restriction.date
             val currentDate = now.toLocalDate()
             val targetDate = date.toLocalDate()
-            prefix + if (targetDate == currentDate) date.toTimeString()
-            else if (targetDate.year == currentDate.year) date.toDayPlusTimeString()
-            else date.toFullString()
+            prefix + if (targetDate == currentDate) {
+                UITimeUtils.formatTime(date)
+            }
+            else if (targetDate.year == currentDate.year) {
+                UITimeUtils.formatDayAndTime(date)
+            }
+            else UITimeUtils.formatDateTime(date)
         }
         is EditRestriction.UntilReboot -> {
             if (restriction.stopAfterReboot) "Активен до перезагрузки устройства"
