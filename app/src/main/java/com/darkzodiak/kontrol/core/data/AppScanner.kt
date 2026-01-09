@@ -2,6 +2,7 @@ package com.darkzodiak.kontrol.core.data
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
@@ -14,6 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -21,15 +24,67 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AppFetcher @Inject constructor(
+class AppScanner @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appDao: AppDao
 ) {
     private val packageManager = context.packageManager
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val mutex = Mutex()
 
+    fun onAppInstalled(packageName: String) {
+        runWithLock {
+            val appInfo = getReachableAppInfo(packageName) ?: return@runWithLock
 
-    private suspend fun getAllInstalledApps() {
+            val app = App(
+                packageName = packageName,
+                title = appInfo.loadLabel(packageManager).toString(),
+                icon = getAppIconAndSave(packageName)
+            )
+
+            appDao.insertApp(app)
+        }
+    }
+
+    fun onAppDeleted(packageName: String) {
+        runWithLock {
+            appDao.deleteAppByPackageName(packageName)
+            deleteIcon(packageName)
+        }
+    }
+
+    fun onAppReplaced(packageName: String) {
+        runWithLock {
+            val appInfo = getReachableAppInfo(packageName) ?: return@runWithLock
+            val app = appDao.getAppByPackageName(packageName) ?: return@runWithLock
+            val iconUri = getAppIconAndSave(packageName)
+            appDao.upsertApp(
+                app.copy(
+                    title = appInfo.loadLabel(packageManager).toString(),
+                    icon = iconUri
+                )
+            )
+        }
+    }
+
+    fun updateAll() {
+        runWithLock {
+            scanAllApps()
+        }
+    }
+
+    fun getCurrentLauncherPackageName(): String {
+        val intent = Intent().apply {
+            action = Intent.ACTION_MAIN
+            addCategory(Intent.CATEGORY_HOME)
+        }
+        return packageManager
+            .resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)!!
+            .activityInfo
+            .packageName
+    }
+
+    private suspend fun scanAllApps() {
         val currentApps = appDao.getAllApps().first()
         val apps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
 
@@ -56,27 +111,19 @@ class AppFetcher @Inject constructor(
         // Reason: any app might change its icon
         newApps.forEach {
             scope.launch {
-                val uri = getAppIconAndSave(it.value.packageName)
-                appDao.upsertApp(it.value.copy(icon = uri))
+                val iconUri = getAppIconAndSave(it.value.packageName)
+                appDao.upsertApp(it.value.copy(icon = iconUri))
             }
         }
     }
 
-    fun update() {
-        scope.launch {
-            getAllInstalledApps()
-        }
-    }
-
-    fun getCurrentLauncherPackageName(): String {
-        val intent = Intent().apply {
-            action = Intent.ACTION_MAIN
-            addCategory(Intent.CATEGORY_HOME)
-        }
+    private fun getReachableAppInfo(packageName: String): ApplicationInfo? {
         return packageManager
-            .resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)!!
-            .activityInfo
-            .packageName
+            .getInstalledApplications(PackageManager.GET_META_DATA)
+            .firstOrNull {
+                it.packageName == packageName &&
+                        packageManager.getLaunchIntentForPackage(it.packageName) != null
+            }
     }
 
     private fun deleteIcon(packageName: String) {
@@ -104,5 +151,9 @@ class AppFetcher @Inject constructor(
                 it.flush()
             }
         } catch(_: IOException) {}
+    }
+
+    private fun runWithLock(block: suspend CoroutineScope.() -> Unit) = scope.launch {
+        mutex.withLock { block() }
     }
 }

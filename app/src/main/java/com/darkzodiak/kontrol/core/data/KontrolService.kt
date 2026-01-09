@@ -20,7 +20,7 @@ import javax.inject.Inject
 class KontrolService: AccessibilityService(), AppCloser {
 
     @Inject
-    lateinit var appFetcher: AppFetcher
+    lateinit var appScanner: AppScanner
     @Inject
     lateinit var permissionObserver: PermissionObserver
     @Inject
@@ -42,7 +42,7 @@ class KontrolService: AccessibilityService(), AppCloser {
     override fun onCreate() {
         super.onCreate()
         appBlocker.setAppCloser(this)
-        deviceLauncher = appFetcher.getCurrentLauncherPackageName()
+        deviceLauncher = appScanner.getCurrentLauncherPackageName()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

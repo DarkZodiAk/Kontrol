@@ -1,8 +1,9 @@
 package com.darkzodiak.kontrol.core
 
 import android.app.Application
-import com.darkzodiak.kontrol.core.data.AppFetcher
+import com.darkzodiak.kontrol.core.data.AppScanner
 import com.darkzodiak.kontrol.core.data.KontrolService
+import com.darkzodiak.kontrol.core.data.receivers.DynamicReceiverRegistrator
 import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import com.darkzodiak.kontrol.profile.data.ProfileActualizer
 import dagger.hilt.android.HiltAndroidApp
@@ -20,13 +21,14 @@ class KontrolApp: Application() {
     @Inject
     lateinit var permissionObserver: PermissionObserver
     @Inject
-    lateinit var appFetcher: AppFetcher
+    lateinit var appScanner: AppScanner
     @Inject
     lateinit var profileActualizer: ProfileActualizer
 
     override fun onCreate() {
         super.onCreate() // TODO(): Check how context changes in transition from direct boot mode
-        appFetcher.update()
+        appScanner.updateAll()
+        DynamicReceiverRegistrator(this).register()
         profileActualizer.actualizeAll()
         permissionObserver.canRunService.onEach { canRunService ->
             if(canRunService) {

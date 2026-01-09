@@ -37,17 +37,6 @@
         </activity>
 
         <receiver
-            android:name=".core.data.receivers.AppInstallDeleteReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_ADDED" />
-                <action android:name="android.intent.action.PACKAGE_REMOVED" />
-
-                <data android:scheme="package" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
             android:name=".core.data.receivers.TimeChangedReceiver"
             android:exported="true">
             <intent-filter>
