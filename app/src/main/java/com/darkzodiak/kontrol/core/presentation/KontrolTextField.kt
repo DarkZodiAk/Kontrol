@@ -2,6 +2,7 @@ package com.darkzodiak.kontrol.core.presentation
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -32,6 +34,7 @@ fun KontrolTextField(
     var isFocused by rememberSaveable { mutableStateOf(false) }
 
     Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
@@ -42,6 +45,7 @@ fun KontrolTextField(
             value = if(text.isNotBlank() || isFocused) text else placeholder,
             onValueChange = onTextChange,
             textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
             modifier = Modifier
                 .weight(1f)
                 .onFocusChanged { focusState ->
