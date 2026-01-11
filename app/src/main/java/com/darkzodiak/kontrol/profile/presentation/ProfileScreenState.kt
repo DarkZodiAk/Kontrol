@@ -14,5 +14,6 @@ data class ProfileScreenState(
     val editRestriction: EditRestriction = EditRestriction.NoRestriction,
 
     val unsaved: Boolean = false,
+    val protectedMode: Boolean = false,
     val warnings: List<WarningType> = emptyList()
 )

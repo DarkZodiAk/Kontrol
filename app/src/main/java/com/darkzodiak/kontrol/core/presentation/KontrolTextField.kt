@@ -29,6 +29,7 @@ fun KontrolTextField(
     text: String,
     placeholder: String,
     onTextChange: (String) -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     var isFocused by rememberSaveable { mutableStateOf(false) }
@@ -44,6 +45,7 @@ fun KontrolTextField(
         BasicTextField(
             value = if(text.isNotBlank() || isFocused) text else placeholder,
             onValueChange = onTextChange,
+            enabled = enabled,
             textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
             cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
             modifier = Modifier
@@ -52,7 +54,7 @@ fun KontrolTextField(
                     isFocused = focusState.isFocused
                 }
         )
-        if(text.isNotBlank()){
+        if(text.isNotBlank() && enabled){
             Icon(
                 imageVector = Icons.Default.HighlightOff,
                 contentDescription = null,

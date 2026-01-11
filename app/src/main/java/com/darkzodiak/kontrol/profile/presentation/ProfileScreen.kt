@@ -90,7 +90,11 @@ fun ProfileScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { 
-                    Text(text = if(state.isNewProfile) "Создать профиль" else "Изменить профиль")
+                    Text(text = when {
+                        state.isNewProfile -> "Создать профиль"
+                        state.protectedMode -> "Просмотр профиля"
+                        else -> "Изменить профиль"
+                    })
                 },
                 navigationIcon = {
                     IconButton(
@@ -129,6 +133,7 @@ fun ProfileScreen(
                 text = state.name,
                 placeholder = "Название",
                 onTextChange = { onAction(ProfileAction.ModifyName(it)) },
+                enabled = state.protectedMode.not(),
                 modifier = Modifier.fillMaxWidth()
             )
             Text(
@@ -136,7 +141,8 @@ fun ProfileScreen(
                 style = MaterialTheme.typography.titleMedium
             )
             KontrolOutlinedRow(
-                modifier = Modifier.clickable { onAction(ProfileAction.OpenAppsList) }
+                modifier = if (state.protectedMode) Modifier
+                    else Modifier.clickable { onAction(ProfileAction.OpenAppsList) }
             ) {
                 Icon(imageVector = Icons.Default.Apps, contentDescription = null)
                 if (state.apps.isEmpty()) {
@@ -157,18 +163,20 @@ fun ProfileScreen(
                 }
             }
             Text(
-                text = "Ограничениe",
+                text = "Ограничениe приложений",
                 style = MaterialTheme.typography.titleMedium
             )
             KontrolOutlinedRow(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onAction(ProfileAction.OpenAppRestriction) }
+                modifier = if (state.protectedMode) Modifier
+                    else Modifier.clickable { onAction(ProfileAction.OpenAppRestriction) }
             ) {
                 AppRestrictionIconText(
                     type = state.appRestriction.toType(),
                     data = state.appRestriction,
                     showText = true,
-                    showOptionsText = true
+                    showOptionsText = true,
+                    hideSensitiveInfo = state.protectedMode
                 )
             }
             Column(
@@ -185,13 +193,15 @@ fun ProfileScreen(
             }
             KontrolOutlinedRow(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onAction(ProfileAction.OpenEditRestriction) }
+                modifier = if (state.protectedMode) Modifier
+                    else Modifier.clickable { onAction(ProfileAction.OpenEditRestriction) }
             ) {
                 EditRestrictionIconText(
                     type = state.editRestriction.toType(),
                     data = state.editRestriction,
                     showText = true,
-                    showOptionsText = true
+                    showOptionsText = true,
+                    hideSensitiveInfo = state.protectedMode
                 )
             }
         }

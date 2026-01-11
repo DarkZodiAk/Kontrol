@@ -63,6 +63,6 @@ fun getActiveProfileRestrictionInfo(restriction: EditRestriction, now: LocalDate
 }
 
 fun getRandomAlphaString(length: Int): String {
-    val allowedChars = ('A'..'Z') + ('a'..'z')
+    val allowedChars = ('A'..'Z') + ('a'..'z') - 'I' - 'l'
     return String(CharArray(length) { allowedChars.random() })
 }

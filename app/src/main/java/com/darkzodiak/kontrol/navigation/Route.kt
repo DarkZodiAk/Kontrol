@@ -6,7 +6,10 @@ sealed interface Route {
     @Serializable
     object HomeScreen: Route
     @Serializable
-    data class ProfileScreen(val id: Long? = null): Route
+    data class ProfileScreen(
+        val id: Long? = null,
+        val protectedMode: Boolean = false
+    ): Route
     @Serializable
     object AppListScreen: Route
     @Serializable

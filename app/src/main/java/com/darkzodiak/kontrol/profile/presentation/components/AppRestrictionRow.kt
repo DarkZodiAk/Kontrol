@@ -25,7 +25,6 @@ fun AppRestrictionRow(
     type: AppRestrictionType,
     data: AppRestriction,
     onClick: () -> Unit,
-//    onInfo: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val active = remember(data) { data.isInstanceOf(type) }
@@ -48,9 +47,9 @@ fun AppRestrictionRow(
 fun AppRestrictionIconText(
     type: AppRestrictionType,
     data: AppRestriction,
-//    onInfo: () -> Unit,
     showText: Boolean,
-    showOptionsText: Boolean
+    showOptionsText: Boolean,
+    hideSensitiveInfo: Boolean = false
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -65,13 +64,10 @@ fun AppRestrictionIconText(
             contentDescription = null
         )
         Text(
-            text = buildAppRestrictionText(type, data, showText, showOptionsText),
+            text = buildAppRestrictionText(type, data, showText, showOptionsText, hideSensitiveInfo),
             style = MaterialTheme.typography.titleMedium
         )
     }
-//    IconButton(onClick = onInfo) {
-//        Icon(imageVector = Icons.Outlined.Info, contentDescription = null)
-//    }
 }
 
 @Composable
@@ -79,12 +75,13 @@ fun buildAppRestrictionText(
     type: AppRestrictionType,
     data: AppRestriction,
     showText: Boolean,
-    showOptionsText: Boolean
+    showOptionsText: Boolean,
+    hideSensitiveInfo: Boolean
 ) = when (type) {
     AppRestrictionType.SIMPLE_BLOCK -> "Простая блокировка"
     AppRestrictionType.PASSWORD -> {
         val start = "Пароль"
-        val end = if (showText && data is AppRestriction.Password) {
+        val end = if (showText && hideSensitiveInfo.not() && data is AppRestriction.Password) {
             " (${data.password.length} символов)"
         } else ""
 

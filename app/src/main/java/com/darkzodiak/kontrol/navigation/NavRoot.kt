@@ -23,7 +23,9 @@ fun NavRoot(
     ) {
         composable<Route.HomeScreen> {
             HomeScreenRoot(
-                onOpenProfile = { navController.navigate(Route.ProfileScreen(it)) },
+                onOpenProfile = { id, inProtectedMode ->
+                    navController.navigate(Route.ProfileScreen(id, inProtectedMode))
+                },
                 onNewProfile = { navController.navigate(Route.ProfileScreen(null)) }
             )
         }

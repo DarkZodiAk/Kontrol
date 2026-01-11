@@ -25,8 +25,10 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -52,7 +54,7 @@ import com.darkzodiak.kontrol.profile.domain.ProfileState
 @Composable
 fun HomeScreenRoot(
     viewModel: HomeViewModel = hiltViewModel(),
-    onOpenProfile: (Long) -> Unit,
+    onOpenProfile: (Long, Boolean) -> Unit,
     onNewProfile: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -60,8 +62,19 @@ fun HomeScreenRoot(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
-                is HomeEvent.OpenProfile -> onOpenProfile(event.id)
+                is HomeEvent.OpenProfile -> onOpenProfile(event.id, event.inProtectedMode)
                 HomeEvent.NewProfile -> onNewProfile()
+                HomeEvent.OfferOpenProfileInProtectedMode -> {
+                    val result = snackbarHostState.showSnackbar(
+                        message = "Хотите просмотреть профиль без возможности редактирования?",
+                        actionLabel = "Да",
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Short
+                    )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        viewModel.onAction(HomeAction.OpenLockedProfile)
+                    }
+                }
                 is HomeEvent.ShowError -> {
                     snackbarHostState.showSnackbar(message = event.text)
                 }

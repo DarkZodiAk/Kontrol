@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
-import com.darkzodiak.kontrol.core.presentation.time.UITimeUtils
 import com.darkzodiak.kontrol.home.profileCard.PendingProfileIntent
 import com.darkzodiak.kontrol.home.profileCard.ProfileCardIntent
 import com.darkzodiak.kontrol.permission.domain.Permission
@@ -72,8 +71,8 @@ class HomeViewModel @Inject constructor(
                 executeProfileIntent()
             }
             HomeAction.RestrictionNotPassed -> {
-                // TODO(): Create ability to open profile if check was failed
                 closeRestrictionDialog()
+                sendEvent(HomeEvent.OfferOpenProfileInProtectedMode)
             }
             is HomeAction.UpdatePermissionInfo -> {
                 when(action.permission) {
@@ -109,6 +108,14 @@ class HomeViewModel @Inject constructor(
             HomeAction.NewProfile -> {
                 sendEvent(HomeEvent.NewProfile)
             }
+            HomeAction.OpenLockedProfile -> {
+                val profileId = pendingCardIntent?.profile?.id
+                pendingCardIntent = null
+                sendEvent(
+                    if (profileId == null) HomeEvent.ShowError("Profile open error")
+                        else HomeEvent.OpenProfile(profileId, true)
+                )
+            }
             HomeAction.OpenPermissionSheet -> {
                 state = state.copy(permissionSheetVisible = true)
             }
@@ -136,8 +143,7 @@ class HomeViewModel @Inject constructor(
                     restrictionDialogVisible = true
                 )
             } else if (restriction.isOneOf(hardRestrictions)) {
-                pendingCardIntent = null
-                sendEvent(HomeEvent.ShowError(getErrorTextForStrictRestriction(restriction)))
+                sendEvent(HomeEvent.OfferOpenProfileInProtectedMode)
             }
             return
         }
@@ -205,15 +211,6 @@ class HomeViewModel @Inject constructor(
 
         private fun EditRestriction.isOneOf(types: Set<KClass<out EditRestriction>>): Boolean {
             return types.any { it.isInstance(this) }
-        }
-
-        private fun getErrorTextForStrictRestriction(restriction: EditRestriction): String {
-            return when (restriction) {
-                is EditRestriction.UntilDate -> "Редактирование заблокировано до " +
-                        UITimeUtils.formatDateTime(restriction.date)
-                is EditRestriction.UntilReboot -> "Редактирование заблокировано до перезагрузки устройства"
-                else -> "Что-то пошло не так, профиль заблокирован для редактирования"
-            }
         }
     }
 }

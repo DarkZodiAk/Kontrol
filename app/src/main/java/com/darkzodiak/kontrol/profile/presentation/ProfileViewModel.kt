@@ -66,6 +66,12 @@ class ProfileViewModel @Inject constructor(
                 checkProfileAppsOverlap()
             }
         }
+        savedStateHandle.get<Boolean>("protectedMode")?.let {
+            state = state.copy(
+                protectedMode = it,
+                warnings = if (it) state.warnings + WarningType.LOCKED_EDIT else state.warnings
+            )
+        }
 
         timeSource.currentTime.onEach { time ->
             checkTimedRestriction(time)

@@ -47,7 +47,8 @@ fun EditRestrictionIconText(
     type: EditRestrictionType,
     data: EditRestriction,
     showText: Boolean,
-    showOptionsText: Boolean
+    showOptionsText: Boolean,
+    hideSensitiveInfo: Boolean = false
 ) {
     Icon(
         imageVector = when (type) {
@@ -60,7 +61,7 @@ fun EditRestrictionIconText(
         contentDescription = null
     )
     Text(
-        text = buildEditRestrictionText(type, data, showText, showOptionsText),
+        text = buildEditRestrictionText(type, data, showText, showOptionsText, hideSensitiveInfo),
         style = MaterialTheme.typography.titleMedium
     )
 }
@@ -70,12 +71,13 @@ fun buildEditRestrictionText(
     type: EditRestrictionType,
     data: EditRestriction,
     showText: Boolean,
-    showOptionsText: Boolean
+    showOptionsText: Boolean,
+    hideSensitiveInfo: Boolean
 ) = when (type) {
     EditRestrictionType.NO_RESTRICTION -> "Нет"
     EditRestrictionType.PASSWORD -> {
         val start = "Пароль"
-        val end = if (showText && data is EditRestriction.Password) {
+        val end = if (showText && hideSensitiveInfo.not() && data is EditRestriction.Password) {
             " (${data.password.length} символов)"
         } else ""
 

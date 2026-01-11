@@ -10,6 +10,7 @@ sealed interface HomeAction {
     object DismissPermissionSheet: HomeAction
 
     object NewProfile: HomeAction
+    object OpenLockedProfile: HomeAction
 
     data class RequestProfileAction(val profile: Profile, val intent: ProfileCardIntent): HomeAction
 
