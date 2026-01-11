@@ -3,6 +3,7 @@ package com.darkzodiak.kontrol.overlay
 import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Build
+import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
@@ -79,39 +80,63 @@ class OverlayManager @Inject constructor(
         onBlock: () -> Unit = { },
         onProceed: () -> Unit = { }
     ) {
+        closeOverlayImmediately()
+
         val overlay = overlaysMap[data.appRestrictionType] ?: return
         overlay.init(data)
         blockCallback = onBlock
         proceedCallback = onProceed
         blockView = overlay.view
 
-        try {
-            blockView!!.alpha = 0f
-            windowManager.addView(blockView, windowParams)
-            blockView!!.animate()
-                .alpha(1f)
-                .setDuration(300)
-                .setInterpolator(DecelerateInterpolator())
-                .start()
-        } catch (e: Exception) {
-            // TODO(): Find out what exceptions we may encounter here
+        blockView?.let { view ->
+            try {
+                view.alpha = 0f
+                windowManager.addView(view, windowParams)
+                view.animate()
+                    .alpha(1f)
+                    .setDuration(300)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+            } catch (e: SecurityException) {
+                Log.d("Kontrol Log", "Attempted to open overlay without overlay permission")
+            } catch (e: Exception) {
+                Log.d("Kontrol Log", "${e.cause} happened during overlay add")
+            }
         }
     }
 
     private fun closeOverlay() {
-        if (blockView == null) return
-        try {
-            blockView!!.animate()
-                .alpha(0f)
-                .setDuration(300)
-                .setInterpolator(AccelerateInterpolator())
-                .withEndAction {
-                    windowManager.removeViewImmediate(blockView)
-                    blockView = null
-                }
-        } catch (e: Exception) {
-            // TODO(): Find out what exceptions we may encounter here
+        blockView?.let { view ->
+            try {
+                view.animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .setInterpolator(AccelerateInterpolator())
+                    .withEndAction {
+                        windowManager.removeViewImmediate(view)
+                        resetOverlayState()
+                    }
+            } catch (e: Exception) {
+                Log.d("Kontrol Log", "${e.cause} occurred during overlay exit")
+            }
+        } ?: resetOverlayState()
+    }
+
+    private fun closeOverlayImmediately() {
+        blockView?.let { view ->
+            try {
+                windowManager.removeViewImmediate(view)
+            } catch (e: IllegalArgumentException) {
+                Log.d("Kontrol Log", "Overlay already removed: ${e.message}")
+            } catch (e: Exception) {
+                Log.d("Kontrol Log", "Immediate overlay removal failed: ${e.cause}")
+            }
         }
+        resetOverlayState()
+    }
+
+    private fun resetOverlayState() {
+        blockView = null
         blockCallback = null
         proceedCallback = null
     }

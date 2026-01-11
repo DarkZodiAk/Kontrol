@@ -56,7 +56,9 @@ class AppBlocker @Inject constructor(
         nextAppToIgnore = null
         if (appToIgnore == packageName || appCloser == null) return
 
-        profileCheckJob = repository.getProfilesWithApp(packageName)
+        val profiles = repository.getProfilesWithApp(packageName) ?: return
+
+        profileCheckJob = profiles
             .filter { it.isNotEmpty() }
             .onEach { profiles ->
                 processProfiles(packageName, profiles)

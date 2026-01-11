@@ -31,7 +31,7 @@ class ProfileActualizer @Inject constructor(
     }
 
     fun actualize(profileId: Long) = scope.launch {
-        val profile = profileDao.getProfileById(profileId)
+        val profile = profileDao.getProfileById(profileId) ?: return@launch
         var newProfile = profile.copy()
 
         newProfile.pausedUntil?.let { resumeTime ->

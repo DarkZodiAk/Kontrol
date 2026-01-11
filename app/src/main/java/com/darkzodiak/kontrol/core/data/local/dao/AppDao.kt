@@ -36,7 +36,7 @@ interface AppDao {
     fun getAllApps(): Flow<List<App>>
 
     @Query("SELECT * FROM app WHERE id = :id")
-    suspend fun getAppById(id: Long): App
+    suspend fun getAppById(id: Long): App?
 
     @Query("SELECT * FROM app WHERE packageName = :packageName")
     suspend fun getAppByPackageName(packageName: String): App?

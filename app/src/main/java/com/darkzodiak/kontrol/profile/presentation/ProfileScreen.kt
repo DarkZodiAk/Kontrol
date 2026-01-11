@@ -57,6 +57,7 @@ fun ProfileScreenRoot(
                 is ProfileEvent.ShowWarning -> {
                     snackbarHostState.showSnackbar(message = event.text)
                 }
+                ProfileEvent.GoBack -> onBack()
                 else -> Unit
             }
         }
@@ -72,7 +73,6 @@ fun ProfileScreenRoot(
             onAction = { action ->
                 when (action) {
                     ProfileAction.Back -> onBack()
-                    ProfileAction.Done -> onBack()
                     ProfileAction.OpenAppsList -> toAppList()
                     ProfileAction.OpenAppRestriction -> toAppRestrictions()
                     ProfileAction.OpenEditRestriction -> toEditRestrictions()

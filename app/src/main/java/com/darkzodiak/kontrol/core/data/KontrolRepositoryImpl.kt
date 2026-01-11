@@ -9,7 +9,6 @@ import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.scheduling.EventScheduler
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -30,8 +29,8 @@ class KontrolRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteProfile(profile: Profile) {
-        profileDao.deleteProfile(ProfileMapper.profileToProfileEntity(profile))
-        eventScheduler.deleteEvent(profile.id ?: return)
+        profileDao.deleteProfileById(profile.id ?: return)
+        eventScheduler.deleteEvent(profile.id)
     }
 
     override fun getProfiles(): Flow<List<Profile>> {
@@ -40,8 +39,9 @@ class KontrolRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getProfileById(id: Long): Profile {
-        return ProfileMapper.profileEntityToProfile(profileDao.getProfileById(id))
+    override suspend fun getProfileById(id: Long): Profile? {
+        val profileEntity = profileDao.getProfileById(id) ?: return null
+        return ProfileMapper.profileEntityToProfile(profileEntity)
     }
 
     override suspend fun addAppToProfile(appId: Long, profileId: Long) {
@@ -52,14 +52,12 @@ class KontrolRepositoryImpl @Inject constructor(
         profileDao.deleteAppFromProfile(AppToProfile(profileId, appId))
     }
 
-    override fun getProfileAppsById(id: Long): Flow<List<App>> {
-        return profileDao.getProfileAppsById(id)
+    override fun getProfileAppsById(profileId: Long): Flow<List<App>> {
+        return profileDao.getProfileAppsById(profileId)
     }
 
-    override suspend fun getProfilesWithApp(packageName: String): Flow<List<Profile>> {
-        val appId = appDao.getAppByPackageName(packageName)?.id
-        // TODO(): Empty flow or null?
-        if (appId == null) return emptyFlow()
+    override suspend fun getProfilesWithApp(packageName: String): Flow<List<Profile>>? {
+        val appId = appDao.getAppByPackageName(packageName)?.id ?: return null
 
         return profileDao.getProfilesWithApp(appId).map {
             it.map { ProfileMapper.profileEntityToProfile(it) }
@@ -70,7 +68,7 @@ class KontrolRepositoryImpl @Inject constructor(
         return appDao.getAllApps()
     }
 
-    override suspend fun getAppById(id: Long): App {
+    override suspend fun getAppById(id: Long): App? {
         return appDao.getAppById(id)
     }
 }

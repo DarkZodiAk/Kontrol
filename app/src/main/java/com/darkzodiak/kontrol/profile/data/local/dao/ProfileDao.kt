@@ -22,11 +22,14 @@ interface ProfileDao {
     @Delete
     suspend fun deleteProfile(profileEntity: ProfileEntity)
 
+    @Query("DELETE FROM profileentity WHERE id = :id")
+    suspend fun deleteProfileById(id: Long)
+
     @Query("SELECT * FROM profileentity")
     fun getProfiles(): Flow<List<ProfileEntity>>
 
     @Query("SELECT * FROM profileentity WHERE id = :id")
-    suspend fun getProfileById(id: Long): ProfileEntity
+    suspend fun getProfileById(id: Long): ProfileEntity?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addAppToProfile(appToProfile: AppToProfile)

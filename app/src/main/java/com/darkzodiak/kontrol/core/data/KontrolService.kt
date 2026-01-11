@@ -31,14 +31,6 @@ class KontrolService: AccessibilityService(), AppCloser {
 
     private var deviceLauncher = ""
 
-    // TODO(): Maybe relocate and move package names into constants
-    private val ignoredPackages = listOf(
-        "com.android.systemui",
-        "com.google.android.inputmethod.latin",
-        "com.android.inputmethod.latin"
-    )
-
-
     override fun onCreate() {
         super.onCreate()
         appBlocker.setAppCloser(this)
@@ -112,6 +104,12 @@ class KontrolService: AccessibilityService(), AppCloser {
     companion object {
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
+
+        private val ignoredPackages = setOf(
+            "com.android.systemui",
+            "com.google.android.inputmethod.latin",
+            "com.android.inputmethod.latin"
+        )
 
         fun buildActionIntent(context: Context, action: String): Intent {
             return Intent(context, KontrolService::class.java).also {

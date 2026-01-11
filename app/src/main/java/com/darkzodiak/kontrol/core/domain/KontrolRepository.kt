@@ -9,11 +9,11 @@ interface KontrolRepository {
     suspend fun updateProfile(profile: Profile)
     suspend fun deleteProfile(profile: Profile)
     fun getProfiles(): Flow<List<Profile>>
-    suspend fun getProfileById(id: Long): Profile
+    suspend fun getProfileById(id: Long): Profile?
     suspend fun addAppToProfile(appId: Long, profileId: Long)
     suspend fun deleteAppFromProfile(appId: Long, profileId: Long)
-    fun getProfileAppsById(id: Long): Flow<List<App>>
-    suspend fun getProfilesWithApp(packageName: String): Flow<List<Profile>>
+    fun getProfileAppsById(profileId: Long): Flow<List<App>>
+    suspend fun getProfilesWithApp(packageName: String): Flow<List<Profile>>?
     fun getAllApps(): Flow<List<App>>
-    suspend fun getAppById(id: Long): App
+    suspend fun getAppById(id: Long): App?
 }

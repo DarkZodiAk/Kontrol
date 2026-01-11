@@ -12,7 +12,7 @@ class EventPlanner @Inject constructor(
 ) {
 
     suspend fun getNearestEventTime(profileId: Long): LocalDateTime? {
-        val profile = profileDao.getProfileById(profileId)
+        val profile = profileDao.getProfileById(profileId) ?: return null
 
         return if (profile.pausedUntil != null) profile.pausedUntil
         else if (profile.editRestrictionType == EditRestrictionType.UNTIL_DATE) profile.eRestrictUntilDate

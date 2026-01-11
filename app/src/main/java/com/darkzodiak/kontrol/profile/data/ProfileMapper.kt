@@ -176,7 +176,6 @@ object ProfileMapper {
         }
     }
 
-    // TODO(): Those error functions spit out profile that doesn't exist in DB, so it can't be deleted
     private fun handleInvalidState(type: ProfileStateType): ProfileState {
         Log.d("Kontrol Log", "Invalid data: data for profile state ${type.name} is null")
         return ProfileState.Stopped

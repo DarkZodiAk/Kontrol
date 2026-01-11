@@ -10,7 +10,7 @@ import com.darkzodiak.kontrol.core.data.local.entity.App
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
-import com.darkzodiak.kontrol.profile.domain.ProfileUploader
+import com.darkzodiak.kontrol.profile.domain.ProfileUpdater
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -25,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: KontrolRepository,
-    private val profileUploader: ProfileUploader,
+    private val profileUpdater: ProfileUpdater,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -45,16 +45,21 @@ class ProfileViewModel @Inject constructor(
     init {
         savedStateHandle.get<Long>("id")?.let { id ->
             viewModelScope.launch {
-                profile = repository.getProfileById(id)
+                val profileFromDb = repository.getProfileById(id)
+                if (profileFromDb == null) {
+                    state = state.copy(isNewProfile = true)
+                    return@launch
+                }
+                profile = profileFromDb
                 profileApps = repository.getProfileAppsById(id).first()
                 state = state.copy(
                     name = profile.name,
                     apps = profileApps,
                     appRestriction = profile.appRestriction,
                     editRestriction = profile.editRestriction,
+                    isNewProfile = false
                 )
             }
-            state = state.copy(isNewProfile = false)
         }
 
         timeSource.currentTime.onEach { time ->
@@ -92,7 +97,11 @@ class ProfileViewModel @Inject constructor(
     fun onAction(action: ProfileAction) {
         when(action) {
             ProfileAction.Done -> {
-                profileUploader.uploadProfile(profile, profileApps, state)
+                profileUpdater.updateProfileWithApps(
+                    profile = createRelevantProfileInstance(),
+                    profileApps = state.apps
+                )
+                viewModelScope.launch { channel.send(ProfileEvent.GoBack) }
             }
             is ProfileAction.ModifyName -> {
                 state = state.copy(name = action.text, unsaved = true)
@@ -113,9 +122,12 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    override fun onCleared() {
-        ProfileInterScreenBus.clear()
-        super.onCleared()
+    private fun createRelevantProfileInstance(): Profile {
+        return profile.copy(
+            name = state.name,
+            appRestriction = state.appRestriction,
+            editRestriction = state.editRestriction
+        )
     }
 
     private fun checkTimedRestriction(currentTime: LocalDateTime) {
@@ -129,5 +141,10 @@ class ProfileViewModel @Inject constructor(
                 ))
             }
         }
+    }
+
+    override fun onCleared() {
+        ProfileInterScreenBus.clear()
+        super.onCleared()
     }
 }
