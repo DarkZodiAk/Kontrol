@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.darkzodiak.kontrol.core.presentation.KontrolUnsavedCard
+import com.darkzodiak.kontrol.core.presentation.unsaved.KontrolUnsavedCard
 import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
 import com.darkzodiak.kontrol.profile.domain.AppRestriction
 import com.darkzodiak.kontrol.profile.presentation.components.AppRestrictionRow

@@ -81,7 +81,7 @@ class AppBlocker @Inject constructor(
             }
         } else {
             val softProfile = activeProfiles.first()
-            val data = overlayDataCreator.createDataFrom(packageName, softProfile)
+            val data = overlayDataCreator.createDataFrom(packageName, softProfile, activeProfiles.size > 1)
             withContext(Dispatchers.Main) {
                 overlayManager.openOverlay(
                     data = data,

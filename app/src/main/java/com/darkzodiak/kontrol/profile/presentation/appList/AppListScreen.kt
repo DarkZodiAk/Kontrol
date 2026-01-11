@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.darkzodiak.kontrol.core.presentation.KontrolTextField
-import com.darkzodiak.kontrol.core.presentation.KontrolUnsavedCardMinimized
+import com.darkzodiak.kontrol.core.presentation.unsaved.KontrolUnsavedCardMinimized
 
 @Composable
 fun AppListScreenRoot(

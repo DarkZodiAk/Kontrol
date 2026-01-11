@@ -17,21 +17,37 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_margin="16dp"/>
 
-    <TextView
-        android:id="@+id/info_text"
-        style="@style/TextAppearance.Material3.TitleMedium"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/info_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_marginHorizontal="24dp"
         android:layout_marginBottom="32dp"
-        android:gravity="center"
-        android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@id/random_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.666"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"/>
+        app:layout_constraintVertical_chainStyle="packed">
+
+        <TextView
+            android:id="@+id/restriction_text"
+            style="@style/TextAppearance.Material3.TitleMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAlignment="center"/>
+        <TextView
+            android:id="@+id/profile_name"
+            style="@style/TextAppearance.Material3.BodyLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/random_text"
@@ -39,13 +55,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="24dp"
         android:gravity="center"
         android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@id/random_input_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/info_text" />
+        app:layout_constraintTop_toBottomOf="@id/info_layout" />
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"

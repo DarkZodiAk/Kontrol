@@ -36,8 +36,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.darkzodiak.kontrol.core.presentation.KontrolOutlinedRow
 import com.darkzodiak.kontrol.core.presentation.KontrolTextField
-import com.darkzodiak.kontrol.core.presentation.KontrolUnsavedCard
-import com.darkzodiak.kontrol.core.presentation.KontrolWarningCard
+import com.darkzodiak.kontrol.core.presentation.unsaved.KontrolUnsavedCard
+import com.darkzodiak.kontrol.core.presentation.warning.KontrolWarningCard
 import com.darkzodiak.kontrol.profile.presentation.components.AppRestrictionIconText
 import com.darkzodiak.kontrol.profile.presentation.components.EditRestrictionIconText
 
@@ -119,8 +119,8 @@ fun ProfileScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
-            state.warning?.let {
-                KontrolWarningCard(state.warning)
+            AnimatedVisibility(state.warnings.isNotEmpty()) {
+                KontrolWarningCard(state.warnings)
             }
             AnimatedVisibility(state.isNewProfile.not() && state.unsaved) {
                 KontrolUnsavedCard()

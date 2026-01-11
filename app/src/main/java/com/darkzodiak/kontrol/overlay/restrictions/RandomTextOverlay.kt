@@ -4,6 +4,7 @@ import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.TextView
 import com.darkzodiak.kontrol.R
 import com.darkzodiak.kontrol.core.presentation.getRandomAlphaString
@@ -19,7 +20,8 @@ class RandomTextOverlay(
     onClose: (Boolean) -> Unit
 ): Overlay(context, layoutInflater, R.layout.random_text_overlay, onClose) {
 
-    private val infoText = view.findViewById<TextView>(R.id.info_text)
+    private val restrictionText = view.findViewById<TextView>(R.id.restriction_text)
+    private val profileName = view.findViewById<TextView>(R.id.profile_name)
     private val randomText = view.findViewById<TextView>(R.id.random_text)
     private val closeButton = view.findViewById<MaterialButton>(R.id.random_close)
     private val inputLayout = view.findViewById<TextInputLayout>(R.id.random_input_layout)
@@ -32,8 +34,15 @@ class RandomTextOverlay(
         val text = "Введите текст ниже для получения доступа к ${data.appName}"
         val randomString = getRandomAlphaString(data.randomTextLength)
 
-        infoText.text = text
+        restrictionText.text = text
         randomText.text = randomString
+
+        if (data.profileName != null) {
+            profileName.text = "Имя профиля: ${data.profileName}"
+            profileName.visibility = View.VISIBLE
+        } else {
+            profileName.visibility = View.GONE
+        }
 
         closeButton.setOnClickListener {
             randomTextInput.setText("")

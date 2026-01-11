@@ -10,8 +10,10 @@ import com.darkzodiak.kontrol.core.data.local.entity.App
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
+import com.darkzodiak.kontrol.core.presentation.warning.WarningType
 import com.darkzodiak.kontrol.profile.domain.ProfileUpdater
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
+import com.darkzodiak.kontrol.profile.domain.ProfileOverlapChecker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
@@ -26,6 +28,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val repository: KontrolRepository,
     private val profileUpdater: ProfileUpdater,
+    private val profileOverlapChecker: ProfileOverlapChecker,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -60,6 +63,7 @@ class ProfileViewModel @Inject constructor(
                     editRestriction = profile.editRestriction,
                     isNewProfile = false
                 )
+                checkProfileAppsOverlap()
             }
         }
 
@@ -74,6 +78,7 @@ class ProfileViewModel @Inject constructor(
             }
             val unsaved = state.apps != it
             state = state.copy(apps = it, unsaved = unsaved)
+            checkProfileAppsOverlap()
         }.launchIn(viewModelScope)
 
         interScreenBus.editRestriction.onEach {
@@ -151,6 +156,18 @@ class ProfileViewModel @Inject constructor(
             sendEvent(ProfileEvent.ShowWarning(
                 text = "Блокировка профиля достигла отмеченной даты и была отключена"
             ))
+        }
+    }
+
+    private suspend fun checkProfileAppsOverlap() {
+        val overlapped = profileOverlapChecker.isProfileOverlappedByOthers(
+            profile = profile,
+            profileApps = state.apps
+        )
+        if (overlapped) {
+            state = state.copy(warnings = state.warnings + WarningType.PROFILE_OVERLAP)
+        } else {
+            state = state.copy(warnings = state.warnings - WarningType.PROFILE_OVERLAP)
         }
     }
 

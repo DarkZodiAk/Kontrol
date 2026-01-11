@@ -1,6 +1,7 @@
 package com.darkzodiak.kontrol.profile.presentation
 
 import com.darkzodiak.kontrol.core.data.local.entity.App
+import com.darkzodiak.kontrol.core.presentation.warning.WarningType
 import com.darkzodiak.kontrol.profile.domain.AppRestriction
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
 
@@ -13,5 +14,5 @@ data class ProfileScreenState(
     val editRestriction: EditRestriction = EditRestriction.NoRestriction,
 
     val unsaved: Boolean = false,
-    val warning: String? = null
+    val warnings: List<WarningType> = emptyList()
 )
