@@ -71,4 +71,8 @@ class KontrolRepositoryImpl @Inject constructor(
     override suspend fun getAppById(id: Long): App? {
         return appDao.getAppById(id)
     }
+
+    override suspend fun getAppByPackageName(packageName: String): App? {
+        return appDao.getAppByPackageName(packageName)
+    }
 }

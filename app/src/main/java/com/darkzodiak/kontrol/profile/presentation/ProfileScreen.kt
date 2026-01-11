@@ -52,13 +52,16 @@ fun ProfileScreenRoot(
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
+        viewModel.render()
         viewModel.events.collect { event ->
             when (event) {
                 is ProfileEvent.ShowWarning -> {
                     snackbarHostState.showSnackbar(message = event.text)
                 }
                 ProfileEvent.GoBack -> onBack()
-                else -> Unit
+                ProfileEvent.OpenAppsList -> toAppList()
+                ProfileEvent.OpenAppRestriction -> toAppRestrictions()
+                ProfileEvent.OpenEditRestriction -> toEditRestrictions()
             }
         }
     }
@@ -70,16 +73,7 @@ fun ProfileScreenRoot(
     ) {
         ProfileScreen(
             state = viewModel.state,
-            onAction = { action ->
-                when (action) {
-                    ProfileAction.Back -> onBack()
-                    ProfileAction.OpenAppsList -> toAppList()
-                    ProfileAction.OpenAppRestriction -> toAppRestrictions()
-                    ProfileAction.OpenEditRestriction -> toEditRestrictions()
-                    else -> Unit
-                }
-                viewModel.onAction(action)
-            }
+            onAction = viewModel::onAction
         )
     }
 }
@@ -100,7 +94,7 @@ fun ProfileScreen(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { onAction(ProfileAction.Back) }
+                        onClick = { onAction(ProfileAction.GoBack) }
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }

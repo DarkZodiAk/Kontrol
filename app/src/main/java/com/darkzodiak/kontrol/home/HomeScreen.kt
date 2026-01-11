@@ -31,11 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,6 +61,7 @@ fun HomeScreenRoot(
         viewModel.events.collect { event ->
             when (event) {
                 is HomeEvent.OpenProfile -> onOpenProfile(event.id)
+                HomeEvent.NewProfile -> onNewProfile()
                 is HomeEvent.ShowError -> {
                     snackbarHostState.showSnackbar(message = event.text)
                 }
@@ -79,10 +76,7 @@ fun HomeScreenRoot(
     ) {
         HomeScreen(
             state = viewModel.state,
-            onAction = { action ->
-                if (action is HomeAction.NewProfile) onNewProfile()
-                viewModel.onAction(action)
-            }
+            onAction = viewModel::onAction
         )
     }
 }
@@ -94,7 +88,6 @@ fun HomeScreen(
     onAction: (HomeAction) -> Unit
 ) {
     val permissionSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var permissionSheetVisible by rememberSaveable { mutableStateOf(false) }
 
     val accessibilityLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -136,7 +129,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
-                            onClick = { permissionSheetVisible = true },
+                            onClick = { onAction(HomeAction.OpenPermissionSheet) },
                             colors = ButtonColors(
                                 containerColor = MaterialTheme.colorScheme.error,
                                 contentColor = MaterialTheme.colorScheme.onError,
@@ -161,11 +154,11 @@ fun HomeScreen(
             }
         }
 
-        if (permissionSheetVisible) {
+        if (state.permissionSheetVisible) {
             PermissionSheet(
                 state = state.permissions,
                 sheetState = permissionSheetState,
-                onDismiss = { permissionSheetVisible = false },
+                onDismiss = { onAction(HomeAction.DismissPermissionSheet) },
                 accessibilityLauncher = accessibilityLauncher,
                 alertWindowLauncher = alertWindowLauncher
             )

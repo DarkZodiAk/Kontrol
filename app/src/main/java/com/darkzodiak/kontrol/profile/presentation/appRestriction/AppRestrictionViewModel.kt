@@ -8,7 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
 import com.darkzodiak.kontrol.profile.domain.AppRestriction
 import com.darkzodiak.kontrol.profile.presentation.ProfileInterScreenBus
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class AppRestrictionViewModel: ViewModel() {
@@ -18,6 +20,9 @@ class AppRestrictionViewModel: ViewModel() {
     
     var state by mutableStateOf(AppRestrictionState())
         private set
+
+    private val channel = Channel<AppRestrictionEvent>()
+    val events = channel.receiveAsFlow()
 
     init {
         viewModelScope.launch {
@@ -35,12 +40,14 @@ class AppRestrictionViewModel: ViewModel() {
             AppRestrictionAction.Dismiss -> {
                 closeDialog()
                 rendered = false
+                sendEvent(AppRestrictionEvent.GoBack)
             }
 
             AppRestrictionAction.Save -> {
                 closeDialog()
                 rendered = false
                 interScreenCache.sendAppRestriction(state.restriction)
+                sendEvent(AppRestrictionEvent.GoBack)
             }
 
             is AppRestrictionAction.SetRestriction -> when (action.type) {
@@ -83,5 +90,11 @@ class AppRestrictionViewModel: ViewModel() {
 
     private fun closeDialog() {
         state = state.copy(openedDialogType = DialogType.NONE)
+    }
+
+    private fun sendEvent(event: AppRestrictionEvent) {
+        viewModelScope.launch {
+            channel.send(event)
+        }
     }
 }

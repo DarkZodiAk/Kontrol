@@ -6,6 +6,9 @@ import com.darkzodiak.kontrol.profile.domain.Profile
 import java.time.LocalDateTime
 
 sealed interface HomeAction {
+    object OpenPermissionSheet: HomeAction
+    object DismissPermissionSheet: HomeAction
+
     object NewProfile: HomeAction
 
     data class RequestProfileAction(val profile: Profile, val intent: ProfileCardIntent): HomeAction

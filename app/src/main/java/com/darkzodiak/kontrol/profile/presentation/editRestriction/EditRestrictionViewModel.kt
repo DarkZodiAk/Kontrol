@@ -49,12 +49,14 @@ class EditRestrictionViewModel: ViewModel() {
             EditRestrictionAction.Dismiss -> {
                 closeDialog()
                 rendered = false
+                sendEvent(EditRestrictionEvent.GoBack)
             }
 
             EditRestrictionAction.Save -> {
                 closeDialog()
                 rendered = false
                 interScreenCache.sendEditRestriction(state.restriction)
+                sendEvent(EditRestrictionEvent.GoBack)
             }
 
             is EditRestrictionAction.SetRestriction -> when (action.type) {
@@ -125,16 +127,20 @@ class EditRestrictionViewModel: ViewModel() {
         state = state.copy(openedDialogType = DialogType.NONE)
     }
 
+    private fun sendEvent(event: EditRestrictionEvent) {
+        viewModelScope.launch {
+            channel.send(event)
+        }
+    }
+
     private fun checkTimedRestriction(currentTime: LocalDateTime) {
         val restriction = state.restriction as? EditRestriction.UntilDate
 
         if (restriction != null && restriction.date <= currentTime) {
             state = state.copy(restriction = EditRestriction.NoRestriction)
-            viewModelScope.launch {
-                channel.send(EditRestrictionEvent.ShowWarning(
-                    text = "Блокировка профиля достигла отмеченной даты и была отключена"
-                ))
-            }
+            sendEvent(EditRestrictionEvent.ShowWarning(
+                text = "Блокировка профиля достигла отмеченной даты и была отключена"
+            ))
         }
     }
 }

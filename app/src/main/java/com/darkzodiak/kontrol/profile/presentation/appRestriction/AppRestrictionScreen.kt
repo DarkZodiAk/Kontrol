@@ -34,18 +34,14 @@ fun AppRestrictionScreenRoot(
 ) {
     LaunchedEffect(Unit) {
         viewModel.render()
+        viewModel.events.collect { event ->
+            if (event is AppRestrictionEvent.GoBack) onBack()
+        }
     }
 
     AppRestrictionScreen(
         state = viewModel.state,
-        onAction = { action ->
-            viewModel.onAction(action)
-            when(action) {
-                AppRestrictionAction.Dismiss -> onBack()
-                AppRestrictionAction.Save -> onBack()
-                else -> Unit
-            }
-        }
+        onAction = viewModel::onAction
     )
 }
 

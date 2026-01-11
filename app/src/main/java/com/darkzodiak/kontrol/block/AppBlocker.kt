@@ -23,10 +23,10 @@ import kotlin.reflect.KClass
 @Singleton
 class AppBlocker @Inject constructor(
     private val repository: KontrolRepository,
-    private val overlayManager: OverlayManager
+    private val overlayManager: OverlayManager,
+    private val overlayDataCreator: OverlayDataCreator
 ) {
 
-    private val overlayDataCreator = OverlayDataCreator()
     private val scope = CoroutineScope(Dispatchers.IO)
     private var profileCheckJob: Job? = null
     private var appCloser: AppCloser? = null
@@ -71,16 +71,18 @@ class AppBlocker @Inject constructor(
 
         val hardProfile = activeProfiles.firstOrNull { it.appRestriction.isOneOf(hardRestrictions) }
 
-        withContext(Dispatchers.Main) {
-            if (hardProfile != null) {
-                val data = overlayDataCreator.createDataFrom(packageName, hardProfile)
+        if (hardProfile != null) {
+            val data = overlayDataCreator.createDataFrom(packageName, hardProfile)
+            withContext(Dispatchers.Main) {
                 overlayManager.openOverlay(
                     data = data,
                     onBlock = { appCloser?.closeApp(packageName) }
                 )
-            } else {
-                val softProfile = activeProfiles.first()
-                val data = overlayDataCreator.createDataFrom(packageName, softProfile)
+            }
+        } else {
+            val softProfile = activeProfiles.first()
+            val data = overlayDataCreator.createDataFrom(packageName, softProfile)
+            withContext(Dispatchers.Main) {
                 overlayManager.openOverlay(
                     data = data,
                     onBlock = { appCloser?.closeApp(packageName) },

@@ -45,18 +45,14 @@ fun AppListScreenRoot(
 
     LaunchedEffect(Unit) {
         viewModel.render()
+        viewModel.events.collect { event ->
+            if (event is AppListEvent.GoBack) onBack()
+        }
     }
 
     AppListScreen(
         state = viewModel.state,
-        onAction = { action ->
-            viewModel.onAction(action)
-            when(action) {
-                AppListAction.Dismiss -> onBack()
-                AppListAction.Save -> onBack()
-                else -> Unit
-            }
-        }
+        onAction = viewModel::onAction
     )
 }
 

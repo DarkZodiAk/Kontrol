@@ -8,9 +8,11 @@ import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.core.domain.usecase.GetAllAppsUseCase
 import com.darkzodiak.kontrol.profile.presentation.ProfileInterScreenBus
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,6 +26,9 @@ class AppListViewModel @Inject constructor(
 
     var state by mutableStateOf(AppListState())
         private set
+
+    private val channel = Channel<AppListEvent>()
+    val events = channel.receiveAsFlow()
 
     init {
         getAllAppsUseCase().onEach { apps ->
@@ -44,10 +49,12 @@ class AppListViewModel @Inject constructor(
         when (action) {
             AppListAction.Dismiss -> {
                 rendered = false
+                sendEvent(AppListEvent.GoBack)
             }
             AppListAction.Save -> {
                 rendered = false
                 interScreenCache.sendAppList(state.selectedApps)
+                sendEvent(AppListEvent.GoBack)
             }
             is AppListAction.SelectApp -> {
                 state = state.copy(
@@ -61,6 +68,12 @@ class AppListViewModel @Inject constructor(
                     unsaved = true
                 )
             }
+        }
+    }
+
+    private fun sendEvent(event: AppListEvent) {
+        viewModelScope.launch {
+            channel.send(event)
         }
     }
 }

@@ -29,6 +29,7 @@ class ProfileViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
+    private var rendered = false
     private val timeSource = TimeSource()
     private val interScreenBus = ProfileInterScreenBus.get()
     private var ignoreBus = false
@@ -94,14 +95,24 @@ class ProfileViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    fun render() {
+        rendered = true
+    }
+
     fun onAction(action: ProfileAction) {
+        if (rendered.not()) return
         when(action) {
+            ProfileAction.GoBack -> {
+                rendered = false
+                sendEvent(ProfileEvent.GoBack)
+            }
             ProfileAction.Done -> {
+                rendered = false
                 profileUpdater.updateProfileWithApps(
                     profile = createRelevantProfileInstance(),
                     profileApps = state.apps
                 )
-                viewModelScope.launch { channel.send(ProfileEvent.GoBack) }
+                sendEvent(ProfileEvent.GoBack)
             }
             is ProfileAction.ModifyName -> {
                 state = state.copy(name = action.text, unsaved = true)
@@ -109,16 +120,18 @@ class ProfileViewModel @Inject constructor(
             ProfileAction.OpenAppsList -> {
                 ignoreBus = true
                 interScreenBus.sendAppList(state.apps)
+                sendEvent(ProfileEvent.OpenAppsList)
             }
             ProfileAction.OpenAppRestriction -> {
                 ignoreBus = true
                 interScreenBus.sendAppRestriction(state.appRestriction)
+                sendEvent(ProfileEvent.OpenAppRestriction)
             }
             ProfileAction.OpenEditRestriction -> {
                 ignoreBus = true
                 interScreenBus.sendEditRestriction(state.editRestriction)
+                sendEvent(ProfileEvent.OpenEditRestriction)
             }
-            else -> Unit
         }
     }
 
@@ -135,11 +148,15 @@ class ProfileViewModel @Inject constructor(
 
         if (editRestriction != null && editRestriction.date <= currentTime) {
             state = state.copy(editRestriction = EditRestriction.NoRestriction)
-            viewModelScope.launch {
-                channel.send(ProfileEvent.ShowWarning(
-                    text = "Блокировка профиля достигла отмеченной даты и была отключена"
-                ))
-            }
+            sendEvent(ProfileEvent.ShowWarning(
+                text = "Блокировка профиля достигла отмеченной даты и была отключена"
+            ))
+        }
+    }
+
+    private fun sendEvent(event: ProfileEvent) {
+        viewModelScope.launch {
+            channel.send(event)
         }
     }
 

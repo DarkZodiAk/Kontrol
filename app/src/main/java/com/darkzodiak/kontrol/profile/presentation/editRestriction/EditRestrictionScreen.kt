@@ -47,6 +47,7 @@ fun EditRestrictionScreenRoot(
                 is EditRestrictionEvent.ShowWarning -> {
                     snackbarHostState.showSnackbar(message = event.text)
                 }
+                EditRestrictionEvent.GoBack -> onBack()
             }
         }
     }
@@ -58,14 +59,7 @@ fun EditRestrictionScreenRoot(
     ) {
         EditRestrictionScreen(
             state = viewModel.state,
-            onAction = { action ->
-                viewModel.onAction(action)
-                when (action) {
-                    EditRestrictionAction.Dismiss -> onBack()
-                    EditRestrictionAction.Save -> onBack()
-                    else -> Unit
-                }
-            }
+            onAction = viewModel::onAction
         )
     }
 }

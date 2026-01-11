@@ -9,7 +9,6 @@ import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
 import com.darkzodiak.kontrol.core.presentation.time.UITimeUtils
-import com.darkzodiak.kontrol.home.HomeEvent.*
 import com.darkzodiak.kontrol.home.profileCard.PendingProfileIntent
 import com.darkzodiak.kontrol.home.profileCard.ProfileCardIntent
 import com.darkzodiak.kontrol.permission.domain.Permission
@@ -48,11 +47,14 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
 
         permissionObserver.permissionsState.onEach {
-            state = state.copy(permissions = state.permissions.copy(
-                hasAccessibilityPermission = it.hasAccessibilityPermission,
-                hasAlertWindowPermission = it.hasAlertWindowPermission,
-                hasEssentialPermissions = it.hasEssentialPermissions
-            ))
+            state = state.copy(
+                permissions = state.permissions.copy(
+                    hasAccessibilityPermission = it.hasAccessibilityPermission,
+                    hasAlertWindowPermission = it.hasAlertWindowPermission,
+                    hasEssentialPermissions = it.hasEssentialPermissions,
+                ),
+                permissionSheetVisible = state.permissionSheetVisible && it.hasEssentialPermissions.not()
+            )
         }.launchIn(viewModelScope)
 
         timeSource.currentTime.onEach { time ->
@@ -104,7 +106,15 @@ class HomeViewModel @Inject constructor(
                 state = state.copy(delayDialogVisible = false)
             }
 
-            else -> Unit
+            HomeAction.NewProfile -> {
+                sendEvent(HomeEvent.NewProfile)
+            }
+            HomeAction.OpenPermissionSheet -> {
+                state = state.copy(permissionSheetVisible = true)
+            }
+            HomeAction.DismissPermissionSheet -> {
+                state = state.copy(permissionSheetVisible = false)
+            }
         }
     }
 
@@ -127,9 +137,7 @@ class HomeViewModel @Inject constructor(
                 )
             } else if (restriction.isOneOf(hardRestrictions)) {
                 pendingCardIntent = null
-                viewModelScope.launch {
-                    channel.send(ShowError(getErrorTextForStrictRestriction(restriction)))
-                }
+                sendEvent(HomeEvent.ShowError(getErrorTextForStrictRestriction(restriction)))
             }
             return
         }
@@ -150,10 +158,10 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 ProfileCardIntent.OPEN -> {
-                    viewModelScope.launch {
-                        if (profile.id == null) channel.send(ShowError("Profile open error"))
-                        else channel.send(OpenProfile(profile.id))
-                    }
+                    sendEvent(
+                        if (profile.id == null) HomeEvent.ShowError("Profile open error")
+                        else HomeEvent.OpenProfile(profile.id)
+                    )
                 }
                 ProfileCardIntent.DELETE -> {
                     viewModelScope.launch {
@@ -177,6 +185,12 @@ class HomeViewModel @Inject constructor(
     private fun openDelayDialog(profile: Profile) {
         pendingDelayProfile = profile
         onAction(HomeAction.Delay.OpenDialog)
+    }
+
+    private fun sendEvent(event: HomeEvent) {
+        viewModelScope.launch {
+            channel.send(event)
+        }
     }
 
     companion object {

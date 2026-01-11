@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 data class HomeScreenState(
     val profiles: List<Profile> = emptyList(),
     val curTime: LocalDateTime = LocalDateTime.now(),
+    val permissionSheetVisible: Boolean = false,
 
     val restrictionDialogVisible: Boolean = false,
     val curRestriction: EditRestriction = EditRestriction.NoRestriction,
