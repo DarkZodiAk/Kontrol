@@ -6,11 +6,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -34,6 +36,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
@@ -84,7 +87,10 @@ fun HomeScreenRoot(
 
     Scaffold(
         snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.offset(y = 48.dp)
+            )
         }
     ) {
         HomeScreen(
@@ -113,57 +119,54 @@ fun HomeScreen(
         onAction(HomeAction.UpdatePermissionInfo(Permission.SYSTEM_ALERT_WINDOW))
     }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { onAction(HomeAction.NewProfile) }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Create new profile")
-            }
-        },
-        modifier = Modifier.fillMaxSize()
-    ) { innerPadding ->
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            if (state.permissions.hasEssentialPermissions.not()) {
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(20))
-                            .background(MaterialTheme.colorScheme.errorContainer)
-                            .padding(start = 12.dp, top = 16.dp, bottom = 4.dp, end = 8.dp)
-                    ) {
-                        Text(
-                            text = "Требуются разрешения для работы приложения",
-                            fontSize = 16.sp
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(
-                            onClick = { onAction(HomeAction.OpenPermissionSheet) },
-                            colors = ButtonColors(
-                                containerColor = MaterialTheme.colorScheme.error,
-                                contentColor = MaterialTheme.colorScheme.onError,
-                                disabledContainerColor = ButtonDefaults.buttonColors().disabledContainerColor,
-                                disabledContentColor = ButtonDefaults.buttonColors().disabledContentColor
-                            )
+    Scaffold {
+        Box(Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp)) {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp),) {
+                if (state.permissions.hasEssentialPermissions.not()) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(20))
+                                .background(MaterialTheme.colorScheme.errorContainer)
+                                .padding(start = 12.dp, top = 16.dp, bottom = 4.dp, end = 8.dp)
                         ) {
-                            Text(text = "Предоставить")
+                            Text(
+                                text = "Требуются разрешения для работы приложения",
+                                fontSize = 16.sp
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Button(
+                                onClick = { onAction(HomeAction.OpenPermissionSheet) },
+                                colors = ButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.onError,
+                                    disabledContainerColor = ButtonDefaults.buttonColors().disabledContainerColor,
+                                    disabledContentColor = ButtonDefaults.buttonColors().disabledContentColor
+                                )
+                            ) {
+                                Text(text = "Предоставить")
+                            }
                         }
                     }
                 }
+
+                items(state.profiles) { profile ->
+                    ProfileCard(
+                        profile = profile,
+                        now = state.curTime,
+                        onIntent = { intent ->
+                            onAction(HomeAction.RequestProfileAction(profile, intent))
+                        }
+                    )
+                }
             }
 
-            items(state.profiles) { profile ->
-                ProfileCard(
-                    profile = profile,
-                    now = state.curTime,
-                    onIntent = { intent ->
-                        onAction(HomeAction.RequestProfileAction(profile, intent))
-                    }
-                )
+            FloatingActionButton(
+                onClick = { onAction(HomeAction.NewProfile) },
+                modifier = Modifier.align(Alignment.BottomEnd).padding(bottom = 8.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Create new profile")
             }
         }
 

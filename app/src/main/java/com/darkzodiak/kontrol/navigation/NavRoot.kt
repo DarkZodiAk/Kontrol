@@ -5,6 +5,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.darkzodiak.kontrol.core.presentation.MainScreen
+import com.darkzodiak.kontrol.core.presentation.NavItem
 import com.darkzodiak.kontrol.home.HomeScreenRoot
 import com.darkzodiak.kontrol.profile.presentation.appList.AppListScreenRoot
 import com.darkzodiak.kontrol.profile.presentation.editRestriction.EditRestrictionScreenRoot
@@ -18,16 +20,23 @@ fun NavRoot(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Route.HomeScreen,
+        startDestination = Route.MainScreen,
         modifier = modifier
     ) {
-        composable<Route.HomeScreen> {
-            HomeScreenRoot(
-                onOpenProfile = { id, inProtectedMode ->
-                    navController.navigate(Route.ProfileScreen(id, inProtectedMode))
-                },
-                onNewProfile = { navController.navigate(Route.ProfileScreen(null)) }
-            )
+        composable<Route.MainScreen> {
+            MainScreen { item ->
+                when (item) {
+                    NavItem.PROFILES -> {
+                        HomeScreenRoot(
+                            onOpenProfile = { id, inProtectedMode ->
+                                navController.navigate(Route.ProfileScreen(id, inProtectedMode))
+                            },
+                            onNewProfile = { navController.navigate(Route.ProfileScreen(null)) }
+                        )
+                    }
+                    NavItem.STATISTICS -> {}
+                }
+            }
         }
 
         composable<Route.ProfileScreen> {
