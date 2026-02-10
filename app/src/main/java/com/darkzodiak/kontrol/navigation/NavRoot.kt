@@ -12,6 +12,7 @@ import com.darkzodiak.kontrol.profile.presentation.appList.AppListScreenRoot
 import com.darkzodiak.kontrol.profile.presentation.editRestriction.EditRestrictionScreenRoot
 import com.darkzodiak.kontrol.profile.presentation.ProfileScreenRoot
 import com.darkzodiak.kontrol.profile.presentation.appRestriction.AppRestrictionScreenRoot
+import com.darkzodiak.kontrol.statistics.presentation.StatisticsScreenRoot
 
 @Composable
 fun NavRoot(
@@ -34,7 +35,9 @@ fun NavRoot(
                             onNewProfile = { navController.navigate(Route.ProfileScreen(null)) }
                         )
                     }
-                    NavItem.STATISTICS -> {}
+                    NavItem.STATISTICS -> {
+                        StatisticsScreenRoot()
+                    }
                 }
             }
         }

@@ -50,7 +50,8 @@ class HomeViewModel @Inject constructor(
                 permissions = state.permissions.copy(
                     hasAccessibilityPermission = it.hasAccessibilityPermission,
                     hasAlertWindowPermission = it.hasAlertWindowPermission,
-                    hasEssentialPermissions = it.hasEssentialPermissions,
+                    hasUsageStatsPermissions = it.hasUsageStatsPermission,
+                    hasAllPermissions = it.hasEssentialPermissions,
                 ),
                 permissionSheetVisible = state.permissionSheetVisible && it.hasEssentialPermissions.not()
             )

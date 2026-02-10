@@ -39,36 +39,35 @@ class PermissionObserver @Inject constructor(
     fun updateUsageStatsPermission() {
         applicationScope.launch {
             val enabled = context.hasUsageStatsPermission()
-            _permissionState.update {
-                it.copy(
-                    hasUsageStatsPermission = enabled,
-                    hasEssentialPermissions = it.hasAccessibilityPermission && it.hasAlertWindowPermission
-                )
-            }
+            updateState { copy(hasUsageStatsPermission = enabled) }
+            updateCompositeFieldsInState()
         }
     }
 
     fun updateAccessibilityPermission() {
         applicationScope.launch {
             val enabled = context.hasAccessibilityPermission()
-            _permissionState.update {
-                it.copy(
-                    hasAccessibilityPermission = enabled,
-                    hasEssentialPermissions = enabled && it.hasAlertWindowPermission
-                )
-            }
+            updateState { copy(hasAccessibilityPermission = enabled) }
+            updateCompositeFieldsInState()
         }
     }
 
     fun updateAlertWindowPermission() {
         applicationScope.launch {
             val enabled = context.hasAlertWindowPermission()
-            _permissionState.update {
-                it.copy(
-                    hasAlertWindowPermission = enabled,
-                    hasEssentialPermissions = it.hasAccessibilityPermission && enabled
-                )
-            }
+            updateState { copy(hasAlertWindowPermission = enabled) }
+            updateCompositeFieldsInState()
         }
+    }
+
+    private fun updateCompositeFieldsInState() {
+        updateState { copy(
+            hasEssentialPermissions = hasAccessibilityPermission && hasAlertWindowPermission,
+            hasAllPermissions = hasAccessibilityPermission && hasAlertWindowPermission && hasUsageStatsPermission
+        ) }
+    }
+
+    private fun updateState(update: PermissionsState.() -> PermissionsState) {
+        _permissionState.update { update(_permissionState.value) }
     }
 }

@@ -4,44 +4,31 @@ package com.darkzodiak.kontrol.home
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialog
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialogType
@@ -50,6 +37,7 @@ import com.darkzodiak.kontrol.profile.domain.Profile
 import com.darkzodiak.kontrol.home.profileCard.ProfileCard
 import com.darkzodiak.kontrol.home.components.PasswordDialog
 import com.darkzodiak.kontrol.home.components.PermissionSheet
+import com.darkzodiak.kontrol.home.components.PermissionWarningCard
 import com.darkzodiak.kontrol.home.components.RandomTextDialog
 import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import com.darkzodiak.kontrol.profile.domain.ProfileState
@@ -118,36 +106,18 @@ fun HomeScreen(
     ) {
         onAction(HomeAction.UpdatePermissionInfo(Permission.SYSTEM_ALERT_WINDOW))
     }
+    val usageStatsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        onAction(HomeAction.UpdatePermissionInfo(Permission.USAGE_STATS))
+    }
 
     Scaffold {
         Box(Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp)) {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp),) {
-                if (state.permissions.hasEssentialPermissions.not()) {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (state.permissions.hasAllPermissions.not()) {
                     item {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(20))
-                                .background(MaterialTheme.colorScheme.errorContainer)
-                                .padding(start = 12.dp, top = 16.dp, bottom = 4.dp, end = 8.dp)
-                        ) {
-                            Text(
-                                text = "Требуются разрешения для работы приложения",
-                                fontSize = 16.sp
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Button(
-                                onClick = { onAction(HomeAction.OpenPermissionSheet) },
-                                colors = ButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.error,
-                                    contentColor = MaterialTheme.colorScheme.onError,
-                                    disabledContainerColor = ButtonDefaults.buttonColors().disabledContainerColor,
-                                    disabledContentColor = ButtonDefaults.buttonColors().disabledContentColor
-                                )
-                            ) {
-                                Text(text = "Предоставить")
-                            }
-                        }
+                        PermissionWarningCard(onClick = { onAction(HomeAction.OpenPermissionSheet) })
                     }
                 }
 
@@ -176,7 +146,8 @@ fun HomeScreen(
                 sheetState = permissionSheetState,
                 onDismiss = { onAction(HomeAction.DismissPermissionSheet) },
                 accessibilityLauncher = accessibilityLauncher,
-                alertWindowLauncher = alertWindowLauncher
+                alertWindowLauncher = alertWindowLauncher,
+                usageStatsLauncher = usageStatsLauncher
             )
         }
 

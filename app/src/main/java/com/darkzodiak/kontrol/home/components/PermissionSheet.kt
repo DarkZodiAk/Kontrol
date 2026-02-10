@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.darkzodiak.kontrol.home.HomeScreenState
 import com.darkzodiak.kontrol.permission.getAccessibilityIntent
 import com.darkzodiak.kontrol.permission.getAlertWindowIntent
+import com.darkzodiak.kontrol.permission.getUsageStatsIntent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,7 +26,8 @@ fun PermissionSheet(
     sheetState: SheetState,
     onDismiss: () -> Unit,
     accessibilityLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
-    alertWindowLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>
+    alertWindowLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
+    usageStatsLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>
 ) {
     val context = LocalContext.current
 
@@ -40,15 +42,26 @@ fun PermissionSheet(
         Spacer(modifier = Modifier.height(16.dp))
         if (!state.hasAccessibilityPermission) {
             PermissionCard(
-                title = "Accessibility",
-                onButtonClick = { accessibilityLauncher.launch(getAccessibilityIntent()) }
+                title = "Сервис доступности",
+                permissionDescription = "Позволяет отслеживать и закрывать используемые приложения",
+                onButtonClick = { accessibilityLauncher.launch(getAccessibilityIntent()) },
+                modifier = Modifier.padding(8.dp)
             )
-            Spacer(modifier = Modifier.height(4.dp))
         }
         if (!state.hasAlertWindowPermission) {
             PermissionCard(
-                title = "Overlay",
-                onButtonClick = { alertWindowLauncher.launch(context.getAlertWindowIntent()) }
+                title = "Показ всплывающих окон",
+                permissionDescription = "Окна ограничивают доступ к приложениям в зависимости от настройки профилей",
+                onButtonClick = { alertWindowLauncher.launch(context.getAlertWindowIntent()) },
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+        if (!state.hasUsageStatsPermissions) {
+            PermissionCard(
+                title = "Доступ к статистике",
+                permissionDescription = "Приложение сможет формировать отчет по использованию приложений",
+                onButtonClick = { usageStatsLauncher.launch(context.getUsageStatsIntent()) },
+                modifier = Modifier.padding(8.dp)
             )
         }
     }
