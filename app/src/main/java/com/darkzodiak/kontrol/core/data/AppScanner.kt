@@ -8,7 +8,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.graphics.drawable.toBitmap
 import com.darkzodiak.kontrol.core.data.local.dao.AppDao
-import com.darkzodiak.kontrol.core.data.local.entity.App
+import com.darkzodiak.kontrol.core.data.local.entity.AppEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,13 +36,13 @@ class AppScanner @Inject constructor(
         runWithLock {
             val appInfo = getReachableAppInfo(packageName) ?: return@runWithLock
 
-            val app = App(
+            val appEntity = AppEntity(
                 packageName = packageName,
                 title = appInfo.loadLabel(packageManager).toString(),
                 icon = getAppIconAndSave(packageName)
             )
 
-            appDao.insertApp(app)
+            appDao.insertApp(appEntity)
         }
     }
 
@@ -91,7 +91,7 @@ class AppScanner @Inject constructor(
         val newApps = apps
             .filter { packageManager.getLaunchIntentForPackage(it.packageName) != null }
             .map {
-                App(
+                AppEntity(
                     packageName = it.packageName,
                     title = it.loadLabel(packageManager).toString(),
                 )

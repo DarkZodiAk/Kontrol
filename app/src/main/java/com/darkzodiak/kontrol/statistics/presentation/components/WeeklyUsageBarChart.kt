@@ -1,15 +1,23 @@
 package com.darkzodiak.kontrol.statistics.presentation.components
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -24,11 +32,11 @@ import java.time.LocalDate
 @Composable
 fun WeeklyUsageBarChart(
     reports: List<DailyUsageReport>,
-    focusedReportIndex: Int,
+    focusedReportIndex: Int?,
     onDayClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val focusedIndex = focusedReportIndex.coerceIn(0, 6)
+    val focusedIndex = focusedReportIndex?.coerceIn(0, 6)
     val maxValue = remember(reports) {
         reports.maxOfOrNull { it.totalUsageTimeMs } ?: 0L
     }
@@ -131,7 +139,7 @@ private fun YAxisLabels(
             .height(height)
     ) {
         (0..4).forEach { step ->
-            val valueMs = (maxValue * (4 - step) / 4).toLong()
+            val valueMs = maxValue * (4 - step) / 4
             Text(
                 text = formatTime(valueMs),
                 style = MaterialTheme.typography.labelSmall,
@@ -149,13 +157,11 @@ private fun BarItem(
     onClick: () -> Unit,
     barWidth: Dp,
 ) {
-    val backgroundColor by animateColorAsState(
-        targetValue = if (isFocused) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.outlineVariant
-        }
-    )
+    val backgroundColor = if (isFocused) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.outlineVariant
+    }
 
     Box(
         contentAlignment = Alignment.BottomCenter,
@@ -229,7 +235,7 @@ fun UsageScreen() {
     Scaffold { padding ->
         WeeklyUsageBarChart(
             reports = sampleData,
-            focusedReportIndex = 0,
+            focusedReportIndex = null,
             onDayClick = {},
             modifier = Modifier.fillMaxWidth().padding(8.dp),
         )

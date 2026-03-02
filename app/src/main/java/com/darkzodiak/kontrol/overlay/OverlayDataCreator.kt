@@ -1,8 +1,8 @@
 package com.darkzodiak.kontrol.overlay
 
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
-import com.darkzodiak.kontrol.profile.domain.AppRestriction
-import com.darkzodiak.kontrol.profile.domain.Profile
+import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
+import com.darkzodiak.kontrol.profile.domain.model.Profile
 import javax.inject.Inject
 import javax.inject.Singleton
 

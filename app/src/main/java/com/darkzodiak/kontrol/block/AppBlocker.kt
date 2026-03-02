@@ -1,13 +1,13 @@
 package com.darkzodiak.kontrol.block
 
+import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.external_events.ExternalEvent
 import com.darkzodiak.kontrol.external_events.ExternalEventBus
-import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.overlay.OverlayDataCreator
 import com.darkzodiak.kontrol.overlay.OverlayManager
-import com.darkzodiak.kontrol.profile.domain.AppRestriction
-import com.darkzodiak.kontrol.profile.domain.Profile
-import com.darkzodiak.kontrol.profile.domain.ProfileState
+import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
+import com.darkzodiak.kontrol.profile.domain.model.Profile
+import com.darkzodiak.kontrol.profile.domain.model.ProfileState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
-import com.darkzodiak.kontrol.profile.domain.AppRestriction
+import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
 import com.darkzodiak.kontrol.profile.presentation.ProfileInterScreenBus
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first

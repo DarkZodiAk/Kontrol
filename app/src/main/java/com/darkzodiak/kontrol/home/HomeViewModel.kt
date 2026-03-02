@@ -5,15 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
 import com.darkzodiak.kontrol.home.profileCard.PendingProfileIntent
 import com.darkzodiak.kontrol.home.profileCard.ProfileCardIntent
+import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import com.darkzodiak.kontrol.permission.domain.Permission
-import com.darkzodiak.kontrol.profile.domain.EditRestriction
-import com.darkzodiak.kontrol.profile.domain.Profile
-import com.darkzodiak.kontrol.profile.domain.ProfileState
+import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
+import com.darkzodiak.kontrol.profile.domain.model.Profile
+import com.darkzodiak.kontrol.profile.domain.model.ProfileState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.launchIn
@@ -165,10 +165,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 ProfileCardIntent.OPEN -> {
-                    sendEvent(
-                        if (profile.id == null) HomeEvent.ShowError("Profile open error")
-                        else HomeEvent.OpenProfile(profile.id)
-                    )
+                    sendEvent(HomeEvent.OpenProfile(profile.id))
                 }
                 ProfileCardIntent.DELETE -> {
                     viewModelScope.launch {

@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.pluralStringResource
 import com.darkzodiak.kontrol.R
 import com.darkzodiak.kontrol.core.presentation.time.UITimeUtils
-import com.darkzodiak.kontrol.profile.domain.EditRestriction
-import com.darkzodiak.kontrol.profile.domain.Profile
-import com.darkzodiak.kontrol.profile.domain.ProfileState
+import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
+import com.darkzodiak.kontrol.profile.domain.model.Profile
+import com.darkzodiak.kontrol.profile.domain.model.ProfileState
 import java.time.Duration
 import java.time.LocalDateTime
 

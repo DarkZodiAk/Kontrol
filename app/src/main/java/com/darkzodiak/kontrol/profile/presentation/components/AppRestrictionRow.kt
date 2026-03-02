@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.darkzodiak.kontrol.core.presentation.KontrolOutlinedRow
 import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
-import com.darkzodiak.kontrol.profile.domain.AppRestriction
+import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
 
 @Composable
 fun AppRestrictionRow(
@@ -39,7 +39,7 @@ fun AppRestrictionRow(
             )
             .clickable { onClick() }
     ) {
-        AppRestrictionIconText(type, data, active, false)
+        AppRestrictionIconText(type, data, active)
     }
 }
 
@@ -48,7 +48,6 @@ fun AppRestrictionIconText(
     type: AppRestrictionType,
     data: AppRestriction,
     showText: Boolean,
-    showOptionsText: Boolean,
     hideSensitiveInfo: Boolean = false
 ) {
     Row(
@@ -64,7 +63,7 @@ fun AppRestrictionIconText(
             contentDescription = null
         )
         Text(
-            text = buildAppRestrictionText(type, data, showText, showOptionsText, hideSensitiveInfo),
+            text = buildAppRestrictionText(type, data, showText, hideSensitiveInfo),
             style = MaterialTheme.typography.titleMedium
         )
     }
@@ -75,7 +74,6 @@ fun buildAppRestrictionText(
     type: AppRestrictionType,
     data: AppRestriction,
     showText: Boolean,
-    showOptionsText: Boolean,
     hideSensitiveInfo: Boolean
 ) = when (type) {
     AppRestrictionType.SIMPLE_BLOCK -> "Простая блокировка"

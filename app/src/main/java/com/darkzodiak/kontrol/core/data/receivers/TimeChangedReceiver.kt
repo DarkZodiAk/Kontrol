@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
 import com.darkzodiak.kontrol.profile.data.ProfileActualizer
+import com.darkzodiak.kontrol.statistics.data.DailyAppUsageActualizer
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -12,12 +13,15 @@ import javax.inject.Inject
 class TimeChangedReceiver: BroadcastReceiver() {
 
     @Inject
-    lateinit var actualizer: ProfileActualizer
+    lateinit var profileActualizer: ProfileActualizer
+    @Inject
+    lateinit var dailyAppUsageActualizer: DailyAppUsageActualizer
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action in actions) {
             TimeSource.onTimeChanged()
-            actualizer.actualizeAll()
+            profileActualizer.actualizeAll()
+            dailyAppUsageActualizer.actualizeAll()
         }
     }
 

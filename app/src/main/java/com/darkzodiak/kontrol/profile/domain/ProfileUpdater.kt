@@ -1,7 +1,8 @@
 package com.darkzodiak.kontrol.profile.domain
 
-import com.darkzodiak.kontrol.core.data.local.entity.App
+import com.darkzodiak.kontrol.core.domain.App
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
+import com.darkzodiak.kontrol.profile.domain.model.Profile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -24,7 +25,7 @@ class ProfileUpdater @Inject constructor(
 
     private suspend fun updateProfile(profile: Profile): Long {
         var id = profile.id
-        if(id != null) {
+        if(id != App.DEFAULT_ID) {
             repository.updateProfile(profile)
         } else {
             id = repository.addProfile(profile)
@@ -37,10 +38,10 @@ class ProfileUpdater @Inject constructor(
 
         val currentApps = repository.getProfileAppsById(profileId).first()
         apps.forEach { app ->
-            repository.addAppToProfile(profileId = profileId, appId = app.id!!)
+            repository.addAppToProfile(profileId = profileId, appId = app.id)
         }
         (currentApps.map { it.id } - apps.map { it.id }).forEach { appId ->
-            repository.deleteAppFromProfile(profileId = profileId, appId = appId!!)
+            repository.deleteAppFromProfile(profileId = profileId, appId = appId)
         }
     }
 }

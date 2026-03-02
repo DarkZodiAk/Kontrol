@@ -5,16 +5,16 @@ import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
 import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
 import com.darkzodiak.kontrol.profile.data.local.ProfileStateType
 import com.darkzodiak.kontrol.profile.data.local.entity.ProfileEntity
-import com.darkzodiak.kontrol.profile.domain.AppRestriction
-import com.darkzodiak.kontrol.profile.domain.EditRestriction
-import com.darkzodiak.kontrol.profile.domain.Profile
-import com.darkzodiak.kontrol.profile.domain.ProfileState
+import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
+import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
+import com.darkzodiak.kontrol.profile.domain.model.Profile
+import com.darkzodiak.kontrol.profile.domain.model.ProfileState
 import java.time.LocalDateTime
 
 object ProfileMapper {
     fun profileEntityToProfile(profile: ProfileEntity): Profile {
         return Profile(
-            id = profile.id,
+            id = profile.id ?: Profile.DEFAULT_ID,
             name = profile.name,
             state = profile.getState(),
             appRestriction = profile.getAppRestriction(),
@@ -47,7 +47,7 @@ object ProfileMapper {
         private var eStopAfterReachingUntilDate: Boolean? = null
         private var eStopAfterReboot: Boolean? = null
 
-        fun withId(id: Long?) = apply { this.id = id }
+        fun withId(id: Long?) = apply { this.id = if (id == -1L) null else id }
         fun withName(name: String) = apply { this.name = name }
         fun withState(state: ProfileState) = apply {
             when (state) {

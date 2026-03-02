@@ -1,12 +1,13 @@
 package com.darkzodiak.kontrol.core.data
 
+import com.darkzodiak.kontrol.core.data.AppMapper.entityToDomain
 import com.darkzodiak.kontrol.core.data.local.dao.AppDao
-import com.darkzodiak.kontrol.profile.data.local.dao.ProfileDao
-import com.darkzodiak.kontrol.core.data.local.entity.App
-import com.darkzodiak.kontrol.profile.data.local.entity.AppToProfile
-import com.darkzodiak.kontrol.profile.data.ProfileMapper
+import com.darkzodiak.kontrol.core.domain.App
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
-import com.darkzodiak.kontrol.profile.domain.Profile
+import com.darkzodiak.kontrol.profile.data.ProfileMapper
+import com.darkzodiak.kontrol.profile.data.local.dao.ProfileDao
+import com.darkzodiak.kontrol.profile.data.local.entity.AppToProfile
+import com.darkzodiak.kontrol.profile.domain.model.Profile
 import com.darkzodiak.kontrol.scheduling.EventScheduler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -25,11 +26,13 @@ class KontrolRepositoryImpl @Inject constructor(
 
     override suspend fun updateProfile(profile: Profile) {
         profileDao.updateProfile(ProfileMapper.profileToProfileEntity(profile))
-        eventScheduler.updateEvent(profile.id ?: return)
+        if (profile.id == Profile.DEFAULT_ID) return
+        eventScheduler.updateEvent(profile.id)
     }
 
     override suspend fun deleteProfile(profile: Profile) {
-        profileDao.deleteProfileById(profile.id ?: return)
+        profileDao.deleteProfileById(profile.id)
+        if (profile.id == Profile.DEFAULT_ID) return
         eventScheduler.deleteEvent(profile.id)
     }
 
@@ -53,7 +56,9 @@ class KontrolRepositoryImpl @Inject constructor(
     }
 
     override fun getProfileAppsById(profileId: Long): Flow<List<App>> {
-        return profileDao.getProfileAppsById(profileId)
+        return profileDao.getProfileAppsById(profileId).map {
+            AppMapper.entityListToDomainList(it)
+        }
     }
 
     override suspend fun getProfilesWithApp(packageName: String): Flow<List<Profile>>? {
@@ -65,14 +70,18 @@ class KontrolRepositoryImpl @Inject constructor(
     }
 
     override fun getAllApps(): Flow<List<App>> {
-        return appDao.getAllApps()
+        return appDao.getAllApps().map {
+            AppMapper.entityListToDomainList(it)
+        }
     }
 
     override suspend fun getAppById(id: Long): App? {
-        return appDao.getAppById(id)
+        val app = appDao.getAppById(id)
+        return if (app?.id == null) null else app.entityToDomain()
     }
 
     override suspend fun getAppByPackageName(packageName: String): App? {
-        return appDao.getAppByPackageName(packageName)
+        val app = appDao.getAppByPackageName(packageName)
+        return if (app?.id == null) null else app.entityToDomain()
     }
 }

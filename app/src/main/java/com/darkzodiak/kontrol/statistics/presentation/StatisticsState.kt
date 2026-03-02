@@ -7,7 +7,8 @@ data class StatisticsState(
     val selectedWeek: Week = Week.currentWeek(),
     val isCurrentWeek: Boolean = true,
     val dailyReports: List<DailyUsageReport> = DEFAULT_REPORTS,
-    val focusedReportIndex: Int = 0,
+    val focusedReport: DailyUsageReport = DailyUsageReport(),
+    val focusedReportIndex: Int? = null,
     val hasUsageStatsPermission: Boolean = false
 ) {
     companion object {

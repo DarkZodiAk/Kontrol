@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.profile.presentation.appRestriction
 
-import com.darkzodiak.kontrol.profile.domain.AppRestriction
+import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
 
 data class AppRestrictionState(
     val restriction: AppRestriction = AppRestriction.SimpleBlock,

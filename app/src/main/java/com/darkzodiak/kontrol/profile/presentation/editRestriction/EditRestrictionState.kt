@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.profile.presentation.editRestriction
 
-import com.darkzodiak.kontrol.profile.domain.EditRestriction
+import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
 
 data class EditRestrictionState(
     val restriction: EditRestriction = EditRestriction.NoRestriction,

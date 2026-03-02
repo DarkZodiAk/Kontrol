@@ -6,38 +6,38 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.darkzodiak.kontrol.core.data.local.entity.App
+import com.darkzodiak.kontrol.core.data.local.entity.AppEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AppDao {
 
     @Insert
-    suspend fun insertApp(app: App)
+    suspend fun insertApp(appEntity: AppEntity)
 
     @Update
-    suspend fun updateApp(app: App)
+    suspend fun updateApp(appEntity: AppEntity)
 
     @Transaction
-    suspend fun upsertApp(app: App) {
-        val id = getAppByPackageName(app.packageName)?.id
+    suspend fun upsertApp(appEntity: AppEntity) {
+        val id = getAppByPackageName(appEntity.packageName)?.id
 
-        if(id != null) updateApp(app.copy(id = id))
-        else insertApp(app)
+        if(id != null) updateApp(appEntity.copy(id = id))
+        else insertApp(appEntity)
     }
 
     @Delete
-    suspend fun deleteApp(app: App)
+    suspend fun deleteApp(appEntity: AppEntity)
 
-    @Query("DELETE FROM app WHERE packageName = :packageName")
+    @Query("DELETE FROM appentity WHERE packageName = :packageName")
     suspend fun deleteAppByPackageName(packageName: String)
 
-    @Query("SELECT * FROM app")
-    fun getAllApps(): Flow<List<App>>
+    @Query("SELECT * FROM appentity")
+    fun getAllApps(): Flow<List<AppEntity>>
 
-    @Query("SELECT * FROM app WHERE id = :id")
-    suspend fun getAppById(id: Long): App?
+    @Query("SELECT * FROM appentity WHERE id = :id")
+    suspend fun getAppById(id: Long): AppEntity?
 
-    @Query("SELECT * FROM app WHERE packageName = :packageName")
-    suspend fun getAppByPackageName(packageName: String): App?
+    @Query("SELECT * FROM appentity WHERE packageName = :packageName")
+    suspend fun getAppByPackageName(packageName: String): AppEntity?
 }

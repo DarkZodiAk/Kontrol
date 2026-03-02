@@ -33,9 +33,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.darkzodiak.kontrol.core.presentation.KontrolDropdownMenu
 import com.darkzodiak.kontrol.core.presentation.getProfileTextInfo
-import com.darkzodiak.kontrol.profile.domain.EditRestriction
-import com.darkzodiak.kontrol.profile.domain.Profile
-import com.darkzodiak.kontrol.profile.domain.ProfileState
+import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
+import com.darkzodiak.kontrol.profile.domain.model.Profile
+import com.darkzodiak.kontrol.profile.domain.model.ProfileState
 import java.time.LocalDateTime
 
 @Composable

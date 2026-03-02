@@ -2,7 +2,7 @@ package com.darkzodiak.kontrol.profile.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import com.darkzodiak.kontrol.core.data.local.entity.App
+import com.darkzodiak.kontrol.core.data.local.entity.AppEntity
 
 @Entity(
     primaryKeys = ["profileId", "appId"],
@@ -14,7 +14,7 @@ import com.darkzodiak.kontrol.core.data.local.entity.App
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = App::class,
+            entity = AppEntity::class,
             parentColumns = ["id"],
             childColumns = ["appId"],
             onDelete = ForeignKey.CASCADE

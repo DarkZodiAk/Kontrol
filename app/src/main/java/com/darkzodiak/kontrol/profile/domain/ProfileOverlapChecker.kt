@@ -1,7 +1,8 @@
 package com.darkzodiak.kontrol.profile.domain
 
-import com.darkzodiak.kontrol.core.data.local.entity.App
+import com.darkzodiak.kontrol.core.domain.App
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
+import com.darkzodiak.kontrol.profile.domain.model.Profile
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,7 +15,6 @@ class ProfileOverlapChecker @Inject constructor(
         val profileAppIds = profileApps.map { it.id }.toSet()
         val otherProfiles = repository.getProfiles().first().filter { it.id != profile.id }
         otherProfiles.forEach { otherProfile ->
-            if (otherProfile.id == null) return@forEach
             val apps = repository.getProfileAppsById(otherProfile.id).first()
             if (apps.any { it.id in profileAppIds }) return true
         }

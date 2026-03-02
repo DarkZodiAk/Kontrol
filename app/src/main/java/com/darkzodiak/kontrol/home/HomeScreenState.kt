@@ -1,7 +1,7 @@
 package com.darkzodiak.kontrol.home
 
-import com.darkzodiak.kontrol.profile.domain.EditRestriction
-import com.darkzodiak.kontrol.profile.domain.Profile
+import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
+import com.darkzodiak.kontrol.profile.domain.model.Profile
 import java.time.LocalDateTime
 
 data class HomeScreenState(

@@ -1,4 +1,4 @@
-package com.darkzodiak.kontrol.profile.domain
+package com.darkzodiak.kontrol.profile.domain.model
 
 import java.time.LocalDateTime
 

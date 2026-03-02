@@ -49,7 +49,7 @@ fun AppUsage(
 }
 
 @Composable
-fun formatPercent(percent: Long): String {
+fun formatPercent(percent: Int): String {
     return if (percent > 0) "$percent %"
         else "< 1 %"
 }

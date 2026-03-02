@@ -32,15 +32,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialog
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialogType
-import com.darkzodiak.kontrol.permission.domain.Permission
-import com.darkzodiak.kontrol.profile.domain.Profile
-import com.darkzodiak.kontrol.home.profileCard.ProfileCard
 import com.darkzodiak.kontrol.home.components.PasswordDialog
 import com.darkzodiak.kontrol.home.components.PermissionSheet
 import com.darkzodiak.kontrol.home.components.PermissionWarningCard
 import com.darkzodiak.kontrol.home.components.RandomTextDialog
-import com.darkzodiak.kontrol.profile.domain.EditRestriction
-import com.darkzodiak.kontrol.profile.domain.ProfileState
+import com.darkzodiak.kontrol.home.profileCard.ProfileCard
+import com.darkzodiak.kontrol.permission.domain.Permission
+import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
+import com.darkzodiak.kontrol.profile.domain.model.Profile
+import com.darkzodiak.kontrol.profile.domain.model.ProfileState
 
 @Composable
 fun HomeScreenRoot(

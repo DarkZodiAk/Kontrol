@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.core.domain.usecase
 
-import com.darkzodiak.kontrol.core.data.local.entity.App
+import com.darkzodiak.kontrol.core.domain.App
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -11,7 +11,7 @@ class GetAllAppsUseCase @Inject constructor(
 ) {
     operator fun invoke(): Flow<List<App>> {
         return repository.getAllApps()
-            .map { it.filterNot { app -> app.packageName == BLOCKER_APP_ID } }
+            .map { it.filterNot { app -> app.packageName == BLOCKER_APP_ID }.sortedBy { it.title } }
     }
 
     companion object {

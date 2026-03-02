@@ -24,14 +24,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.darkzodiak.kontrol.core.presentation.KontrolOption
-import com.darkzodiak.kontrol.core.presentation.unsaved.KontrolUnsavedCard
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialog
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialogType
+import com.darkzodiak.kontrol.core.presentation.unsaved.KontrolUnsavedCard
 import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
-import com.darkzodiak.kontrol.profile.domain.EditRestriction
+import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
+import com.darkzodiak.kontrol.profile.presentation.components.EditRestrictionRow
 import com.darkzodiak.kontrol.profile.presentation.components.PasswordDialog
 import com.darkzodiak.kontrol.profile.presentation.components.RandomTextDialog
-import com.darkzodiak.kontrol.profile.presentation.components.EditRestrictionRow
 
 @Composable
 fun EditRestrictionScreenRoot(

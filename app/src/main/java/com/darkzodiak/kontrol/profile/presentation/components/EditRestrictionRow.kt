@@ -15,10 +15,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.darkzodiak.kontrol.profile.domain.EditRestriction
 import com.darkzodiak.kontrol.core.presentation.KontrolOutlinedRow
 import com.darkzodiak.kontrol.core.presentation.time.UITimeUtils
 import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
+import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
 
 @Composable
 fun EditRestrictionRow(

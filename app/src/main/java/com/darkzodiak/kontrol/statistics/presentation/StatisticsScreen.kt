@@ -62,12 +62,12 @@ fun StatisticsScreen(
 
         item {
             DayUsageInfoCard(
-                usageTimeMs = state.dailyReports[state.focusedReportIndex].totalUsageTimeMs,
+                usageTimeMs = state.focusedReport.totalUsageTimeMs,
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 16.dp)
             )
         }
 
-        items(state.dailyReports[state.focusedReportIndex].appUsages) { usage ->
+        items(state.focusedReport.appUsages) { usage ->
             AppUsage(
                 usage = usage,
                 modifier = Modifier.padding(bottom = 8.dp, start = 8.dp, end = 8.dp)
