@@ -14,7 +14,7 @@ import com.darkzodiak.kontrol.statistics.data.local.DailyAppUsageEntity
 
 @Database(
     entities = [ProfileEntity::class, AppEntity::class, AppToProfile::class, DailyAppUsageEntity::class],
-    version = 13
+    version = 14
 )
 @TypeConverters(ProfileConverters::class)
 abstract class KontrolDatabase: RoomDatabase() {

@@ -29,8 +29,8 @@ interface AppDao {
     @Delete
     suspend fun deleteApp(appEntity: AppEntity)
 
-    @Query("DELETE FROM appentity WHERE packageName = :packageName")
-    suspend fun deleteAppByPackageName(packageName: String)
+    @Query("DELETE FROM appentity WHERE id = :id")
+    suspend fun deleteAppById(id: Long)
 
     @Query("SELECT * FROM appentity")
     fun getAllApps(): Flow<List<AppEntity>>

@@ -10,7 +10,8 @@ object AppMapper {
             id = id ?: App.DEFAULT_ID,
             packageName = packageName,
             title = title,
-            icon = icon
+            icon = icon,
+            isDeleted = isDeleted
         )
     }
 

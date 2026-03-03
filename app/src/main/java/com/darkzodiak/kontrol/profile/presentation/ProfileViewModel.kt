@@ -104,6 +104,14 @@ class ProfileViewModel @Inject constructor(
             val unsaved = state.appRestriction != it
             state = state.copy(appRestriction = it, unsaved = unsaved)
         }.launchIn(viewModelScope)
+
+        repository.getAllApps().onEach { apps ->
+            state.apps.onEach { profileApp ->
+                if (apps.find { it.id == profileApp.id } == null) {
+                    state = state.copy(apps = state.apps - profileApp)
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 
     fun render() {
@@ -171,9 +179,9 @@ class ProfileViewModel @Inject constructor(
             profileApps = state.apps
         )
         if (overlapped) {
-            state = state.copy(warnings = state.warnings + WarningType.PROFILE_OVERLAP)
+            state = state.copy(warnings = (state.warnings.toSet() + WarningType.PROFILE_OVERLAP).toList())
         } else {
-            state = state.copy(warnings = state.warnings - WarningType.PROFILE_OVERLAP)
+            state = state.copy(warnings = (state.warnings.toSet() - WarningType.PROFILE_OVERLAP).toList())
         }
     }
 

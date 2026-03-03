@@ -10,4 +10,5 @@ data class AppEntity(
     val packageName: String = "",
     val title: String = "",
     val icon: String = "",
+    val isDeleted: Boolean = false
 )

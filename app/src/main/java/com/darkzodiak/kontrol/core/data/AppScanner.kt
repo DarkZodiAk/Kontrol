@@ -9,6 +9,7 @@ import android.net.Uri
 import androidx.core.graphics.drawable.toBitmap
 import com.darkzodiak.kontrol.core.data.local.dao.AppDao
 import com.darkzodiak.kontrol.core.data.local.entity.AppEntity
+import com.darkzodiak.kontrol.profile.data.local.dao.ProfileDao
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,7 @@ import javax.inject.Singleton
 @Singleton
 class AppScanner @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val profileDao: ProfileDao,
     private val appDao: AppDao
 ) {
     private val packageManager = context.packageManager
@@ -36,11 +38,16 @@ class AppScanner @Inject constructor(
         runWithLock {
             val appInfo = getReachableAppInfo(packageName) ?: return@runWithLock
 
-            val appEntity = AppEntity(
-                packageName = packageName,
-                title = appInfo.loadLabel(packageManager).toString(),
-                icon = getAppIconAndSave(packageName)
-            )
+            val existingApp = appDao.getAppByPackageName(packageName)
+            val appEntity = if (existingApp == null) {
+                 AppEntity(
+                    packageName = packageName,
+                    title = appInfo.loadLabel(packageManager).toString(),
+                    icon = getAppIconAndSave(packageName)
+                )
+            } else {
+                existingApp.copy(isDeleted = false)
+            }
 
             appDao.insertApp(appEntity)
         }
@@ -48,7 +55,12 @@ class AppScanner @Inject constructor(
 
     fun onAppDeleted(packageName: String) {
         runWithLock {
-            appDao.deleteAppByPackageName(packageName)
+            val app = appDao.getAppByPackageName(packageName) ?: return@runWithLock
+            if (profileDao.isAppInProfiles(app.id ?: return@runWithLock)) {
+                appDao.updateApp(app.copy(isDeleted = true))
+            } else {
+                appDao.deleteApp(app)
+            }
             deleteIcon(packageName)
         }
     }

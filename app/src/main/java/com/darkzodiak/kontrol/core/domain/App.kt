@@ -5,6 +5,7 @@ data class App (
     val packageName: String = "",
     val title: String = "",
     val icon: String = "",
+    val isDeleted: Boolean = false
 ) {
     companion object {
         const val DEFAULT_ID = -1L

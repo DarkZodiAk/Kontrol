@@ -48,11 +48,16 @@ class KontrolRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addAppToProfile(appId: Long, profileId: Long) {
+        if (appDao.getAppById(appId) == null) return
         profileDao.addAppToProfile(AppToProfile(profileId, appId))
     }
 
     override suspend fun deleteAppFromProfile(appId: Long, profileId: Long) {
         profileDao.deleteAppFromProfile(AppToProfile(profileId, appId))
+        val app = getAppById(appId)
+        if (app?.isDeleted == true && profileDao.isAppInProfiles(appId).not()) {
+            appDao.deleteAppById(appId)
+        }
     }
 
     override fun getProfileAppsById(profileId: Long): Flow<List<App>> {

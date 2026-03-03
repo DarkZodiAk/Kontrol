@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -153,11 +154,20 @@ fun ProfileScreen(
                 } else {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         items(state.apps) { app ->
-                            AsyncImage(
-                                model = app.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(28.dp)
-                            )
+                            if (app.isDeleted.not()) {
+                                AsyncImage(
+                                    model = app.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(28.dp),
+                                    tint = MaterialTheme.colorScheme.surfaceTint
+                                )
+                            }
                         }
                     }
                 }
@@ -175,7 +185,6 @@ fun ProfileScreen(
                     type = state.appRestriction.toType(),
                     data = state.appRestriction,
                     showText = true,
-                    showOptionsText = true,
                     hideSensitiveInfo = state.protectedMode
                 )
             }
