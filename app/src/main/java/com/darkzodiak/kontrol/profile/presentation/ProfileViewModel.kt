@@ -107,8 +107,11 @@ class ProfileViewModel @Inject constructor(
 
         repository.getAllApps().onEach { apps ->
             state.apps.onEach { profileApp ->
-                if (apps.find { it.id == profileApp.id } == null) {
+                val app = apps.find { it.id == profileApp.id }
+                if (app == null) {
                     state = state.copy(apps = state.apps - profileApp)
+                } else if (profileApp.isDeleted != app.isDeleted) {
+                    state = state.copy(apps = state.apps - profileApp + app)
                 }
             }
         }.launchIn(viewModelScope)

@@ -37,19 +37,21 @@ class AppScanner @Inject constructor(
     fun onAppInstalled(packageName: String) {
         runWithLock {
             val appInfo = getReachableAppInfo(packageName) ?: return@runWithLock
+            val icon = getAppIconAndSave(packageName)
+            val title = appInfo.loadLabel(packageManager).toString()
 
             val existingApp = appDao.getAppByPackageName(packageName)
-            val appEntity = if (existingApp == null) {
-                 AppEntity(
-                    packageName = packageName,
-                    title = appInfo.loadLabel(packageManager).toString(),
-                    icon = getAppIconAndSave(packageName)
+            if (existingApp == null) {
+                appDao.insertApp(
+                     AppEntity(
+                        packageName = packageName,
+                        title = title,
+                        icon = icon
+                     )
                 )
             } else {
-                existingApp.copy(isDeleted = false)
+                appDao.updateApp(existingApp.copy(title = title, icon = icon, isDeleted = false))
             }
-
-            appDao.insertApp(appEntity)
         }
     }
 
@@ -114,7 +116,12 @@ class AppScanner @Inject constructor(
             app.packageName !in newApps
         }.forEach {
             scope.launch {
-                appDao.deleteApp(it)
+                val app = appDao.getAppByPackageName(it.packageName) ?: return@launch
+                if (profileDao.isAppInProfiles(app.id ?: return@launch)) {
+                    appDao.updateApp(app.copy(isDeleted = true))
+                } else {
+                    appDao.deleteApp(it)
+                }
                 deleteIcon(it.packageName)
             }
         }
