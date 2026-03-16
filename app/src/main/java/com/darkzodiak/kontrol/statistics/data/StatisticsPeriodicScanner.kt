@@ -52,6 +52,6 @@ class StatisticsPeriodicScanner @Inject constructor(
     }
 
     companion object {
-        private const val PERIOD: Long = 1000 * 60 * 60 * 6
+        private const val PERIOD: Long = 1000 * 60 * 60 * 12
     }
 }
