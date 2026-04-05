@@ -37,7 +37,7 @@ data class ProfileEntity(
     val eRandomTextLength: Int? = null,
 
     // Relevant for UNTIL_DATE restriction
-    val eRestrictUntilDate: LocalDateTime? = null,
+    val eUntilDate: LocalDateTime? = null,
     val eStopAfterReachingUntilDate: Boolean? = null,
 
     // Relevant for UNTIL_REBOOT restriction

@@ -28,7 +28,7 @@ class EventScheduler @Inject constructor(
     fun deleteEvent(profileId: Long) {
         EventCache.deleteEvent(profileId)
     }
-
+    // TODO(): Don't create new Runnable if the nearest time is the same
     private suspend fun createEvent(profileId: Long) {
         val time = planner.getNearestEventTime(profileId) ?: return
         if (EventCache.getScheduledEventTimeForProfile(profileId) == time) return

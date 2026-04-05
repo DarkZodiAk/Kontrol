@@ -114,7 +114,7 @@ object ProfileMapper {
             editRestrictionType = editRestrictionType,
             ePassword = ePassword,
             eRandomTextLength = eRandomTextLength,
-            eRestrictUntilDate = eRestrictUntilDate,
+            eUntilDate = eRestrictUntilDate,
             eStopAfterReachingUntilDate = eStopAfterReachingUntilDate,
             eStopAfterReboot = eStopAfterReboot
         )
@@ -160,10 +160,10 @@ object ProfileMapper {
                 else EditRestriction.RandomText(eRandomTextLength)
             }
             EditRestrictionType.UNTIL_DATE -> {
-                if (eRestrictUntilDate == null || eStopAfterReachingUntilDate == null) {
+                if (eUntilDate == null || eStopAfterReachingUntilDate == null) {
                     handleDataError()
                 } else {
-                    EditRestriction.UntilDate(eRestrictUntilDate, eStopAfterReachingUntilDate)
+                    EditRestriction.UntilDate(eUntilDate, eStopAfterReachingUntilDate)
                 }
             }
             EditRestrictionType.UNTIL_REBOOT -> {

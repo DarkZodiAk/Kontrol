@@ -44,14 +44,14 @@ class ProfileActualizer @Inject constructor(
         }
 
         if (newProfile.editRestrictionType == EditRestrictionType.UNTIL_DATE) {
-            val untilDate = newProfile.eRestrictUntilDate
+            val untilDate = newProfile.eUntilDate
             val stopAfterDate = newProfile.eStopAfterReachingUntilDate
             if (untilDate != null && stopAfterDate != null) {
                 if (millisUntil(untilDate) <= 0) {
                     newProfile = newProfile.copy(
                         state = if (stopAfterDate) ProfileStateType.STOPPED else newProfile.state,
                         editRestrictionType = EditRestrictionType.NO_RESTRICTION,
-                        eRestrictUntilDate = null,
+                        eUntilDate = null,
                         eStopAfterReachingUntilDate = null
                     )
                 }
@@ -70,9 +70,10 @@ class ProfileActualizer @Inject constructor(
             }
         }
 
+        // TODO(): Проработать логику установки событий при холодном запуске приложения
+        eventScheduler.updateEvent(newProfile.id ?: return@launch)
         if (newProfile != profile) {
             profileDao.updateProfile(newProfile)
-            eventScheduler.updateEvent(newProfile.id ?: return@launch)
         }
     }
 

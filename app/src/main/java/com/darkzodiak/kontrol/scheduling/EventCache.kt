@@ -18,14 +18,14 @@ object EventCache {
 
     fun deleteEvent(runnable: Runnable) {
         shouldRun.remove(runnable)
-        runnableToProfile.remove(runnable)
         val profileId = runnableToProfile[runnable] ?: return
+        runnableToProfile.remove(runnable)
         profileToRunnable.remove(profileId)
     }
 
     fun deleteEvent(profileId: Long) {
-        profileToRunnable.remove(profileId)
         val runnable = profileToRunnable[profileId] ?: return
+        profileToRunnable.remove(profileId)
         shouldRun.remove(runnable)
         runnableToProfile.remove(runnable)
     }
