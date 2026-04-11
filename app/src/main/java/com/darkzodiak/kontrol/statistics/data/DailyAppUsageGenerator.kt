@@ -42,7 +42,6 @@ class DailyAppUsageGenerator @Inject constructor(
     }
 
     fun getDailyAppUsagesForDay(date: LocalDate): List<DailyAppUsageEntity> {
-        val dayStart = DateUtils.dateToUtcMidnightTimestamp(date)
         val appStats = getUsageMapForDay(date)
 
         val totalUsageTime = appStats.values.sum()
@@ -53,7 +52,7 @@ class DailyAppUsageGenerator @Inject constructor(
             } else 0
 
             DailyAppUsageEntity(
-                date = dayStart,
+                date = date,
                 appId = app.id,
                 foregroundTimeMs = time,
                 percentOfTotalUsage = percent
@@ -62,46 +61,52 @@ class DailyAppUsageGenerator @Inject constructor(
     }
 
     private fun getUsageMapForDay(date: LocalDate): Map<App, Long> {
-        val dayStart = DateUtils.dateToUtcMidnightTimestamp(date)
-        val dayEnd = DateUtils.dateToUtcMidnightTimestamp(date.plusDays(1))
+        val dayStart = dateToUtcMidnightTimestamp(date)
+        val dayEnd = dateToUtcMidnightTimestamp(date.plusDays(1))
         val nowUtc = Instant.now().atOffset(ZoneOffset.UTC).toLocalDate()
 
         val events = usageStatsManager.queryEvents(dayStart, dayEnd)
         val usageMap = mutableMapOf<App, Long>()
-        val lastResumedMap = mutableMapOf<String, Long>()
+        val lastResumedMap = mutableMapOf<String, UsageEvents.Event>()
 
         while (events.hasNextEvent()) {
             val event = UsageEvents.Event().also { events.getNextEvent(it) }
-            val app = apps[event.packageName] ?: continue
+            val packageName = event.packageName
+            val app = apps[packageName] ?: continue
+            val eventKey = packageName + event.className
 
             when (event.eventType) {
                 UsageEvents.Event.ACTIVITY_RESUMED -> {
-                    lastResumedMap[event.packageName] = event.timeStamp
+                    lastResumedMap[eventKey] = event
                 }
                 UsageEvents.Event.ACTIVITY_PAUSED,
                 UsageEvents.Event.ACTIVITY_STOPPED -> {
-                    val resumeTime = lastResumedMap[event.packageName]
-                    if (resumeTime != null) {
-                        val duration = event.timeStamp - resumeTime
+                    val resumeEvent = lastResumedMap[eventKey]
+                    if (resumeEvent != null) {
+                        val duration = event.timeStamp - resumeEvent.timeStamp
                         if (duration > 0) {
                             usageMap[app] = usageMap.getOrDefault(app, 0L) + duration
                         }
-                        lastResumedMap.remove(event.packageName)
+                        lastResumedMap.remove(eventKey)
                     }
                 }
             }
         }
 
         val endTime = if (date == nowUtc) System.currentTimeMillis() else dayEnd
-        lastResumedMap.entries.forEach { (packageName, resumeTime) ->
-            val app = apps[packageName] ?: return@forEach
-            val duration = endTime - resumeTime
+        lastResumedMap.entries.forEach { (_, event) ->
+            val app = apps[event.packageName] ?: return@forEach
+            val duration = endTime - event.timeStamp
             if (duration > 0) {
                 usageMap[app] = usageMap.getOrDefault(app, 0L) + duration
             }
         }
 
         return usageMap
+    }
+
+    private fun dateToUtcMidnightTimestamp(date: LocalDate): Long {
+        return date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
     }
 
     private fun getUsageStatsManager(): UsageStatsManager {

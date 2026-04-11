@@ -6,7 +6,6 @@ import com.darkzodiak.kontrol.core.data.millisUntil
 import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
 import com.darkzodiak.kontrol.profile.data.local.ProfileStateType
 import com.darkzodiak.kontrol.profile.data.local.dao.ProfileDao
-import com.darkzodiak.kontrol.scheduling.EventCache
 import com.darkzodiak.kontrol.scheduling.EventScheduler
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -25,10 +24,6 @@ class ProfileActualizer @Inject constructor(
 ) {
     private val scope = CoroutineScope(Dispatchers.IO)
     private var firstCallAfterBoot = FirstLaunchPostBootDetector(context).isFirstLaunch()
-
-    init {
-        EventCache.profileActualizer = this
-    }
 
     fun actualize(profileId: Long) = scope.launch {
         val profile = profileDao.getProfileById(profileId) ?: return@launch
@@ -71,7 +66,7 @@ class ProfileActualizer @Inject constructor(
         }
 
         // TODO(): Проработать логику установки событий при холодном запуске приложения
-        eventScheduler.updateEvent(newProfile.id ?: return@launch)
+        eventScheduler.upsertEvent(newProfile.id ?: return@launch)
         if (newProfile != profile) {
             profileDao.updateProfile(newProfile)
         }

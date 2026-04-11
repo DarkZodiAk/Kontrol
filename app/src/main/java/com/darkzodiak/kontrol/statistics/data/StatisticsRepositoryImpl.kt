@@ -25,9 +25,7 @@ class StatisticsRepositoryImpl @Inject constructor(
     override fun getAppUsagesForDateRange(
         start: LocalDate, end: LocalDate
     ): Flow<List<DailyUsageReport>> {
-        val startTimestamp = DateUtils.dateToUtcMidnightTimestamp(start)
-        val endTimestamp = DateUtils.dateToUtcMidnightTimestamp(end)
-        return dailyAppUsageDao.getUsageForDateRange(startTimestamp, endTimestamp).map {
+        return dailyAppUsageDao.getUsageForDateRange(start, end).map {
             dailyAppUsageMapper.entityListToDomain(it)
                 .groupBy { it.date }
                 .map { (date, usages) ->

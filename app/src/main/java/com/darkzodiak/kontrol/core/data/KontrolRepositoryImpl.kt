@@ -20,14 +20,14 @@ class KontrolRepositoryImpl @Inject constructor(
 ): KontrolRepository {
     override suspend fun addProfile(profile: Profile): Long {
         val id = profileDao.insertProfile(ProfileMapper.profileToProfileEntity(profile))
-        eventScheduler.addEvent(id)
+        eventScheduler.upsertEvent(id)
         return id
     }
 
     override suspend fun updateProfile(profile: Profile) {
         profileDao.updateProfile(ProfileMapper.profileToProfileEntity(profile))
         if (profile.id == Profile.DEFAULT_ID) return
-        eventScheduler.updateEvent(profile.id)
+        eventScheduler.upsertEvent(profile.id)
     }
 
     override suspend fun deleteProfile(profile: Profile) {

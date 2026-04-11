@@ -9,14 +9,15 @@ import com.darkzodiak.kontrol.profile.data.local.ProfileConverters
 import com.darkzodiak.kontrol.profile.data.local.dao.ProfileDao
 import com.darkzodiak.kontrol.profile.data.local.entity.AppToProfile
 import com.darkzodiak.kontrol.profile.data.local.entity.ProfileEntity
+import com.darkzodiak.kontrol.statistics.data.local.DailyAppUsageConverters
 import com.darkzodiak.kontrol.statistics.data.local.DailyAppUsageDao
 import com.darkzodiak.kontrol.statistics.data.local.DailyAppUsageEntity
 
 @Database(
     entities = [ProfileEntity::class, AppEntity::class, AppToProfile::class, DailyAppUsageEntity::class],
-    version = 14
+    version = 15
 )
-@TypeConverters(ProfileConverters::class)
+@TypeConverters(ProfileConverters::class, DailyAppUsageConverters::class)
 abstract class KontrolDatabase: RoomDatabase() {
     abstract val profileDao: ProfileDao
     abstract val appDao: AppDao

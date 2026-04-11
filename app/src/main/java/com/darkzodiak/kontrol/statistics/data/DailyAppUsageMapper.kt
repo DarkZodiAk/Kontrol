@@ -27,7 +27,7 @@ class DailyAppUsageMapper @Inject constructor(
 
     fun entityToDomain(entity: DailyAppUsageEntity): DailyAppUsage {
         return DailyAppUsage(
-            date = DateUtils.utcMidnightTimestampToLocalDate(entity.date),
+            date = entity.date,
             app = apps[entity.appId] ?: App(),
             foregroundTimeMs = entity.foregroundTimeMs,
             percentOfTotalUsage = entity.percentOfTotalUsage

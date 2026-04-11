@@ -1,13 +1,14 @@
 package com.darkzodiak.kontrol.statistics.data
 
-import android.os.Handler
-import android.os.Looper
 import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,39 +17,35 @@ class StatisticsPeriodicScanner @Inject constructor(
     private val permissionObserver: PermissionObserver,
     private val dailyAppUsageActualizer: DailyAppUsageActualizer
 ) {
-    private val scope = CoroutineScope(Dispatchers.IO)
-    private val handler = Handler(Looper.getMainLooper())
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private var permissionScanJob: Job? = null
+    private var statisticsScanJob: Job? = null
 
     private var hasUsageStatsPermission = false
-    private var hasScheduledScan = false
     private var isFirstScan = true
 
     fun initialize() {
         permissionScanJob?.cancel()
         permissionScanJob = permissionObserver.permissionsState.onEach { state ->
+            statisticsScanJob?.cancel()
             hasUsageStatsPermission = state.hasUsageStatsPermission
-            if (hasUsageStatsPermission && hasScheduledScan.not()) scan()
+            if (hasUsageStatsPermission) {
+                statisticsScanJob = scope.launch { scan() }
+            }
         }.launchIn(scope)
     }
 
-    private fun scan() {
-        if (hasUsageStatsPermission.not()) return
-
-        if (isFirstScan) {
-            dailyAppUsageActualizer.actualizeAll()
-            isFirstScan = false
-        } else {
-            dailyAppUsageActualizer.actualizeToday()
+    private suspend fun scan() {
+        while (true) {
+            if (isFirstScan) {
+                dailyAppUsageActualizer.actualizeAll()
+                isFirstScan = false
+            } else {
+                dailyAppUsageActualizer.actualizeToday()
+            }
+            delay(PERIOD)
         }
-
-        val runnable = Runnable {
-            hasScheduledScan = false
-            scan()
-        }
-        handler.postDelayed(runnable, PERIOD)
-        hasScheduledScan = true
     }
 
     companion object {

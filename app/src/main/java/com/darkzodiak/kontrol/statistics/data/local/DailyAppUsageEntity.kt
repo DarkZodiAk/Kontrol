@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import com.darkzodiak.kontrol.core.data.local.entity.AppEntity
+import java.time.LocalDate
 
 @Entity(
     primaryKeys = ["date", "appId"],
@@ -16,8 +17,7 @@ import com.darkzodiak.kontrol.core.data.local.entity.AppEntity
     indices = [Index(value = ["date"])]
 )
 data class DailyAppUsageEntity(
-    // UTC timestamp at midnight (00:00:00) of the represented day.
-    val date: Long,
+    val date: LocalDate,
     val appId: Long,
     val foregroundTimeMs: Long = 0L,
     val percentOfTotalUsage: Int = 0

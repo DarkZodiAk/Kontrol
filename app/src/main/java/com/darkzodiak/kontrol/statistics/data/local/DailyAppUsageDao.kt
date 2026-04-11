@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 interface DailyAppUsageDao {
@@ -18,5 +19,5 @@ interface DailyAppUsageDao {
     fun getUsageForDate(date: Long): Flow<List<DailyAppUsageEntity>>
 
     @Query("SELECT * FROM dailyappusageentity WHERE date BETWEEN :start AND :end")
-    fun getUsageForDateRange(start: Long, end: Long): Flow<List<DailyAppUsageEntity>>
+    fun getUsageForDateRange(start: LocalDate, end: LocalDate): Flow<List<DailyAppUsageEntity>>
 }

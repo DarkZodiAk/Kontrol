@@ -1,40 +1,53 @@
 package com.darkzodiak.kontrol.scheduling
 
-import android.os.Handler
-import android.os.Looper
 import com.darkzodiak.kontrol.core.data.millisUntil
+import com.darkzodiak.kontrol.profile.data.ProfileActualizer
+import dagger.Lazy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class EventScheduler @Inject constructor(
-    private val planner: EventPlanner
+    private val planner: EventPlanner,
+    private val profileActualizer: Lazy<ProfileActualizer>
 ) {
-    private val scope = CoroutineScope(Dispatchers.IO)
-    private val handler = Handler(Looper.getMainLooper())
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val profileToEvent = ConcurrentHashMap<Long, Event>()
 
-    fun addEvent(profileId: Long) = scope.launch {
-        createEvent(profileId)
-    }
-
-    fun updateEvent(profileId: Long) = scope.launch {
-        EventCache.deleteEvent(profileId)
+    fun upsertEvent(profileId: Long) = scope.launch {
         createEvent(profileId)
     }
 
     fun deleteEvent(profileId: Long) {
-        EventCache.deleteEvent(profileId)
+        val event = profileToEvent[profileId] ?: return
+        event.job.cancel()
+        profileToEvent.remove(profileId)
     }
-    // TODO(): Don't create new Runnable if the nearest time is the same
+
     private suspend fun createEvent(profileId: Long) {
         val time = planner.getNearestEventTime(profileId) ?: return
-        if (EventCache.getScheduledEventTimeForProfile(profileId) == time) return
-        val runnable = EventRunnable(profileId, time)
-        EventCache.addEvent(profileId, runnable)
+        profileToEvent[profileId]?.let { event ->
+            if (event.scheduledAt == time) return
+            event.job.cancel()
+        }
+
         val delay = millisUntil(time)
-        handler.postDelayed(runnable, delay)
+        val job = createDelayedJob(profileId, delay)
+        profileToEvent[profileId] = Event(job, time)
+    }
+
+    private fun createDelayedJob(profileId: Long, delayMillis: Long): Job {
+        return scope.launch {
+            delay(delayMillis)
+            profileActualizer.get().actualize(profileId)
+            profileToEvent.remove(profileId)
+        }
     }
 }
