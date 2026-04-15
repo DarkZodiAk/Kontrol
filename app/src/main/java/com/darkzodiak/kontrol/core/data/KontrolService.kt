@@ -88,10 +88,10 @@ class KontrolService: AccessibilityService(), AppCloser {
     private fun processAppEvent(packageName: String) {
         if (packageName in ignoredPackages) return
 
-        if (packageName == deviceLauncher) {
-            sendEvent(ExternalEvent.ReturnToLauncher)
-        } else {
-            sendEvent(ExternalEvent.OpenApp(packageName))
+        when(packageName) {
+            deviceLauncher -> sendEvent(ExternalEvent.ReturnToLauncher)
+            BLOCKER_PACKAGE_NAME -> sendEvent(ExternalEvent.OpenKontrol)
+            else -> sendEvent(ExternalEvent.OpenApp(packageName))
         }
     }
 
@@ -104,6 +104,8 @@ class KontrolService: AccessibilityService(), AppCloser {
     companion object {
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
+
+        private const val BLOCKER_PACKAGE_NAME = "com.darkzodiak.kontrol"
 
         private val ignoredPackages = setOf(
             "com.android.systemui",

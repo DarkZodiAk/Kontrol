@@ -11,8 +11,8 @@ import com.darkzodiak.kontrol.profile.domain.model.ProfileState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
@@ -27,21 +27,20 @@ class AppBlocker @Inject constructor(
     private val overlayDataCreator: OverlayDataCreator
 ) {
 
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var profileCheckJob: Job? = null
     private var appCloser: AppCloser? = null
     private var nextAppToIgnore: String? = null
-    private var prevEvent: ExternalEvent = ExternalEvent.ReturnToLauncher
 
     init {
         ExternalEventBus.bus
             .distinctUntilChanged()
             .onEach { event ->
                 if (event is ExternalEvent.OpenApp) {
-                    if (prevEvent is ExternalEvent.ReturnToLauncher) nextAppToIgnore = null
                     processApp(event.packageName)
+                } else {
+                    nextAppToIgnore = null
                 }
-                prevEvent = event
             }
             .launchIn(scope)
     }
@@ -52,21 +51,29 @@ class AppBlocker @Inject constructor(
 
     private suspend fun processApp(packageName: String) {
         cancelProfileCheckJob()
-        val appToIgnore = nextAppToIgnore
+        if (nextAppToIgnore == packageName || appCloser == null) return
         nextAppToIgnore = null
-        if (appToIgnore == packageName || appCloser == null) return
 
-        val profiles = repository.getProfilesWithApp(packageName) ?: return
+        val profiles = repository.getProfilesWithApp(packageName)
+        if (profiles == null) {
+            overlayManager.closeOverlayImmediately()
+            return
+        }
 
         profileCheckJob = profiles
-            .filter { it.isNotEmpty() }
             .onEach { profiles ->
-                processProfiles(packageName, profiles)
+                val activeProfiles = profiles.filter { it.state is ProfileState.Active }
+                if (activeProfiles.isNotEmpty()) {
+                    processProfiles(packageName, activeProfiles)
+                } else {
+                    withContext(Dispatchers.Main) {
+                        overlayManager.closeOverlayImmediately()
+                    }
+                }
             }.launchIn(scope)
     }
 
-    suspend fun processProfiles(packageName: String, profiles: List<Profile>) {
-        val activeProfiles = profiles.filter { it.state is ProfileState.Active }
+    suspend fun processProfiles(packageName: String, activeProfiles: List<Profile>) {
         if (activeProfiles.isEmpty()) return
 
         val hardProfile = activeProfiles.firstOrNull { it.appRestriction.isOneOf(hardRestrictions) }

@@ -98,9 +98,9 @@ class OverlayManager @Inject constructor(
                     .setInterpolator(DecelerateInterpolator())
                     .start()
             } catch (e: SecurityException) {
-                Log.d("Kontrol Log", "Attempted to open overlay without overlay permission")
+                Log.e("Kontrol Log", "Attempted to open overlay without overlay permission")
             } catch (e: Exception) {
-                Log.d("Kontrol Log", "${e.cause} happened during overlay add")
+                Log.e("Kontrol Log", "Overlay add failed", e)
             }
         }
     }
@@ -117,19 +117,19 @@ class OverlayManager @Inject constructor(
                         resetOverlayState()
                     }
             } catch (e: Exception) {
-                Log.d("Kontrol Log", "${e.cause} occurred during overlay exit")
+                Log.e("Kontrol Log", "Overlay close failed", e)
             }
         } ?: resetOverlayState()
     }
 
-    private fun closeOverlayImmediately() {
+    fun closeOverlayImmediately() {
         blockView?.let { view ->
             try {
                 windowManager.removeViewImmediate(view)
             } catch (e: IllegalArgumentException) {
-                Log.d("Kontrol Log", "Overlay already removed: ${e.message}")
+                Log.e("Kontrol Log", "Overlay already removed", e)
             } catch (e: Exception) {
-                Log.d("Kontrol Log", "Immediate overlay removal failed: ${e.cause}")
+                Log.e("Kontrol Log", "Immediate overlay close failed", e)
             }
         }
         resetOverlayState()
