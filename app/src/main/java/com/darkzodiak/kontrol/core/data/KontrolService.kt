@@ -12,6 +12,7 @@ import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,7 +28,7 @@ class KontrolService: AccessibilityService(), AppCloser {
     lateinit var appBlocker: AppBlocker
 
     private var isRunning = false
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     private var deviceLauncher = ""
 
@@ -51,8 +52,10 @@ class KontrolService: AccessibilityService(), AppCloser {
         super.onServiceConnected()
         permissionObserver.updateAllPermissions()
 
-        val currentApp = rootInActiveWindow.packageName.toString()
-        sendEvent(ExternalEvent.OpenApp(currentApp))
+        val currentApp = rootInActiveWindow?.packageName?.toString()
+        if (currentApp != null) {
+            sendEvent(ExternalEvent.OpenApp(currentApp))
+        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
