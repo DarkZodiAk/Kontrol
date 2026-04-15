@@ -84,55 +84,65 @@ class OverlayManager @Inject constructor(
 
         val overlay = overlaysMap[data.appRestrictionType] ?: return
         overlay.init(data)
-        blockCallback = onBlock
-        proceedCallback = onProceed
-        blockView = overlay.view
+        val view = overlay.view
 
-        blockView?.let { view ->
-            try {
-                view.alpha = 0f
-                windowManager.addView(view, windowParams)
-                view.animate()
-                    .alpha(1f)
-                    .setDuration(300)
-                    .setInterpolator(DecelerateInterpolator())
-                    .start()
-            } catch (e: SecurityException) {
-                Log.e("Kontrol Log", "Attempted to open overlay without overlay permission")
-            } catch (e: Exception) {
-                Log.e("Kontrol Log", "Overlay add failed", e)
-            }
+        try {
+            view.animate().cancel()
+            view.alpha = 0f
+            windowManager.addView(view, windowParams)
+
+            blockCallback = onBlock
+            proceedCallback = onProceed
+            blockView = overlay.view
+
+            view.animate()
+                .alpha(1f)
+                .setDuration(300)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        } catch (e: SecurityException) {
+            Log.e("Kontrol Log", "Attempted to open overlay without overlay permission")
+        } catch (e: Exception) {
+            Log.e("Kontrol Log", "Overlay add failed", e)
+            closeOverlayImmediately()
         }
     }
 
     private fun closeOverlay() {
         blockView?.let { view ->
             try {
+                view.animate().cancel()
                 view.animate()
                     .alpha(0f)
                     .setDuration(300)
                     .setInterpolator(AccelerateInterpolator())
                     .withEndAction {
-                        windowManager.removeViewImmediate(view)
+                        safeRemoveView(view)
                         resetOverlayState()
-                    }
+                    }.start()
             } catch (e: Exception) {
                 Log.e("Kontrol Log", "Overlay close failed", e)
+                closeOverlayImmediately()
             }
         } ?: resetOverlayState()
     }
 
     fun closeOverlayImmediately() {
         blockView?.let { view ->
-            try {
-                windowManager.removeViewImmediate(view)
-            } catch (e: IllegalArgumentException) {
-                Log.e("Kontrol Log", "Overlay already removed", e)
-            } catch (e: Exception) {
-                Log.e("Kontrol Log", "Immediate overlay close failed", e)
-            }
+            view.animate().cancel()
+            safeRemoveView(view)
         }
         resetOverlayState()
+    }
+
+    private fun safeRemoveView(view: View) {
+        try {
+            windowManager.removeViewImmediate(view)
+        } catch (e: IllegalArgumentException) {
+            Log.e("Kontrol Log", "Overlay already removed", e)
+        } catch (e: Exception) {
+            Log.e("Kontrol Log", "Overlay close failed", e)
+        }
     }
 
     private fun resetOverlayState() {

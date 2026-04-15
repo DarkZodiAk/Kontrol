@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.KClass
@@ -30,7 +31,7 @@ class AppBlocker @Inject constructor(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var profileCheckJob: Job? = null
     private var appCloser: AppCloser? = null
-    private var nextAppToIgnore: String? = null
+    private var nextAppToIgnore: AtomicReference<String?> = AtomicReference()
 
     init {
         ExternalEventBus.bus
@@ -39,7 +40,7 @@ class AppBlocker @Inject constructor(
                 if (event is ExternalEvent.OpenApp) {
                     processApp(event.packageName)
                 } else {
-                    nextAppToIgnore = null
+                    nextAppToIgnore.set(null)
                 }
             }
             .launchIn(scope)
@@ -51,8 +52,8 @@ class AppBlocker @Inject constructor(
 
     private suspend fun processApp(packageName: String) {
         cancelProfileCheckJob()
-        if (nextAppToIgnore == packageName || appCloser == null) return
-        nextAppToIgnore = null
+        if (nextAppToIgnore.get() == packageName || appCloser == null) return
+        nextAppToIgnore.set(null)
 
         val profiles = repository.getProfilesWithApp(packageName)
         if (profiles == null) {
@@ -93,7 +94,7 @@ class AppBlocker @Inject constructor(
                 overlayManager.openOverlay(
                     data = data,
                     onBlock = { appCloser?.closeApp(packageName) },
-                    onProceed = { nextAppToIgnore = packageName }
+                    onProceed = { nextAppToIgnore.set(packageName) }
                 )
             }
         }
