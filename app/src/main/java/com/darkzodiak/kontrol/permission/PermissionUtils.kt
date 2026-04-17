@@ -19,17 +19,6 @@ fun Context.hasUsageStatsPermission(): Boolean {
     return mode == AppOpsManager.MODE_ALLOWED
 }
 
-fun Context.getUsageStatsIntent(): Intent {
-    return Intent(
-        Settings.ACTION_USAGE_ACCESS_SETTINGS,
-        Uri.fromParts("package", packageName, null)
-    )
-}
-
-fun getAccessibilityIntent(): Intent {
-    return Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-}
-
 fun Context.hasAccessibilityPermission(): Boolean {
     val accessibilityServiceName = "$packageName/$packageName.core.data.KontrolService"
     val enabledServices = Settings.Secure.getString(
@@ -38,14 +27,33 @@ fun Context.hasAccessibilityPermission(): Boolean {
     return enabledServices?.contains(accessibilityServiceName) == true
 }
 
-fun Context.getAlertWindowIntent(): Intent {
-    return Intent(
-        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-        Uri.fromParts("package", packageName, null)
-    )
-}
-
 fun Context.hasAlertWindowPermission(): Boolean {
     return if(Build.VERSION.SDK_INT < 23) true
         else Settings.canDrawOverlays(this)
+}
+
+fun Context.getUsageStatsIntent(): Intent {
+    val intent = Intent(
+        Settings.ACTION_USAGE_ACCESS_SETTINGS,
+        Uri.fromParts("package", packageName, null)
+    )
+    if (intent.resolveActivity(packageManager) == null) intent.data = null
+    return if (intent.resolveActivity(packageManager) != null) intent
+        else Intent(Settings.ACTION_SETTINGS)
+}
+
+fun Context.getAccessibilityIntent(): Intent {
+    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+    return if (intent.resolveActivity(packageManager) != null) intent
+        else Intent(Settings.ACTION_SETTINGS)
+}
+
+fun Context.getAlertWindowIntent(): Intent {
+    val intent = Intent(
+        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+        Uri.fromParts("package", packageName, null)
+    )
+    if (intent.resolveActivity(packageManager) == null) intent.data = null
+    return if (intent.resolveActivity(packageManager) != null) intent
+        else Intent(Settings.ACTION_SETTINGS)
 }

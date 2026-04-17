@@ -1,6 +1,8 @@
 package com.darkzodiak.kontrol.home.components
 
 import android.content.Intent
+import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.darkzodiak.kontrol.R
 import com.darkzodiak.kontrol.home.HomeScreenState
 import com.darkzodiak.kontrol.permission.getAccessibilityIntent
 import com.darkzodiak.kontrol.permission.getAlertWindowIntent
@@ -42,9 +45,15 @@ fun PermissionSheet(
         Spacer(modifier = Modifier.height(16.dp))
         if (!state.hasAccessibilityPermission) {
             PermissionCard(
-                title = "Сервис доступности",
-                permissionDescription = "Позволяет отслеживать и закрывать используемые приложения",
-                onButtonClick = { accessibilityLauncher.launch(getAccessibilityIntent()) },
+                title = "Специальные возможности",
+                permissionDescription = "Позволяют отслеживать и закрывать ограниченные приложения",
+                onButtonClick = {
+                    val intent = context.getAccessibilityIntent()
+                    if (intent.action == Settings.ACTION_SETTINGS) {
+                        Toast.makeText(context, R.string.toast_accessibility_not_found, Toast.LENGTH_LONG).show()
+                    }
+                    accessibilityLauncher.launch(intent)
+                },
                 modifier = Modifier.padding(8.dp)
             )
         }
@@ -52,7 +61,13 @@ fun PermissionSheet(
             PermissionCard(
                 title = "Показ всплывающих окон",
                 permissionDescription = "Окна ограничивают доступ к приложениям в зависимости от настройки профилей",
-                onButtonClick = { alertWindowLauncher.launch(context.getAlertWindowIntent()) },
+                onButtonClick = {
+                    val intent = context.getAlertWindowIntent()
+                    if (intent.action == Settings.ACTION_SETTINGS) {
+                        Toast.makeText(context, R.string.toast_overlay_not_found, Toast.LENGTH_LONG).show()
+                    }
+                    alertWindowLauncher.launch(intent)
+                },
                 modifier = Modifier.padding(8.dp)
             )
         }
@@ -60,7 +75,13 @@ fun PermissionSheet(
             PermissionCard(
                 title = "Доступ к статистике",
                 permissionDescription = "Приложение сможет формировать отчет по использованию приложений",
-                onButtonClick = { usageStatsLauncher.launch(context.getUsageStatsIntent()) },
+                onButtonClick = {
+                    val intent = context.getUsageStatsIntent()
+                    if (intent.action == Settings.ACTION_SETTINGS) {
+                        Toast.makeText(context, R.string.toast_usage_access_not_found, Toast.LENGTH_LONG)
+                    }
+                    usageStatsLauncher.launch(intent)
+                },
                 modifier = Modifier.padding(8.dp)
             )
         }
