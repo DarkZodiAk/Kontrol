@@ -47,13 +47,13 @@ class HomeViewModel @Inject constructor(
 
         permissionObserver.permissionsState.onEach {
             state = state.copy(
-                permissions = state.permissions.copy(
+                permissions = HomeScreenState.Permissions(
                     hasAccessibilityPermission = it.hasAccessibilityPermission,
                     hasAlertWindowPermission = it.hasAlertWindowPermission,
                     hasUsageStatsPermissions = it.hasUsageStatsPermission,
-                    hasAllPermissions = it.hasEssentialPermissions,
+                    hasAllPermissions = it.hasAllPermissions,
                 ),
-                permissionSheetVisible = state.permissionSheetVisible && it.hasEssentialPermissions.not()
+                permissionSheetVisible = state.permissionSheetVisible && it.hasAllPermissions.not()
             )
         }.launchIn(viewModelScope)
 
