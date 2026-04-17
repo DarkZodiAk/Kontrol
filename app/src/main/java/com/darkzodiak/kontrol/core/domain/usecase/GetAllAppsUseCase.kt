@@ -11,10 +11,10 @@ class GetAllAppsUseCase @Inject constructor(
 ) {
     operator fun invoke(): Flow<List<App>> {
         return repository.getAllApps()
-            .map { it.filterNot { app -> app.packageName == BLOCKER_APP_ID }.sortedBy { it.title } }
+            .map { it.filterNot { app -> app.packageName == BLOCKER_PACKAGE_NAME }.sortedBy { it.title } }
     }
 
     companion object {
-        private const val BLOCKER_APP_ID = "com.darkzodiak.kontrol"
+        private const val BLOCKER_PACKAGE_NAME = "com.darkzodiak.kontrol"
     }
 }

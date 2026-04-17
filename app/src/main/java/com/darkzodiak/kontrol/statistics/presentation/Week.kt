@@ -1,6 +1,5 @@
 package com.darkzodiak.kontrol.statistics.presentation
 
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields
@@ -10,8 +9,6 @@ data class Week(
     val firstDate: LocalDate,
     val lastDate: LocalDate
 ) {
-    val firstDayOfWeek: DayOfWeek = firstDate.dayOfWeek
-
     fun nextWeek(): Week {
         return Week(
             firstDate = firstDate.plusWeeks(1),

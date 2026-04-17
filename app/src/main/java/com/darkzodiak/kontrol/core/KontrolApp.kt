@@ -6,7 +6,7 @@ import com.darkzodiak.kontrol.core.data.KontrolService
 import com.darkzodiak.kontrol.core.data.receivers.DynamicReceiverRegistrator
 import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import com.darkzodiak.kontrol.profile.data.ProfileActualizer
-import com.darkzodiak.kontrol.statistics.data.StatisticsPeriodicScanner
+import com.darkzodiak.kontrol.statistics.data.StatisticsPeriodicUpdater
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -26,7 +26,7 @@ class KontrolApp: Application() {
     @Inject
     lateinit var profileActualizer: ProfileActualizer
     @Inject
-    lateinit var statisticsPeriodicScanner: StatisticsPeriodicScanner
+    lateinit var statisticsPeriodicUpdater: StatisticsPeriodicUpdater
 
     override fun onCreate() {
         super.onCreate()
@@ -34,7 +34,7 @@ class KontrolApp: Application() {
         appScanner.updateAll()
         DynamicReceiverRegistrator(this).register()
         profileActualizer.actualizeAll()
-        statisticsPeriodicScanner.initialize()
+        statisticsPeriodicUpdater.initialize()
         permissionObserver.canRunService.onEach { canRunService ->
             if (canRunService) {
                 startService(KontrolService.buildActionIntent(this, KontrolService.ACTION_START))

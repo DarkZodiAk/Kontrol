@@ -5,9 +5,7 @@ import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.profile.domain.model.Profile
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class ProfileOverlapChecker @Inject constructor(
     private val repository: KontrolRepository
 ) {

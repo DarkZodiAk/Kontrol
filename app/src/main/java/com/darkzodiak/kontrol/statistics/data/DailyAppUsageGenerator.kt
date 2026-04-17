@@ -36,7 +36,7 @@ class DailyAppUsageGenerator @Inject constructor(
 
     init {
         repository.getAllApps().onEach {
-            apps = it.associateBy { app -> app.packageName }
+            apps = it.filterNot { app -> app.isDeleted }.associateBy { app -> app.packageName }
             _initialized.update { true }
         }.launchIn(scope)
     }

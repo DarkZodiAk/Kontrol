@@ -20,7 +20,7 @@ import coil.compose.AsyncImage
 import com.darkzodiak.kontrol.statistics.domain.DailyAppUsage
 
 @Composable
-fun AppUsage(
+fun AppUsageCard(
     usage: DailyAppUsage,
     modifier: Modifier = Modifier
 ) {

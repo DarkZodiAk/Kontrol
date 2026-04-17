@@ -11,7 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import com.darkzodiak.kontrol.statistics.presentation.components.AppUsage
+import com.darkzodiak.kontrol.statistics.presentation.components.AppUsageCard
 import com.darkzodiak.kontrol.statistics.presentation.components.DayUsageInfoCard
 import com.darkzodiak.kontrol.statistics.presentation.components.NeedsUsageStatsPermissionBanner
 import com.darkzodiak.kontrol.statistics.presentation.components.WeekRangeBar
@@ -68,7 +68,7 @@ fun StatisticsScreen(
         }
 
         items(state.focusedReport.appUsages) { usage ->
-            AppUsage(
+            AppUsageCard(
                 usage = usage,
                 modifier = Modifier.padding(bottom = 8.dp, start = 8.dp, end = 8.dp)
             )

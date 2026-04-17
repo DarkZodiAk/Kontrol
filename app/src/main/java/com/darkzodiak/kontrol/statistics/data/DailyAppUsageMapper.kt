@@ -21,7 +21,7 @@ class DailyAppUsageMapper @Inject constructor(
 
     init {
         kontrolRepository.getAllApps().onEach {
-            apps = it.associateBy { app -> app.id }
+            apps = it.filterNot { app -> app.isDeleted }.associateBy { app -> app.id }
         }.launchIn(scope)
     }
 

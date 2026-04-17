@@ -13,25 +13,23 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class StatisticsPeriodicScanner @Inject constructor(
+class StatisticsPeriodicUpdater @Inject constructor(
     private val permissionObserver: PermissionObserver,
     private val dailyAppUsageActualizer: DailyAppUsageActualizer
 ) {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
-    private var permissionScanJob: Job? = null
-    private var statisticsScanJob: Job? = null
+    private var statisticsUpdateJob: Job? = null
 
     private var hasUsageStatsPermission = false
     private var isFirstScan = true
 
     fun initialize() {
-        permissionScanJob?.cancel()
-        permissionScanJob = permissionObserver.permissionsState.onEach { state ->
-            statisticsScanJob?.cancel()
+        permissionObserver.permissionsState.onEach { state ->
+            statisticsUpdateJob?.cancel()
+            isFirstScan = true
             hasUsageStatsPermission = state.hasUsageStatsPermission
             if (hasUsageStatsPermission) {
-                statisticsScanJob = scope.launch { scan() }
+                statisticsUpdateJob = scope.launch { scan() }
             }
         }.launchIn(scope)
     }
@@ -44,11 +42,11 @@ class StatisticsPeriodicScanner @Inject constructor(
             } else {
                 dailyAppUsageActualizer.actualizeToday()
             }
-            delay(PERIOD)
+            delay(UPDATE_PERIOD)
         }
     }
 
     companion object {
-        private const val PERIOD: Long = 1000 * 60 * 60 * 12
+        private const val UPDATE_PERIOD: Long = 1000 * 60 * 60 * 12
     }
 }

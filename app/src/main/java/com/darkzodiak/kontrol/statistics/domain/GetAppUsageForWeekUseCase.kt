@@ -13,11 +13,11 @@ class GetAppUsageForWeekUseCase @Inject constructor(
             .getAppUsagesForDateRange(week.firstDate, week.lastDate)
             .map {
                 if (it.size == 7) return@map it
-                appendReportsToMatchWeek(it, week)
+                addEmptyReportsToMatchWeek(it, week)
             }
     }
 
-    private fun appendReportsToMatchWeek(reports: List<DailyUsageReport>, week: Week): List<DailyUsageReport> {
+    private fun addEmptyReportsToMatchWeek(reports: List<DailyUsageReport>, week: Week): List<DailyUsageReport> {
         val newReports = mutableListOf<DailyUsageReport>()
         var date = week.firstDate
         while (date <= week.lastDate) {
