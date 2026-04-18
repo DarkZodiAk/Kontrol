@@ -1,34 +1,52 @@
 # Kontrol
-App for blocking other apps for Android written in Kotlin. <br><br>How it works - you create profile, put there apps you want to block and choose restriction (just to make it harder to edit active profile in future). 
-Enable profile, give the app required perfissions - and now it blocks chosen apps!
 
-## Features
-- Fetch apps on the device
-- Profiles CRUD
-- Add and remove apps from the profile
-- Choose edit restriction for profile (or requirement to edit profile, ex. enter password)
-- Enable/Disable profiles
-- Require user to fullfill a specific requirement when they try to edit restricted profile
-- Autoclose blocked apps
-- Show overlay when user tries to open blocked app
+[English](README.md) | [Русский](README.ru.md)
+
+___
+
+Kontrol is an app, that lets you set different restrictions on other apps and view your app usage in your Android device. Kontrol monitors active apps and restricts them by showing an overlay window and (or not) closing the app. For this key function, Accessibility Service and Overlay Window permissions should be granted.
+
+Kontrol operates by using profiles - structures, that contain information about apps it restricts, the restriction itself and profile lock if you want to create some resistance to edit profile. The profile can be in active, inactive or paused state.
+
+App restrictions available:
+- Full block
+- Password prompt
+- Random text prompt
+
+Profile locks available:
+- None
+- Password prompt
+- Random text prompt
+- Until certain date and time
+- Until device reboot
+
+## App Usage
+App usage screen shows a weekly diagram with usage statistics that's always up to date. Choose desired week and day and see how much time you spent in each app!
+
+## Other mentions
+- Light & Dark theme
+- If the profile is locked and you don't want to fulfill its requirement, you can view profile without being able to edit it
+- If the profile is paused, you can change its activation time directly
+- App lists in profiles can overlap, but you'll get respective warning about that
+- Kontrol doesn't let you bypass restrctions by reinstalling blocked app. Kontrol remembers deleted apps if they were used in any profile
+- Blocking overlay will automatically close if you use system navigation (back, home, recents) or open other unrestricted app (ex. Dialer)
+- Time/timezone change dynamically changes time on UI and recalculates statistics
 
 ## Screenshots
-![Group 1](https://github.com/user-attachments/assets/06944eca-ae03-4d26-bf74-449b883759b4)
-
-
-
-## TODO
-- Feature: Clear chosen apps in profile
-- Modify overlay design
-- Add edit restriction types (device reboot, timed pause)
-- Pause profiles for specific duration
-- App usage stats
-- Profile's app limits (ex. allow app usage for 1 hour/day)
+![Group 1](screenshots/all%20screenshots.png)
 
 ## Used technologies & libraries
-- Coroutines & Flows
+- Kotlin as a programming language
+- Kotlin Coroutines
 - Jetpack Compose
 - Navigation Compose (Type-Safe)
 - Room DB
 - Dagger & Hilt
 - Coil
+
+## Minimum device requirements
+- Android version: 5
+- RAM: 1 GB
+- CPU: 2-core 1 Ghz processor
+
+*Even budget Android 5 phone will run this app*
