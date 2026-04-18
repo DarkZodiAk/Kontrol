@@ -144,7 +144,8 @@ class HomeViewModel @Inject constructor(
                     restrictionDialogVisible = true
                 )
             } else if (restriction.isOneOf(hardRestrictions)) {
-                sendEvent(HomeEvent.OfferOpenProfileInProtectedMode)
+                if (intent == ProfileCardIntent.OPEN) sendEvent(HomeEvent.OfferOpenProfileInProtectedMode)
+                else sendEvent(HomeEvent.ProfileIntentBlocked)
             }
             return
         }

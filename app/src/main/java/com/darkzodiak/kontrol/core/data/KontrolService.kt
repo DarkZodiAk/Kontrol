@@ -3,7 +3,9 @@ package com.darkzodiak.kontrol.core.data
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import android.widget.Toast
 import com.darkzodiak.kontrol.block.AppBlocker
 import com.darkzodiak.kontrol.block.AppCloser
 import com.darkzodiak.kontrol.external_events.ExternalEvent
@@ -62,7 +64,12 @@ class KontrolService: AccessibilityService(), AppCloser {
         if (isRunning.not()) return
         when(event?.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
-                processAppEvent(event.packageName.toString())
+                try {
+                    processAppEvent(event.packageName.toString())
+                } catch (e: Exception) {
+                    Log.e("Kontrol log", "Failed to process opened window", e)
+                    Toast.makeText(this, "Kontrol: failed to process opened window", Toast.LENGTH_LONG).show()
+                }
             }
             else -> Unit
         }
@@ -71,10 +78,8 @@ class KontrolService: AccessibilityService(), AppCloser {
     override fun onInterrupt() { }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        scope.launch {
-            permissionObserver.updateAccessibilityPermission()
-            if(isRunning) stop()
-        }
+        permissionObserver.updateAccessibilityPermission()
+        if(isRunning) stop()
         return super.onUnbind(intent)
     }
 

@@ -55,6 +55,12 @@ fun HomeScreenRoot(
             when (event) {
                 is HomeEvent.OpenProfile -> onOpenProfile(event.id, event.inProtectedMode)
                 HomeEvent.NewProfile -> onNewProfile()
+                HomeEvent.ProfileIntentBlocked -> {
+                    snackbarHostState.showSnackbar(
+                        message = "Действие заблокировано",
+                        withDismissAction = true
+                    )
+                }
                 HomeEvent.OfferOpenProfileInProtectedMode -> {
                     val result = snackbarHostState.showSnackbar(
                         message = "Хотите просмотреть профиль без возможности редактирования?",

@@ -8,5 +8,6 @@ sealed interface HomeEvent {
     object NewProfile: HomeEvent
 
     object OfferOpenProfileInProtectedMode: HomeEvent
+    object ProfileIntentBlocked: HomeEvent
     data class ShowError(val text: String): HomeEvent
 }
