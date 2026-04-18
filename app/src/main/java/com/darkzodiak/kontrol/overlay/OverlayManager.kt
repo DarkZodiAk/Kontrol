@@ -3,6 +3,8 @@ package com.darkzodiak.kontrol.overlay
 import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
@@ -12,14 +14,7 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import androidx.core.content.getSystemService
 import com.darkzodiak.kontrol.R
-import com.darkzodiak.kontrol.external_events.ExternalEvent
-import com.darkzodiak.kontrol.external_events.ExternalEventBus
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,7 +31,7 @@ class OverlayManager @Inject constructor(
     private val layoutInflater by lazy {
         themedContext.getSystemService<LayoutInflater>()!!
     }
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     private var blockCallback: (() -> Unit)? = null
     private var proceedCallback: (() -> Unit)? = null
@@ -68,13 +63,6 @@ class OverlayManager @Inject constructor(
         PixelFormat.TRANSLUCENT
     )
 
-    init {
-        ExternalEventBus.bus
-            .filterIsInstance(ExternalEvent.ReturnToLauncher::class)
-            .onEach { closeOverlay() }
-            .launchIn(scope)
-    }
-
     fun openOverlay(
         data: OverlayData,
         onBlock: () -> Unit = { },
@@ -86,29 +74,31 @@ class OverlayManager @Inject constructor(
         overlay.init(data)
         val view = overlay.view
 
-        try {
-            view.animate().cancel()
-            view.alpha = 0f
-            windowManager.addView(view, windowParams)
+        runOnMainThread {
+            try {
+                view.animate().cancel()
+                view.alpha = 0f
+                windowManager.addView(view, windowParams)
 
-            blockCallback = onBlock
-            proceedCallback = onProceed
-            blockView = overlay.view
+                blockCallback = onBlock
+                proceedCallback = onProceed
+                blockView = overlay.view
 
-            view.animate()
-                .alpha(1f)
-                .setDuration(300)
-                .setInterpolator(DecelerateInterpolator())
-                .start()
-        } catch (e: SecurityException) {
-            Log.e("Kontrol Log", "Attempted to open overlay without overlay permission")
-        } catch (e: Exception) {
-            Log.e("Kontrol Log", "Overlay add failed", e)
-            closeOverlayImmediately()
+                view.animate()
+                    .alpha(1f)
+                    .setDuration(300)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+            } catch (e: SecurityException) {
+                Log.e("Kontrol Log", "Attempted to open overlay without overlay permission")
+            } catch (e: Exception) {
+                Log.e("Kontrol Log", "Overlay add failed", e)
+                closeOverlayImmediately()
+            }
         }
     }
 
-    private fun closeOverlay() {
+    fun closeOverlay() = runOnMainThread {
         blockView?.let { view ->
             try {
                 view.animate().cancel()
@@ -127,7 +117,7 @@ class OverlayManager @Inject constructor(
         } ?: resetOverlayState()
     }
 
-    fun closeOverlayImmediately() {
+    fun closeOverlayImmediately() = runOnMainThread {
         blockView?.let { view ->
             view.animate().cancel()
             safeRemoveView(view)
@@ -135,7 +125,7 @@ class OverlayManager @Inject constructor(
         resetOverlayState()
     }
 
-    private fun safeRemoveView(view: View) {
+    private fun safeRemoveView(view: View) = runOnMainThread {
         try {
             windowManager.removeViewImmediate(view)
         } catch (e: IllegalArgumentException) {
@@ -143,6 +133,10 @@ class OverlayManager @Inject constructor(
         } catch (e: Exception) {
             Log.e("Kontrol Log", "Overlay close failed", e)
         }
+    }
+
+    private fun runOnMainThread(block: () -> Unit) {
+        mainHandler.post(block)
     }
 
     private fun resetOverlayState() {

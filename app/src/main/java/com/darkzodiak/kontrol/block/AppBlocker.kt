@@ -1,5 +1,6 @@
 package com.darkzodiak.kontrol.block
 
+import android.util.Log
 import com.darkzodiak.kontrol.core.domain.KontrolRepository
 import com.darkzodiak.kontrol.external_events.ExternalEvent
 import com.darkzodiak.kontrol.external_events.ExternalEventBus
@@ -37,11 +38,13 @@ class AppBlocker @Inject constructor(
         ExternalEventBus.bus
             .distinctUntilChanged()
             .onEach { event ->
+                Log.d("Kontrol log", event.toString())
                 if (event is ExternalEvent.OpenApp) {
                     processApp(event.packageName)
                 } else {
                     nextAppToIgnore.set(null)
                 }
+                if (event is ExternalEvent.ReturnToLauncher) overlayManager.closeOverlay()
             }
             .launchIn(scope)
     }
@@ -81,22 +84,18 @@ class AppBlocker @Inject constructor(
 
         if (hardProfile != null) {
             val data = overlayDataCreator.createDataFrom(packageName, hardProfile)
-            withContext(Dispatchers.Main) {
-                overlayManager.openOverlay(
-                    data = data,
-                    onBlock = { appCloser?.closeApp(packageName) }
-                )
-            }
+            overlayManager.openOverlay(
+                data = data,
+                onBlock = { appCloser?.closeApp(packageName) }
+            )
         } else {
             val softProfile = activeProfiles.first()
             val data = overlayDataCreator.createDataFrom(packageName, softProfile, activeProfiles.size > 1)
-            withContext(Dispatchers.Main) {
-                overlayManager.openOverlay(
-                    data = data,
-                    onBlock = { appCloser?.closeApp(packageName) },
-                    onProceed = { nextAppToIgnore.set(packageName) }
-                )
-            }
+            overlayManager.openOverlay(
+                data = data,
+                onBlock = { appCloser?.closeApp(packageName) },
+                onProceed = { nextAppToIgnore.set(packageName) }
+            )
         }
     }
 
