@@ -9,8 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -46,15 +47,21 @@ fun SelectDelayTypeDialog(
                 .background(MaterialTheme.colorScheme.surfaceContainer)
                 .padding(16.dp)
         ) {
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.weight(1f)
             ) {
-                items(DelayType.entries) {
+                items(
+                    count = DelayType.entries.size,
+                    span = { if (it == 0) GridItemSpan(maxLineSpan) else GridItemSpan(1) }
+                ) { index ->
+                    val delayType = DelayType.entries[index]
                     DelayTypeOption(
-                        delayType = it,
-                        selected = state.unsavedDelayType == it,
-                        onClick = { onSelectDelay(it) }
+                        delayType = delayType,
+                        selected = state.unsavedDelayType == delayType,
+                        onClick = { onSelectDelay(delayType) }
                     )
                 }
             }

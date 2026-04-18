@@ -22,8 +22,12 @@ class DelayDialogViewModel: ViewModel() {
 
     init {
         mainDialogTimeSource.currentTime.onEach { time ->
-            if (state.delayType == DelayType.CUSTOM && state.delayTime > time) return@onEach
-            state = state.copy(delayTime = time.plusMinutes(1).truncatedTo(ChronoUnit.MINUTES))
+            var resultTime = time
+            if (state.delayType == DelayType.CUSTOM) {
+                if (state.delayTime > time) return@onEach
+                else resultTime = resultTime.plusMinutes(1)
+            }
+            state = state.copy(delayTime = resultTime.truncatedTo(ChronoUnit.MINUTES))
         }.launchIn(viewModelScope)
 
         selectDialogTimeSource.currentTime.onEach { time ->
