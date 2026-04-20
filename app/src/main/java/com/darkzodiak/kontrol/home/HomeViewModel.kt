@@ -33,6 +33,7 @@ class HomeViewModel @Inject constructor(
 
     private var pendingCardIntent: PendingProfileIntent? = null
     private var pendingDelayProfile: Profile? = null
+    private var viewLockedProfileSnackbarPresent = false
 
     var state by mutableStateOf(HomeScreenState())
         private set
@@ -73,7 +74,7 @@ class HomeViewModel @Inject constructor(
             }
             HomeAction.RestrictionNotPassed -> {
                 closeRestrictionDialog()
-                sendEvent(HomeEvent.OfferOpenProfileInProtectedMode)
+                processNotPassedRestriction()
             }
             is HomeAction.UpdatePermissionInfo -> {
                 when(action.permission) {
@@ -109,13 +110,17 @@ class HomeViewModel @Inject constructor(
             HomeAction.NewProfile -> {
                 sendEvent(HomeEvent.NewProfile)
             }
-            HomeAction.OpenLockedProfile -> {
+            HomeAction.ViewLockedProfile -> {
                 val profileId = pendingCardIntent?.profile?.id
                 pendingCardIntent = null
-                sendEvent(
-                    if (profileId == null) HomeEvent.ShowError("Profile open error")
-                        else HomeEvent.OpenProfile(profileId, true)
-                )
+                if (profileId == null) {
+                    sendEvent(HomeEvent.ShowError("Profile open error"))
+                } else {
+                    sendEvent(HomeEvent.OpenProfile(profileId, true))
+                }
+            }
+            HomeAction.DismissViewLockedProfile -> {
+                viewLockedProfileSnackbarPresent = false
             }
             HomeAction.OpenPermissionSheet -> {
                 state = state.copy(permissionSheetVisible = true)
@@ -124,6 +129,18 @@ class HomeViewModel @Inject constructor(
                 state = state.copy(permissionSheetVisible = false)
             }
         }
+    }
+
+    private fun processNotPassedRestriction() {
+        if (pendingCardIntent?.intent == ProfileCardIntent.OPEN) {
+            if (viewLockedProfileSnackbarPresent.not()) {
+                viewLockedProfileSnackbarPresent = true
+                sendEvent(HomeEvent.OfferViewProfileInProtectedMode)
+            }
+        } else {
+            sendEvent(HomeEvent.ProfileIntentBlocked)
+        }
+        pendingCardIntent = null
     }
 
     private fun closeRestrictionDialog() {
@@ -144,8 +161,7 @@ class HomeViewModel @Inject constructor(
                     restrictionDialogVisible = true
                 )
             } else if (restriction.isOneOf(hardRestrictions)) {
-                if (intent == ProfileCardIntent.OPEN) sendEvent(HomeEvent.OfferOpenProfileInProtectedMode)
-                else sendEvent(HomeEvent.ProfileIntentBlocked)
+                processNotPassedRestriction()
             }
             return
         }

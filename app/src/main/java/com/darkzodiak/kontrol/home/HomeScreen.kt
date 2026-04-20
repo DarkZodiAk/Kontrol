@@ -41,6 +41,7 @@ import com.darkzodiak.kontrol.permission.domain.Permission
 import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
 import com.darkzodiak.kontrol.profile.domain.model.Profile
 import com.darkzodiak.kontrol.profile.domain.model.ProfileState
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreenRoot(
@@ -61,7 +62,7 @@ fun HomeScreenRoot(
                         withDismissAction = true
                     )
                 }
-                HomeEvent.OfferOpenProfileInProtectedMode -> {
+                HomeEvent.OfferViewProfileInProtectedMode -> launch {
                     val result = snackbarHostState.showSnackbar(
                         message = "Хотите просмотреть профиль без возможности редактирования?",
                         actionLabel = "Да",
@@ -69,9 +70,12 @@ fun HomeScreenRoot(
                         duration = SnackbarDuration.Short
                     )
                     if (result == SnackbarResult.ActionPerformed) {
-                        viewModel.onAction(HomeAction.OpenLockedProfile)
+                        viewModel.onAction(HomeAction.ViewLockedProfile)
+                    } else {
+                        viewModel.onAction(HomeAction.DismissViewLockedProfile)
                     }
                 }
+
                 is HomeEvent.ShowError -> {
                     snackbarHostState.showSnackbar(message = event.text)
                 }
