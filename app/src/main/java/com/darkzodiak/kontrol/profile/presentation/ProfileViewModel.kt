@@ -140,16 +140,19 @@ class ProfileViewModel @Inject constructor(
                 state = state.copy(name = action.text, unsaved = true)
             }
             ProfileAction.OpenAppsList -> {
+                rendered = false
                 ignoreBus = true
                 interScreenBus.sendAppList(state.apps)
                 sendEvent(ProfileEvent.OpenAppsList)
             }
             ProfileAction.OpenAppRestriction -> {
+                rendered = false
                 ignoreBus = true
                 interScreenBus.sendAppRestriction(state.appRestriction)
                 sendEvent(ProfileEvent.OpenAppRestriction)
             }
             ProfileAction.OpenEditRestriction -> {
+                rendered = false
                 ignoreBus = true
                 interScreenBus.sendEditRestriction(state.editRestriction)
                 sendEvent(ProfileEvent.OpenEditRestriction)

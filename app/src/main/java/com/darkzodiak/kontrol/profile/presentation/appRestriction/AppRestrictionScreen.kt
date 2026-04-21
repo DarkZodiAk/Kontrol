@@ -15,11 +15,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.darkzodiak.kontrol.core.presentation.RenderedLaunchEffect
 import com.darkzodiak.kontrol.core.presentation.unsaved.KontrolUnsavedCard
 import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
 import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
@@ -32,8 +32,7 @@ fun AppRestrictionScreenRoot(
     viewModel: AppRestrictionViewModel = viewModel(),
     onBack: () -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.render()
+    RenderedLaunchEffect(key1 = Unit, render = viewModel::render) {
         viewModel.events.collect { event ->
             if (event is AppRestrictionEvent.GoBack) onBack()
         }

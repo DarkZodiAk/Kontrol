@@ -29,6 +29,7 @@ class HomeViewModel @Inject constructor(
     private val permissionObserver: PermissionObserver,
 ) : ViewModel() {
 
+    private var rendered = false
     private val timeSource = TimeSource()
 
     private var pendingCardIntent: PendingProfileIntent? = null
@@ -51,7 +52,7 @@ class HomeViewModel @Inject constructor(
                 permissions = HomeScreenState.Permissions(
                     hasAccessibilityPermission = it.hasAccessibilityPermission,
                     hasAlertWindowPermission = it.hasAlertWindowPermission,
-                    hasUsageStatsPermissions = it.hasUsageStatsPermission,
+                    hasUsageStatsPermission = it.hasUsageStatsPermission,
                     hasAllPermissions = it.hasAllPermissions,
                 ),
                 permissionSheetVisible = state.permissionSheetVisible && it.hasAllPermissions.not()
@@ -64,16 +65,18 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onAction(action: HomeAction) {
+        if (rendered.not()) return
         when(action) {
             is HomeAction.RequestProfileAction -> {
+                closeDialogOrSheet()
                 processProfileActionRequest(action.profile, action.intent)
             }
             HomeAction.RestrictionPassed -> {
-                closeRestrictionDialog()
+                closeDialogOrSheet()
                 executeProfileIntent()
             }
             HomeAction.RestrictionNotPassed -> {
-                closeRestrictionDialog()
+                closeDialogOrSheet()
                 processNotPassedRestriction()
             }
             is HomeAction.UpdatePermissionInfo -> {
@@ -89,6 +92,7 @@ class HomeViewModel @Inject constructor(
             }
 
             HomeAction.Delay.OpenDialog -> {
+                closeDialogOrSheet()
                 state = state.copy(
                     delayDialogVisible = true,
                     oldPauseDate = (pendingDelayProfile?.state as? ProfileState.Paused)?.until
@@ -99,23 +103,27 @@ class HomeViewModel @Inject constructor(
                     val newProfile = profile.copy(state = ProfileState.Paused(action.delayUntil))
                     viewModelScope.launch { repository.updateProfile(newProfile) }
                 }
+                closeDialogOrSheet()
                 pendingDelayProfile = null
-                state = state.copy(delayDialogVisible = false)
             }
             HomeAction.Delay.Dismiss -> {
+                closeDialogOrSheet()
                 pendingDelayProfile = null
-                state = state.copy(delayDialogVisible = false)
             }
 
             HomeAction.NewProfile -> {
+                closeDialogOrSheet()
+                unrender()
                 sendEvent(HomeEvent.NewProfile)
             }
             HomeAction.ViewLockedProfile -> {
+                closeDialogOrSheet()
                 val profileId = pendingCardIntent?.profile?.id
                 pendingCardIntent = null
                 if (profileId == null) {
                     sendEvent(HomeEvent.ShowError("Profile open error"))
                 } else {
+                    unrender()
                     sendEvent(HomeEvent.OpenProfile(profileId, true))
                 }
             }
@@ -123,12 +131,22 @@ class HomeViewModel @Inject constructor(
                 viewLockedProfileSnackbarPresent = false
             }
             HomeAction.OpenPermissionSheet -> {
+                closeDialogOrSheet()
                 state = state.copy(permissionSheetVisible = true)
             }
             HomeAction.DismissPermissionSheet -> {
-                state = state.copy(permissionSheetVisible = false)
+                closeDialogOrSheet()
             }
         }
+    }
+
+    fun render() {
+        rendered = true
+    }
+
+    private fun unrender() {
+        rendered = false
+        viewLockedProfileSnackbarPresent = false
     }
 
     private fun processNotPassedRestriction() {
@@ -143,10 +161,13 @@ class HomeViewModel @Inject constructor(
         pendingCardIntent = null
     }
 
-    private fun closeRestrictionDialog() {
+    private fun closeDialogOrSheet() {
         state = state.copy(
+            permissionSheetVisible = false,
             curRestriction = EditRestriction.NoRestriction,
-            restrictionDialogVisible = false
+            restrictionDialogVisible = false,
+            delayDialogVisible = false,
+            oldPauseDate = null
         )
     }
 
@@ -182,6 +203,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 ProfileCardIntent.OPEN -> {
+                    unrender()
                     sendEvent(HomeEvent.OpenProfile(profile.id))
                 }
                 ProfileCardIntent.DELETE -> {

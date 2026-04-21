@@ -23,13 +23,13 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.darkzodiak.kontrol.core.presentation.RenderedLaunchEffect
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialog
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialogType
 import com.darkzodiak.kontrol.home.components.PasswordDialog
@@ -51,7 +51,7 @@ fun HomeScreenRoot(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(Unit) {
+    RenderedLaunchEffect(key1 = Unit, render = viewModel::render) {
         viewModel.events.collect { event ->
             when (event) {
                 is HomeEvent.OpenProfile -> onOpenProfile(event.id, event.inProtectedMode)

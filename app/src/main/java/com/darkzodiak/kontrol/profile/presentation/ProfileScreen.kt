@@ -27,7 +27,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,10 +36,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.darkzodiak.kontrol.core.presentation.KontrolOutlinedRow
 import com.darkzodiak.kontrol.core.presentation.KontrolTextField
+import com.darkzodiak.kontrol.core.presentation.RenderedLaunchEffect
 import com.darkzodiak.kontrol.core.presentation.unsaved.KontrolUnsavedCard
 import com.darkzodiak.kontrol.core.presentation.warning.KontrolWarningCard
 import com.darkzodiak.kontrol.profile.presentation.components.AppRestrictionIconText
 import com.darkzodiak.kontrol.profile.presentation.components.EditRestrictionIconText
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreenRoot(
@@ -52,12 +53,11 @@ fun ProfileScreenRoot(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(Unit) {
-        viewModel.render()
+    RenderedLaunchEffect(key1 = Unit, render = viewModel::render) {
         viewModel.events.collect { event ->
             when (event) {
                 is ProfileEvent.ShowWarning -> {
-                    snackbarHostState.showSnackbar(message = event.text)
+                    launch { snackbarHostState.showSnackbar(message = event.text) }
                 }
                 ProfileEvent.GoBack -> onBack()
                 ProfileEvent.OpenAppsList -> toAppList()

@@ -71,14 +71,14 @@ fun PermissionSheet(
                 modifier = Modifier.padding(8.dp)
             )
         }
-        if (!state.hasUsageStatsPermissions) {
+        if (!state.hasUsageStatsPermission) {
             PermissionCard(
                 title = "Доступ к статистике",
                 permissionDescription = "Приложение сможет формировать отчет по использованию приложений",
                 onButtonClick = {
                     val intent = context.getUsageStatsIntent()
                     if (intent.action == Settings.ACTION_SETTINGS) {
-                        Toast.makeText(context, R.string.toast_usage_access_not_found, Toast.LENGTH_LONG)
+                        Toast.makeText(context, R.string.toast_usage_access_not_found, Toast.LENGTH_LONG).show()
                     }
                     usageStatsLauncher.launch(intent)
                 },

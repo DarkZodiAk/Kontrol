@@ -17,13 +17,13 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.darkzodiak.kontrol.core.presentation.KontrolOption
+import com.darkzodiak.kontrol.core.presentation.RenderedLaunchEffect
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialog
 import com.darkzodiak.kontrol.core.presentation.delayDialog.DelayDialogType
 import com.darkzodiak.kontrol.core.presentation.unsaved.KontrolUnsavedCard
@@ -32,6 +32,7 @@ import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
 import com.darkzodiak.kontrol.profile.presentation.components.EditRestrictionRow
 import com.darkzodiak.kontrol.profile.presentation.components.PasswordDialog
 import com.darkzodiak.kontrol.profile.presentation.components.RandomTextDialog
+import kotlinx.coroutines.launch
 
 @Composable
 fun EditRestrictionScreenRoot(
@@ -40,12 +41,11 @@ fun EditRestrictionScreenRoot(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(Unit) {
-        viewModel.render()
+    RenderedLaunchEffect(key1 = Unit, render = viewModel::render) {
         viewModel.events.collect { event ->
             when (event) {
                 is EditRestrictionEvent.ShowWarning -> {
-                    snackbarHostState.showSnackbar(message = event.text)
+                    launch { snackbarHostState.showSnackbar(message = event.text) }
                 }
                 EditRestrictionEvent.GoBack -> onBack()
             }

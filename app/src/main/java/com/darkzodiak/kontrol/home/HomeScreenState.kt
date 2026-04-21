@@ -20,7 +20,7 @@ data class HomeScreenState(
     data class Permissions(
         val hasAccessibilityPermission: Boolean = false,
         val hasAlertWindowPermission: Boolean = false,
-        val hasUsageStatsPermissions: Boolean = false,
+        val hasUsageStatsPermission: Boolean = false,
         val hasAllPermissions: Boolean = false
     )
 }

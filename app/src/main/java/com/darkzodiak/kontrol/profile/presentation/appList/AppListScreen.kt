@@ -25,7 +25,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.darkzodiak.kontrol.core.presentation.KontrolTextField
+import com.darkzodiak.kontrol.core.presentation.RenderedLaunchEffect
 import com.darkzodiak.kontrol.core.presentation.unsaved.KontrolUnsavedCardMinimized
 
 @Composable
@@ -44,9 +44,7 @@ fun AppListScreenRoot(
     viewModel: AppListViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
-
-    LaunchedEffect(Unit) {
-        viewModel.render()
+    RenderedLaunchEffect(key1 = Unit, render = viewModel::render) {
         viewModel.events.collect { event ->
             if (event is AppListEvent.GoBack) onBack()
         }
