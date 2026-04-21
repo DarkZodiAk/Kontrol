@@ -11,7 +11,6 @@ sealed interface HomeAction {
 
     object NewProfile: HomeAction
     object ViewLockedProfile: HomeAction
-    object DismissViewLockedProfile: HomeAction
 
     data class RequestProfileAction(val profile: Profile, val intent: ProfileCardIntent): HomeAction
 

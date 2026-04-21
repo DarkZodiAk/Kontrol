@@ -34,7 +34,6 @@ class HomeViewModel @Inject constructor(
 
     private var pendingCardIntent: PendingProfileIntent? = null
     private var pendingDelayProfile: Profile? = null
-    private var viewLockedProfileSnackbarPresent = false
 
     var state by mutableStateOf(HomeScreenState())
         private set
@@ -113,7 +112,7 @@ class HomeViewModel @Inject constructor(
 
             HomeAction.NewProfile -> {
                 closeDialogOrSheet()
-                unrender()
+                rendered = false
                 sendEvent(HomeEvent.NewProfile)
             }
             HomeAction.ViewLockedProfile -> {
@@ -123,12 +122,9 @@ class HomeViewModel @Inject constructor(
                 if (profileId == null) {
                     sendEvent(HomeEvent.ShowError("Profile open error"))
                 } else {
-                    unrender()
+                    rendered = false
                     sendEvent(HomeEvent.OpenProfile(profileId, true))
                 }
-            }
-            HomeAction.DismissViewLockedProfile -> {
-                viewLockedProfileSnackbarPresent = false
             }
             HomeAction.OpenPermissionSheet -> {
                 closeDialogOrSheet()
@@ -144,21 +140,13 @@ class HomeViewModel @Inject constructor(
         rendered = true
     }
 
-    private fun unrender() {
-        rendered = false
-        viewLockedProfileSnackbarPresent = false
-    }
-
     private fun processNotPassedRestriction() {
+        sendEvent(HomeEvent.DismissPreviousSnackbar)
         if (pendingCardIntent?.intent == ProfileCardIntent.OPEN) {
-            if (viewLockedProfileSnackbarPresent.not()) {
-                viewLockedProfileSnackbarPresent = true
-                sendEvent(HomeEvent.OfferViewProfileInProtectedMode)
-            }
+            sendEvent(HomeEvent.OfferViewProfileInProtectedMode)
         } else {
             sendEvent(HomeEvent.ProfileIntentBlocked)
         }
-        pendingCardIntent = null
     }
 
     private fun closeDialogOrSheet() {
@@ -203,7 +191,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 ProfileCardIntent.OPEN -> {
-                    unrender()
+                    rendered = false
                     sendEvent(HomeEvent.OpenProfile(profile.id))
                 }
                 ProfileCardIntent.DELETE -> {

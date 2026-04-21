@@ -56,7 +56,7 @@ fun HomeScreenRoot(
             when (event) {
                 is HomeEvent.OpenProfile -> onOpenProfile(event.id, event.inProtectedMode)
                 HomeEvent.NewProfile -> onNewProfile()
-                HomeEvent.ProfileIntentBlocked -> {
+                HomeEvent.ProfileIntentBlocked -> launch {
                     snackbarHostState.showSnackbar(
                         message = "Действие заблокировано",
                         withDismissAction = true
@@ -71,9 +71,10 @@ fun HomeScreenRoot(
                     )
                     if (result == SnackbarResult.ActionPerformed) {
                         viewModel.onAction(HomeAction.ViewLockedProfile)
-                    } else {
-                        viewModel.onAction(HomeAction.DismissViewLockedProfile)
                     }
+                }
+                HomeEvent.DismissPreviousSnackbar -> {
+                    snackbarHostState.currentSnackbarData?.dismiss()
                 }
 
                 is HomeEvent.ShowError -> {
