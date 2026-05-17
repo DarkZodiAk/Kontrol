@@ -2,9 +2,11 @@ package com.darkzodiak.kontrol.core.di
 
 import android.content.Context
 import androidx.room.Room
-import com.darkzodiak.kontrol.core.KontrolApp
+import com.darkzodiak.kontrol.app.KontrolApp
 import com.darkzodiak.kontrol.core.data.local.KontrolDatabase
 import com.darkzodiak.kontrol.core.data.local.dao.AppDao
+import com.darkzodiak.kontrol.core.data.local.dao.DailyAppUsageDao
+import com.darkzodiak.kontrol.core.data.local.dao.ProfileDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,6 +32,18 @@ object KontrolModule {
     @Singleton
     fun providesAppDao(db: KontrolDatabase): AppDao {
         return db.appDao
+    }
+
+    @Provides
+    @Singleton
+    fun providesProfileDao(db: KontrolDatabase): ProfileDao {
+        return db.profileDao
+    }
+
+    @Provides
+    @Singleton
+    fun providesDailyAppUsageDao(db: KontrolDatabase): DailyAppUsageDao {
+        return db.dailyAppUsageDao
     }
 
     @Provides

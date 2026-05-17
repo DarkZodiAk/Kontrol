@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.profile.presentation.editRestriction
 
-import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
+import com.darkzodiak.kontrol.core.data.local.types.EditRestrictionType
 import java.time.LocalDateTime
 
 sealed interface EditRestrictionAction {

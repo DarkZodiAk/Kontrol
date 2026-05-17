@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.profile.presentation.appRestriction
 
-import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
+import com.darkzodiak.kontrol.core.data.local.types.AppRestrictionType
 
 sealed interface AppRestrictionAction {
     object Dismiss: AppRestrictionAction

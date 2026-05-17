@@ -1,0 +1,139 @@
+package com.darkzodiak.kontrol.monitor_block
+
+import android.accessibilityservice.AccessibilityService
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.util.Log
+import android.view.accessibility.AccessibilityEvent
+import android.widget.Toast
+import androidx.core.content.getSystemService
+import com.darkzodiak.kontrol.permission.data.PermissionObserver
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@AndroidEntryPoint
+class KontrolService: AccessibilityService(), AppCloser {
+
+    @Inject
+    lateinit var permissionObserver: PermissionObserver
+    @Inject
+    lateinit var appBlocker: AppBlocker
+
+    private val packageManager by lazy { getSystemService<PackageManager>()!! }
+
+    private var isRunning = false
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    private var deviceLauncher = ""
+
+    override fun onCreate() {
+        super.onCreate()
+        appBlocker.setAppCloser(this)
+        deviceLauncher = getCurrentLauncherPackageName()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when(intent?.action) {
+            ACTION_START -> {
+                isRunning = true
+            }
+            ACTION_STOP -> stop()
+        }
+        return START_STICKY
+    }
+
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        permissionObserver.updateAllPermissions()
+
+        val currentApp = rootInActiveWindow?.packageName?.toString()
+        if (currentApp != null) {
+            sendEvent(ExternalEvent.OpenApp(currentApp))
+        }
+    }
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (isRunning.not()) return
+        when(event?.eventType) {
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+                try {
+                    processAppEvent(event.packageName.toString())
+                } catch (e: Exception) {
+                    Log.e("Kontrol log", "Failed to process opened window", e)
+                    Toast.makeText(this, "Kontrol: failed to process opened window", Toast.LENGTH_LONG).show()
+                }
+            }
+            else -> Unit
+        }
+    }
+
+    override fun onInterrupt() { }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        permissionObserver.updateAccessibilityPermission()
+        if(isRunning) stop()
+        return super.onUnbind(intent)
+    }
+
+    private fun stop() {
+        stopSelf()
+        isRunning = false
+        scope.coroutineContext.cancelChildren()
+    }
+
+    override fun closeApp(packageName: String) {
+        performGlobalAction(GLOBAL_ACTION_HOME)
+    }
+
+    private fun processAppEvent(packageName: String) {
+        if (packageName in ignoredPackages) return
+
+        when(packageName) {
+            deviceLauncher -> sendEvent(ExternalEvent.ReturnToLauncher)
+            BLOCKER_PACKAGE_NAME -> sendEvent(ExternalEvent.OpenKontrol)
+            else -> sendEvent(ExternalEvent.OpenApp(packageName))
+        }
+    }
+
+    private fun sendEvent(event: ExternalEvent) {
+        scope.launch {
+            ExternalEventBus.postEvent(event)
+        }
+    }
+
+    private fun getCurrentLauncherPackageName(): String {
+        val intent = Intent().apply {
+            action = Intent.ACTION_MAIN
+            addCategory(Intent.CATEGORY_HOME)
+        }
+        return packageManager
+            .resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)!!
+            .activityInfo
+            .packageName
+    }
+
+    companion object {
+        const val ACTION_START = "ACTION_START"
+        const val ACTION_STOP = "ACTION_STOP"
+
+        private const val BLOCKER_PACKAGE_NAME = "com.darkzodiak.kontrol"
+
+        private val ignoredPackages = setOf(
+            "com.android.systemui",
+            "com.google.android.inputmethod.latin",
+            "com.android.inputmethod.latin"
+        )
+
+        fun buildActionIntent(context: Context, action: String): Intent {
+            return Intent(context, KontrolService::class.java).also {
+                it.action = action
+            }
+        }
+    }
+}

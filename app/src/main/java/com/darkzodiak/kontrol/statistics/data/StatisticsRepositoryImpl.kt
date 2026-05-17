@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.statistics.data
 
-import com.darkzodiak.kontrol.statistics.data.local.DailyAppUsageDao
+import com.darkzodiak.kontrol.core.data.local.dao.DailyAppUsageDao
 import com.darkzodiak.kontrol.statistics.domain.DailyUsageReport
 import com.darkzodiak.kontrol.statistics.domain.StatisticsRepository
 import kotlinx.coroutines.flow.Flow
@@ -9,13 +9,13 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class StatisticsRepositoryImpl @Inject constructor(
-    val dailyAppUsageDao: DailyAppUsageDao,
-    val dailyAppUsageMapper: DailyAppUsageMapper,
-    val dailyAppUsageActualizer: DailyAppUsageActualizer
+    private val dailyAppUsageDao: DailyAppUsageDao,
+    private val dailyAppUsageMapper: DailyAppUsageMapper,
+    private val dailyAppUsageActualizer: DailyAppUsageActualizer,
+    private val statisticsPeriodicUpdater: StatisticsPeriodicUpdater
 ): StatisticsRepository {
-
-    override fun updateStatistics() {
-        dailyAppUsageActualizer.actualizeAll()
+    override fun initializeStatisticsPeriodicSync() {
+        statisticsPeriodicUpdater.initialize()
     }
 
     override fun updateStatisticsForToday() {

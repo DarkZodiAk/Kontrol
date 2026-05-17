@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.profile.domain.model
 
-import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
+import com.darkzodiak.kontrol.core.data.local.types.AppRestrictionType
 
 sealed interface AppRestriction {
     object SimpleBlock: AppRestriction

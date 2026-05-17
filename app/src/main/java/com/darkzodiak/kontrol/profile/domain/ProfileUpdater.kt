@@ -1,7 +1,6 @@
 package com.darkzodiak.kontrol.profile.domain
 
-import com.darkzodiak.kontrol.core.domain.App
-import com.darkzodiak.kontrol.core.domain.KontrolRepository
+import com.darkzodiak.kontrol.apps.domain.App
 import com.darkzodiak.kontrol.profile.domain.model.Profile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +11,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ProfileUpdater @Inject constructor(
-    private val repository: KontrolRepository,
+    private val repository: ProfileRepository,
 ) {
     private val scope = CoroutineScope(Dispatchers.IO)
 

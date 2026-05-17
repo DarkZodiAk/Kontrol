@@ -1,9 +1,6 @@
 package com.darkzodiak.kontrol.permission.data
 
 import android.content.Context
-import com.darkzodiak.kontrol.permission.hasAccessibilityPermission
-import com.darkzodiak.kontrol.permission.hasAlertWindowPermission
-import com.darkzodiak.kontrol.permission.hasUsageStatsPermission
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +35,7 @@ class PermissionObserver @Inject constructor(
 
     fun updateUsageStatsPermission() {
         applicationScope.launch {
-            val enabled = context.hasUsageStatsPermission()
+            val enabled = PermissionChecker.hasUsageStatsPermission(context)
             updateState { copy(hasUsageStatsPermission = enabled) }
             updateCompositeFieldsInState()
         }
@@ -46,7 +43,7 @@ class PermissionObserver @Inject constructor(
 
     fun updateAccessibilityPermission() {
         applicationScope.launch {
-            val enabled = context.hasAccessibilityPermission()
+            val enabled = PermissionChecker.hasAccessibilityPermission(context)
             updateState { copy(hasAccessibilityPermission = enabled) }
             updateCompositeFieldsInState()
         }
@@ -54,7 +51,7 @@ class PermissionObserver @Inject constructor(
 
     fun updateAlertWindowPermission() {
         applicationScope.launch {
-            val enabled = context.hasAlertWindowPermission()
+            val enabled = PermissionChecker.hasAlertWindowPermission(context)
             updateState { copy(hasAlertWindowPermission = enabled) }
             updateCompositeFieldsInState()
         }

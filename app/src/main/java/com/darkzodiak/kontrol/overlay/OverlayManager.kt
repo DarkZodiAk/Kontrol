@@ -125,7 +125,7 @@ class OverlayManager @Inject constructor(
         resetOverlayState()
     }
 
-    private fun safeRemoveView(view: View) = runOnMainThread {
+    private fun safeRemoveView(view: View) {
         try {
             windowManager.removeViewImmediate(view)
         } catch (e: IllegalArgumentException) {

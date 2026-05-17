@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.statistics.domain
 
-import com.darkzodiak.kontrol.core.domain.App
+import com.darkzodiak.kontrol.apps.domain.App
 import java.time.LocalDate
 
 data class DailyAppUsage(

@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.profile.presentation.appList
 
-import com.darkzodiak.kontrol.core.domain.App
+import com.darkzodiak.kontrol.apps.domain.App
 
 sealed interface AppListAction {
     object Dismiss: AppListAction

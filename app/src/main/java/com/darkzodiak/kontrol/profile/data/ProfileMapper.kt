@@ -1,10 +1,10 @@
 package com.darkzodiak.kontrol.profile.data
 
 import android.util.Log
-import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
-import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
-import com.darkzodiak.kontrol.profile.data.local.ProfileStateType
-import com.darkzodiak.kontrol.profile.data.local.entity.ProfileEntity
+import com.darkzodiak.kontrol.core.data.local.entity.ProfileEntity
+import com.darkzodiak.kontrol.core.data.local.types.AppRestrictionType
+import com.darkzodiak.kontrol.core.data.local.types.EditRestrictionType
+import com.darkzodiak.kontrol.core.data.local.types.ProfileStateType
 import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
 import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
 import com.darkzodiak.kontrol.profile.domain.model.Profile

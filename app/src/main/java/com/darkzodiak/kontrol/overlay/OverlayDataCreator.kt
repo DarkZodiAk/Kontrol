@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.overlay
 
-import com.darkzodiak.kontrol.core.domain.KontrolRepository
+import com.darkzodiak.kontrol.apps.domain.AppRepository
 import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
 import com.darkzodiak.kontrol.profile.domain.model.Profile
 import javax.inject.Inject
@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 @Singleton
 class OverlayDataCreator @Inject constructor(
-    private val repository: KontrolRepository
+    private val appRepository: AppRepository
 ) {
     suspend fun createDataFrom(
         packageName: String,
@@ -16,7 +16,7 @@ class OverlayDataCreator @Inject constructor(
         isProfileOverlapped: Boolean = false
     ): OverlayData {
         val restriction = profile.appRestriction
-        val appName = repository.getAppByPackageName(packageName)?.title ?: "Неизвестное приложение"
+        val appName = appRepository.getAppByPackageName(packageName)?.title ?: "Неизвестное приложение"
         val profileName = if (isProfileOverlapped) profile.name else null
         return when (restriction) {
             is AppRestriction.Password -> OverlayData.Password(

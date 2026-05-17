@@ -1,8 +1,8 @@
 package com.darkzodiak.kontrol.statistics.data
 
-import com.darkzodiak.kontrol.core.domain.App
-import com.darkzodiak.kontrol.core.domain.KontrolRepository
-import com.darkzodiak.kontrol.statistics.data.local.DailyAppUsageEntity
+import com.darkzodiak.kontrol.apps.domain.App
+import com.darkzodiak.kontrol.apps.domain.AppRepository
+import com.darkzodiak.kontrol.core.data.local.entity.DailyAppUsageEntity
 import com.darkzodiak.kontrol.statistics.domain.DailyAppUsage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,14 +13,14 @@ import javax.inject.Singleton
 
 @Singleton
 class DailyAppUsageMapper @Inject constructor(
-    private val kontrolRepository: KontrolRepository
+    private val appRepository: AppRepository
 ) {
     private val scope = CoroutineScope(Dispatchers.IO)
 
     private var apps: Map<Long, App> = emptyMap()
 
     init {
-        kontrolRepository.getAllApps().onEach {
+        appRepository.getAllApps().onEach {
             apps = it.filterNot { app -> app.isDeleted }.associateBy { app -> app.id }
         }.launchIn(scope)
     }

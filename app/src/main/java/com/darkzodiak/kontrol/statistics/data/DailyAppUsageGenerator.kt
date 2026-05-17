@@ -4,9 +4,9 @@ import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.os.Build
-import com.darkzodiak.kontrol.core.domain.App
-import com.darkzodiak.kontrol.core.domain.KontrolRepository
-import com.darkzodiak.kontrol.statistics.data.local.DailyAppUsageEntity
+import com.darkzodiak.kontrol.apps.domain.App
+import com.darkzodiak.kontrol.apps.domain.AppRepository
+import com.darkzodiak.kontrol.core.data.local.entity.DailyAppUsageEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +25,7 @@ import kotlin.math.roundToInt
 @Singleton
 class DailyAppUsageGenerator @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val repository: KontrolRepository
+    private val appRepository: AppRepository
 ) {
     private val _initialized = MutableStateFlow(false)
     val initialized = _initialized.asStateFlow()
@@ -35,7 +35,7 @@ class DailyAppUsageGenerator @Inject constructor(
     private var apps: Map<String, App> = emptyMap()
 
     init {
-        repository.getAllApps().onEach {
+        appRepository.getAllApps().onEach {
             apps = it.filterNot { app -> app.isDeleted }.associateBy { app -> app.packageName }
             _initialized.update { true }
         }.launchIn(scope)

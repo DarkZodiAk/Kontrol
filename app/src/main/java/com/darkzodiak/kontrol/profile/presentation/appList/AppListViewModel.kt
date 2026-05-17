@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darkzodiak.kontrol.core.domain.usecase.GetAllAppsUseCase
+import com.darkzodiak.kontrol.profile.domain.usecase.GetAllAppsUseCase
 import com.darkzodiak.kontrol.profile.presentation.ProfileInterScreenBus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel

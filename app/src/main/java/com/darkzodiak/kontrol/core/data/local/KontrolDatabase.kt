@@ -3,15 +3,15 @@ package com.darkzodiak.kontrol.core.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.darkzodiak.kontrol.core.data.local.converters.DailyAppUsageConverters
+import com.darkzodiak.kontrol.core.data.local.converters.ProfileConverters
 import com.darkzodiak.kontrol.core.data.local.dao.AppDao
+import com.darkzodiak.kontrol.core.data.local.dao.DailyAppUsageDao
+import com.darkzodiak.kontrol.core.data.local.dao.ProfileDao
 import com.darkzodiak.kontrol.core.data.local.entity.AppEntity
-import com.darkzodiak.kontrol.profile.data.local.ProfileConverters
-import com.darkzodiak.kontrol.profile.data.local.dao.ProfileDao
-import com.darkzodiak.kontrol.profile.data.local.entity.AppToProfile
-import com.darkzodiak.kontrol.profile.data.local.entity.ProfileEntity
-import com.darkzodiak.kontrol.statistics.data.local.DailyAppUsageConverters
-import com.darkzodiak.kontrol.statistics.data.local.DailyAppUsageDao
-import com.darkzodiak.kontrol.statistics.data.local.DailyAppUsageEntity
+import com.darkzodiak.kontrol.core.data.local.entity.AppToProfile
+import com.darkzodiak.kontrol.core.data.local.entity.DailyAppUsageEntity
+import com.darkzodiak.kontrol.core.data.local.entity.ProfileEntity
 
 @Database(
     entities = [ProfileEntity::class, AppEntity::class, AppToProfile::class, DailyAppUsageEntity::class],

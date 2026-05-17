@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.profile.presentation
 
-import com.darkzodiak.kontrol.core.domain.App
+import com.darkzodiak.kontrol.apps.domain.App
 import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
 import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
 import kotlinx.coroutines.CoroutineScope

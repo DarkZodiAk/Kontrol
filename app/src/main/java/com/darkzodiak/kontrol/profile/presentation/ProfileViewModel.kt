@@ -6,14 +6,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darkzodiak.kontrol.core.domain.App
-import com.darkzodiak.kontrol.core.domain.KontrolRepository
+import com.darkzodiak.kontrol.apps.domain.App
+import com.darkzodiak.kontrol.apps.domain.AppRepository
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
 import com.darkzodiak.kontrol.core.presentation.warning.WarningType
-import com.darkzodiak.kontrol.profile.domain.ProfileOverlapChecker
+import com.darkzodiak.kontrol.profile.domain.ProfileRepository
 import com.darkzodiak.kontrol.profile.domain.ProfileUpdater
 import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
 import com.darkzodiak.kontrol.profile.domain.model.Profile
+import com.darkzodiak.kontrol.profile.domain.usecase.CheckProfileOverlapsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
@@ -26,9 +27,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val repository: KontrolRepository,
+    private val profileRepository: ProfileRepository,
+    private val appRepository: AppRepository,
     private val profileUpdater: ProfileUpdater,
-    private val profileOverlapChecker: ProfileOverlapChecker,
+    private val checkProfileOverlapsUseCase: CheckProfileOverlapsUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -49,13 +51,13 @@ class ProfileViewModel @Inject constructor(
     init {
         savedStateHandle.get<Long>("id")?.let { id ->
             viewModelScope.launch {
-                val profileFromDb = repository.getProfileById(id)
+                val profileFromDb = profileRepository.getProfileById(id)
                 if (profileFromDb == null) {
                     state = state.copy(isNewProfile = true)
                     return@launch
                 }
                 profile = profileFromDb
-                profileApps = repository.getProfileAppsById(id).first()
+                profileApps = profileRepository.getProfileAppsById(id).first()
                 state = state.copy(
                     name = profile.name,
                     apps = profileApps,
@@ -105,7 +107,7 @@ class ProfileViewModel @Inject constructor(
             state = state.copy(appRestriction = it, unsaved = unsaved)
         }.launchIn(viewModelScope)
 
-        repository.getAllApps().onEach { apps ->
+        appRepository.getAllApps().onEach { apps ->
             state.apps.onEach { profileApp ->
                 val app = apps.find { it.id == profileApp.id }
                 if (app == null) {
@@ -180,7 +182,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     private suspend fun checkProfileAppsOverlap() {
-        val overlapped = profileOverlapChecker.isProfileOverlappedByOthers(
+        val overlapped = checkProfileOverlapsUseCase.isProfileOverlappedByOthers(
             profile = profile,
             profileApps = state.apps
         )

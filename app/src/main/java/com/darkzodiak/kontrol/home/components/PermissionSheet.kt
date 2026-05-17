@@ -1,6 +1,8 @@
 package com.darkzodiak.kontrol.home.components
 
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -18,9 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.darkzodiak.kontrol.R
 import com.darkzodiak.kontrol.home.HomeScreenState
-import com.darkzodiak.kontrol.permission.getAccessibilityIntent
-import com.darkzodiak.kontrol.permission.getAlertWindowIntent
-import com.darkzodiak.kontrol.permission.getUsageStatsIntent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,4 +85,30 @@ fun PermissionSheet(
             )
         }
     }
+}
+
+fun Context.getUsageStatsIntent(): Intent {
+    val intent = Intent(
+        Settings.ACTION_USAGE_ACCESS_SETTINGS,
+        Uri.fromParts("package", packageName, null)
+    )
+    if (intent.resolveActivity(packageManager) == null) intent.data = null
+    return if (intent.resolveActivity(packageManager) != null) intent
+    else Intent(Settings.ACTION_SETTINGS)
+}
+
+fun Context.getAccessibilityIntent(): Intent {
+    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+    return if (intent.resolveActivity(packageManager) != null) intent
+    else Intent(Settings.ACTION_SETTINGS)
+}
+
+fun Context.getAlertWindowIntent(): Intent {
+    val intent = Intent(
+        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+        Uri.fromParts("package", packageName, null)
+    )
+    if (intent.resolveActivity(packageManager) == null) intent.data = null
+    return if (intent.resolveActivity(packageManager) != null) intent
+    else Intent(Settings.ACTION_SETTINGS)
 }

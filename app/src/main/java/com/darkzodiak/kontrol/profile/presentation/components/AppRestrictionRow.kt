@@ -16,8 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.darkzodiak.kontrol.core.data.local.types.AppRestrictionType
 import com.darkzodiak.kontrol.core.presentation.KontrolOutlinedRow
-import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
 import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
 
 @Composable

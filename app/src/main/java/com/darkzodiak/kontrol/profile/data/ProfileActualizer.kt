@@ -1,12 +1,10 @@
 package com.darkzodiak.kontrol.profile.data
 
 import android.content.Context
-import com.darkzodiak.kontrol.core.data.FirstLaunchPostBootDetector
-import com.darkzodiak.kontrol.core.data.millisUntil
-import com.darkzodiak.kontrol.profile.data.local.EditRestrictionType
-import com.darkzodiak.kontrol.profile.data.local.ProfileStateType
-import com.darkzodiak.kontrol.profile.data.local.dao.ProfileDao
-import com.darkzodiak.kontrol.scheduling.EventScheduler
+import com.darkzodiak.kontrol.core.data.local.dao.ProfileDao
+import com.darkzodiak.kontrol.core.data.local.types.EditRestrictionType
+import com.darkzodiak.kontrol.core.data.local.types.ProfileStateType
+import com.darkzodiak.kontrol.profile.data.scheduling.EventScheduler
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

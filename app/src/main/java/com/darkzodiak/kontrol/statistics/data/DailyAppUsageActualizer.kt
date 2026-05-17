@@ -1,7 +1,7 @@
 package com.darkzodiak.kontrol.statistics.data
 
+import com.darkzodiak.kontrol.core.data.local.dao.DailyAppUsageDao
 import com.darkzodiak.kontrol.permission.data.PermissionObserver
-import com.darkzodiak.kontrol.statistics.data.local.DailyAppUsageDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

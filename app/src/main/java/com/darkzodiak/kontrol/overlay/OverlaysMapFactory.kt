@@ -2,10 +2,10 @@ package com.darkzodiak.kontrol.overlay
 
 import android.content.Context
 import android.view.LayoutInflater
+import com.darkzodiak.kontrol.core.data.local.types.AppRestrictionType
 import com.darkzodiak.kontrol.overlay.restrictions.PasswordOverlay
 import com.darkzodiak.kontrol.overlay.restrictions.RandomTextOverlay
 import com.darkzodiak.kontrol.overlay.restrictions.SimpleBlockOverlay
-import com.darkzodiak.kontrol.profile.data.local.AppRestrictionType
 
 class OverlaysMapFactory {
     fun build(
