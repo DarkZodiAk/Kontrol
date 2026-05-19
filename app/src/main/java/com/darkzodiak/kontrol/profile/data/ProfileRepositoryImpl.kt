@@ -75,6 +75,10 @@ class ProfileRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun isAppInProfiles(appId: Long): Boolean {
+        return profileDao.isAppInProfiles(appId)
+    }
+
     override fun actualizeAllProfiles() {
         profileActualizer.actualizeAll()
     }

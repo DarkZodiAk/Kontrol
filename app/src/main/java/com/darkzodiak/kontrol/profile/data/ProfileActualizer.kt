@@ -63,7 +63,6 @@ class ProfileActualizer @Inject constructor(
             }
         }
 
-        // TODO(): Проработать логику установки событий при холодном запуске приложения
         eventScheduler.upsertEvent(newProfile.id ?: return@launch)
         if (newProfile != profile) {
             profileDao.updateProfile(newProfile)

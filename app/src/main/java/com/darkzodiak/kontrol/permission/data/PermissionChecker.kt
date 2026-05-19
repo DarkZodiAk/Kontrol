@@ -21,7 +21,7 @@ object PermissionChecker {
 
     fun hasAccessibilityPermission(context: Context): Boolean {
         val packageName = context.packageName
-        val accessibilityServiceName = "$packageName/$packageName.core.data.KontrolService"
+        val accessibilityServiceName = "$packageName/$packageName.monitor_block.KontrolService"
         val enabledServices = Settings.Secure.getString(
             context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         )

@@ -7,8 +7,9 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.graphics.drawable.toBitmap
 import com.darkzodiak.kontrol.core.data.local.dao.AppDao
-import com.darkzodiak.kontrol.core.data.local.dao.ProfileDao
 import com.darkzodiak.kontrol.core.data.local.entity.AppEntity
+import com.darkzodiak.kontrol.profile.domain.ProfileRepository
+import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,7 @@ import javax.inject.Singleton
 @Singleton
 class AppScanner @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val profileDao: ProfileDao,
+    private val profileRepository: Lazy<ProfileRepository>,
     private val appDao: AppDao
 ) {
     private val packageManager = context.packageManager
@@ -57,7 +58,7 @@ class AppScanner @Inject constructor(
     fun onAppDeleted(packageName: String) {
         runWithLock {
             val app = appDao.getAppByPackageName(packageName) ?: return@runWithLock
-            if (profileDao.isAppInProfiles(app.id ?: return@runWithLock)) {
+            if (profileRepository.get().isAppInProfiles(app.id ?: return@runWithLock)) {
                 appDao.updateApp(app.copy(isDeleted = true))
             } else {
                 appDao.deleteApp(app)
@@ -99,13 +100,12 @@ class AppScanner @Inject constructor(
                 )
             }.associateBy { it.packageName }
 
-        // Remove all deleted apps from DB
         currentApps.filter { app ->
             app.packageName !in newApps
         }.forEach {
             scope.launch {
                 val app = appDao.getAppByPackageName(it.packageName) ?: return@launch
-                if (profileDao.isAppInProfiles(app.id ?: return@launch)) {
+                if (profileRepository.get().isAppInProfiles(app.id ?: return@launch)) {
                     appDao.updateApp(app.copy(isDeleted = true))
                 } else {
                     appDao.deleteApp(it)
@@ -114,8 +114,6 @@ class AppScanner @Inject constructor(
             }
         }
 
-        // Add/Update all scanned apps, even if they already exist in DB
-        // Reason: any app might change its icon
         newApps.forEach {
             scope.launch {
                 val iconUri = getAppIconAndSave(it.value.packageName)

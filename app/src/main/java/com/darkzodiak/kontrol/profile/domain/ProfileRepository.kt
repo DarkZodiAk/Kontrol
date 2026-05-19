@@ -15,4 +15,5 @@ interface ProfileRepository {
     suspend fun deleteAppFromProfile(appId: Long, profileId: Long)
     fun getProfileAppsById(profileId: Long): Flow<List<App>>
     suspend fun getProfilesWithApp(packageName: String): Flow<List<Profile>>
+    suspend fun isAppInProfiles(appId: Long): Boolean
 }

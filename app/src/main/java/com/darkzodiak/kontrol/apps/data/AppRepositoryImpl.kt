@@ -18,7 +18,7 @@ class AppRepositoryImpl @Inject constructor(
 
     override fun syncInstalledApps() {
         appScanner.syncInstalledApps()
-        AppChangedReceiver.register(context)
+        AppChangedReceiver.register(context, appScanner)
     }
 
     override fun getAllApps(): Flow<List<App>> {

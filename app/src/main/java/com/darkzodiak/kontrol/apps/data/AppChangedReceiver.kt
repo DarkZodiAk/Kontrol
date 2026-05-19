@@ -4,13 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
-@AndroidEntryPoint
-class AppChangedReceiver : BroadcastReceiver() {
-    @Inject
-    lateinit var appScanner: AppScanner
+class AppChangedReceiver(private val appScanner: AppScanner) : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
@@ -18,13 +13,13 @@ class AppChangedReceiver : BroadcastReceiver() {
                 val packageName = intent.data?.schemeSpecificPart ?: return
                 appScanner.onAppInstalled(packageName)
             }
-            Intent.ACTION_PACKAGE_REMOVED -> {
-                val packageName = intent.data?.schemeSpecificPart ?: return
-                appScanner.onAppDeleted(packageName)
-            }
             Intent.ACTION_PACKAGE_REPLACED -> {
                 val packageName = intent.data?.schemeSpecificPart ?: return
                 appScanner.onAppReplaced(packageName)
+            }
+            Intent.ACTION_PACKAGE_REMOVED -> {
+                val packageName = intent.data?.schemeSpecificPart ?: return
+                appScanner.onAppDeleted(packageName)
             }
         }
     }
@@ -32,7 +27,7 @@ class AppChangedReceiver : BroadcastReceiver() {
     companion object {
         private var registered = false
 
-        fun register(context: Context) {
+        fun register(context: Context, appScanner: AppScanner) {
             if (registered) return
 
             val intentFilter = IntentFilter().apply {
@@ -42,7 +37,7 @@ class AppChangedReceiver : BroadcastReceiver() {
                 addDataScheme("package")
             }
 
-            val appChangedReceiver = AppChangedReceiver()
+            val appChangedReceiver = AppChangedReceiver(appScanner)
             context.registerReceiver(appChangedReceiver, intentFilter)
         }
     }

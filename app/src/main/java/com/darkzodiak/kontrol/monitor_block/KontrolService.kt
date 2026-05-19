@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.widget.Toast
-import androidx.core.content.getSystemService
 import com.darkzodiak.kontrol.permission.data.PermissionObserver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -24,8 +23,6 @@ class KontrolService: AccessibilityService(), AppCloser {
     lateinit var permissionObserver: PermissionObserver
     @Inject
     lateinit var appBlocker: AppBlocker
-
-    private val packageManager by lazy { getSystemService<PackageManager>()!! }
 
     private var isRunning = false
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())

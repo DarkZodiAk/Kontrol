@@ -3,8 +3,6 @@ package com.darkzodiak.kontrol.overlay
 import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
@@ -15,6 +13,10 @@ import android.view.animation.DecelerateInterpolator
 import androidx.core.content.getSystemService
 import com.darkzodiak.kontrol.R
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,7 +33,7 @@ class OverlayManager @Inject constructor(
     private val layoutInflater by lazy {
         themedContext.getSystemService<LayoutInflater>()!!
     }
-    private val mainHandler = Handler(Looper.getMainLooper())
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     private var blockCallback: (() -> Unit)? = null
     private var proceedCallback: (() -> Unit)? = null
@@ -71,7 +73,7 @@ class OverlayManager @Inject constructor(
         closeOverlayImmediately()
 
         val overlay = overlaysMap[data.appRestrictionType] ?: return
-        overlay.init(data)
+        runOnMainThread { overlay.init(data) }
         val view = overlay.view
 
         runOnMainThread {
@@ -136,7 +138,7 @@ class OverlayManager @Inject constructor(
     }
 
     private fun runOnMainThread(block: () -> Unit) {
-        mainHandler.post(block)
+        scope.launch { block() }
     }
 
     private fun resetOverlayState() {
