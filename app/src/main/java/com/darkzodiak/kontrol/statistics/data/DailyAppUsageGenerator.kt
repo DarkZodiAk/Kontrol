@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneOffset
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.roundToInt
@@ -32,6 +32,7 @@ class DailyAppUsageGenerator @Inject constructor(
 
     private val scope = CoroutineScope(Dispatchers.IO)
     private val usageStatsManager = getUsageStatsManager()
+    private val timeZone: ZoneId get() = ZoneId.systemDefault()
     private var apps: Map<String, App> = emptyMap()
 
     init {
@@ -61,9 +62,9 @@ class DailyAppUsageGenerator @Inject constructor(
     }
 
     private fun getUsageMapForDay(date: LocalDate): Map<App, Long> {
-        val dayStart = dateToUtcMidnightTimestamp(date)
-        val dayEnd = dateToUtcMidnightTimestamp(date.plusDays(1))
-        val nowUtc = Instant.now().atOffset(ZoneOffset.UTC).toLocalDate()
+        val dayStart = dateToLocalMidnightTimestamp(date)
+        val dayEnd = dateToLocalMidnightTimestamp(date.plusDays(1))
+        val nowLocal = Instant.now().atZone(timeZone).toLocalDate()
 
         val events = usageStatsManager.queryEvents(dayStart, dayEnd)
         val usageMap = mutableMapOf<App, Long>()
@@ -93,7 +94,7 @@ class DailyAppUsageGenerator @Inject constructor(
             }
         }
 
-        val endTime = if (date == nowUtc) System.currentTimeMillis() else dayEnd
+        val endTime = if (date == nowLocal) System.currentTimeMillis() else dayEnd
         lastResumedMap.entries.forEach { (_, event) ->
             val app = apps[event.packageName] ?: return@forEach
             val duration = endTime - event.timeStamp
@@ -105,8 +106,8 @@ class DailyAppUsageGenerator @Inject constructor(
         return usageMap
     }
 
-    private fun dateToUtcMidnightTimestamp(date: LocalDate): Long {
-        return date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+    private fun dateToLocalMidnightTimestamp(date: LocalDate): Long {
+        return date.atStartOfDay(timeZone).toInstant().toEpochMilli()
     }
 
     private fun getUsageStatsManager(): UsageStatsManager {
