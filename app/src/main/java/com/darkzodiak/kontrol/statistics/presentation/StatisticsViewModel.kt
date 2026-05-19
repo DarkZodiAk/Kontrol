@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darkzodiak.kontrol.permission.data.PermissionObserver
+import com.darkzodiak.kontrol.permission.PermissionObserver
 import com.darkzodiak.kontrol.statistics.domain.DailyUsageReport
 import com.darkzodiak.kontrol.statistics.domain.GetAppUsageForWeekUseCase
 import com.darkzodiak.kontrol.statistics.domain.StatisticsRepository

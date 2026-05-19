@@ -1,4 +1,4 @@
-package com.darkzodiak.kontrol.permission.data
+package com.darkzodiak.kontrol.permission
 
 import android.app.AppOpsManager
 import android.content.Context

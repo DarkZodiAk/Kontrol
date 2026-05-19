@@ -1,4 +1,4 @@
-package com.darkzodiak.kontrol.permission.data
+package com.darkzodiak.kontrol.permission
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,34 +33,18 @@ class PermissionObserver @Inject constructor(
     }
 
     fun updateUsageStatsPermission() {
-        applicationScope.launch {
-            val enabled = PermissionChecker.hasUsageStatsPermission(context)
-            updateState { copy(hasUsageStatsPermission = enabled) }
-            updateCompositeFieldsInState()
-        }
+        val enabled = PermissionChecker.hasUsageStatsPermission(context)
+        updateState { copy(hasUsageStatsPermission = enabled) }
     }
 
     fun updateAccessibilityPermission() {
-        applicationScope.launch {
-            val enabled = PermissionChecker.hasAccessibilityPermission(context)
-            updateState { copy(hasAccessibilityPermission = enabled) }
-            updateCompositeFieldsInState()
-        }
+        val enabled = PermissionChecker.hasAccessibilityPermission(context)
+        updateState { copy(hasAccessibilityPermission = enabled) }
     }
 
     fun updateAlertWindowPermission() {
-        applicationScope.launch {
-            val enabled = PermissionChecker.hasAlertWindowPermission(context)
-            updateState { copy(hasAlertWindowPermission = enabled) }
-            updateCompositeFieldsInState()
-        }
-    }
-
-    private fun updateCompositeFieldsInState() {
-        updateState { copy(
-            hasEssentialPermissions = hasAccessibilityPermission && hasAlertWindowPermission,
-            hasAllPermissions = hasAccessibilityPermission && hasAlertWindowPermission && hasUsageStatsPermission
-        ) }
+        val enabled = PermissionChecker.hasAlertWindowPermission(context)
+        updateState { copy(hasAlertWindowPermission = enabled) }
     }
 
     private fun updateState(update: PermissionsState.() -> PermissionsState) {

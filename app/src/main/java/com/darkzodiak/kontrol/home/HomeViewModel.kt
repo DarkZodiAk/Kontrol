@@ -8,8 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
 import com.darkzodiak.kontrol.home.profileCard.PendingProfileIntent
 import com.darkzodiak.kontrol.home.profileCard.ProfileCardIntent
-import com.darkzodiak.kontrol.permission.data.PermissionObserver
-import com.darkzodiak.kontrol.permission.domain.Permission
+import com.darkzodiak.kontrol.permission.PermissionObserver
 import com.darkzodiak.kontrol.profile.domain.ProfileRepository
 import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
 import com.darkzodiak.kontrol.profile.domain.model.Profile

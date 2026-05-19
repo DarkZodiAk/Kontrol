@@ -7,7 +7,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.widget.Toast
-import com.darkzodiak.kontrol.permission.data.PermissionObserver
+import com.darkzodiak.kontrol.permission.PermissionObserver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

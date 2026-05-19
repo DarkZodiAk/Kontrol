@@ -1,7 +1,6 @@
 package com.darkzodiak.kontrol.home
 
 import com.darkzodiak.kontrol.home.profileCard.ProfileCardIntent
-import com.darkzodiak.kontrol.permission.domain.Permission
 import com.darkzodiak.kontrol.profile.domain.model.Profile
 import java.time.LocalDateTime
 

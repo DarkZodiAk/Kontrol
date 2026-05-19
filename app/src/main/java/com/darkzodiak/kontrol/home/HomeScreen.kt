@@ -37,7 +37,6 @@ import com.darkzodiak.kontrol.home.components.PermissionSheet
 import com.darkzodiak.kontrol.home.components.PermissionWarningCard
 import com.darkzodiak.kontrol.home.components.RandomTextDialog
 import com.darkzodiak.kontrol.home.profileCard.ProfileCard
-import com.darkzodiak.kontrol.permission.domain.Permission
 import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
 import com.darkzodiak.kontrol.profile.domain.model.Profile
 import com.darkzodiak.kontrol.profile.domain.model.ProfileState

@@ -3,7 +3,7 @@ package com.darkzodiak.kontrol.app
 import android.app.Application
 import com.darkzodiak.kontrol.apps.domain.AppRepository
 import com.darkzodiak.kontrol.monitor_block.KontrolService
-import com.darkzodiak.kontrol.permission.data.PermissionObserver
+import com.darkzodiak.kontrol.permission.PermissionObserver
 import com.darkzodiak.kontrol.profile.domain.ProfileRepository
 import com.darkzodiak.kontrol.statistics.domain.StatisticsRepository
 import dagger.hilt.android.HiltAndroidApp

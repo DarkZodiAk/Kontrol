@@ -1,6 +1,6 @@
 package com.darkzodiak.kontrol.statistics.data
 
-import com.darkzodiak.kontrol.permission.data.PermissionObserver
+import com.darkzodiak.kontrol.permission.PermissionObserver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
