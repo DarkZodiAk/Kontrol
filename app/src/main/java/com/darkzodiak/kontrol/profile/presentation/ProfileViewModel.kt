@@ -36,8 +36,7 @@ class ProfileViewModel @Inject constructor(
 
     private var rendered = false
     private val timeSource = TimeSource()
-    private val interScreenBus = ProfileInterScreenBus.get()
-    private var ignoreBus = false
+    private val interScreenMediator = ProfileInterScreenMediator.get()
 
     var state by mutableStateOf(ProfileScreenState())
         private set
@@ -79,30 +78,18 @@ class ProfileViewModel @Inject constructor(
             checkTimedRestriction(time)
         }.launchIn(viewModelScope)
 
-        interScreenBus.appList.onEach {
-            if (ignoreBus) {
-                ignoreBus = false
-                return@onEach
-            }
+        interScreenMediator.appList.onEach {
             val unsaved = state.apps != it
             state = state.copy(apps = it, unsaved = unsaved)
             checkProfileAppsOverlap()
         }.launchIn(viewModelScope)
 
-        interScreenBus.editRestriction.onEach {
-            if (ignoreBus) {
-                ignoreBus = false
-                return@onEach
-            }
+        interScreenMediator.editRestriction.onEach {
             val unsaved = state.editRestriction != it
             state = state.copy(editRestriction = it, unsaved = unsaved)
         }.launchIn(viewModelScope)
 
-        interScreenBus.appRestriction.onEach {
-            if (ignoreBus) {
-                ignoreBus = false
-                return@onEach
-            }
+        interScreenMediator.appRestriction.onEach {
             val unsaved = state.appRestriction != it
             state = state.copy(appRestriction = it, unsaved = unsaved)
         }.launchIn(viewModelScope)
@@ -143,20 +130,17 @@ class ProfileViewModel @Inject constructor(
             }
             ProfileAction.OpenAppsList -> {
                 rendered = false
-                ignoreBus = true
-                interScreenBus.sendAppList(state.apps)
+                viewModelScope.launch { interScreenMediator.sendAppList(state.apps) }
                 sendEvent(ProfileEvent.OpenAppsList)
             }
             ProfileAction.OpenAppRestriction -> {
                 rendered = false
-                ignoreBus = true
-                interScreenBus.sendAppRestriction(state.appRestriction)
+                viewModelScope.launch { interScreenMediator.sendAppRestriction(state.appRestriction) }
                 sendEvent(ProfileEvent.OpenAppRestriction)
             }
             ProfileAction.OpenEditRestriction -> {
                 rendered = false
-                ignoreBus = true
-                interScreenBus.sendEditRestriction(state.editRestriction)
+                viewModelScope.launch { interScreenMediator.sendEditRestriction(state.editRestriction) }
                 sendEvent(ProfileEvent.OpenEditRestriction)
             }
         }
@@ -200,7 +184,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        ProfileInterScreenBus.clear()
+        ProfileInterScreenMediator.clear()
         super.onCleared()
     }
 }

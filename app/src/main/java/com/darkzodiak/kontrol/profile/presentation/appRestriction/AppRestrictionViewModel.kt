@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.core.data.local.types.AppRestrictionType
 import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
-import com.darkzodiak.kontrol.profile.presentation.ProfileInterScreenBus
+import com.darkzodiak.kontrol.profile.presentation.ProfileInterScreenMediator
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class AppRestrictionViewModel: ViewModel() {
 
     private var rendered = false
-    private val interScreenCache = ProfileInterScreenBus.get()
+    private val interScreenMediator = ProfileInterScreenMediator.get()
     
     var state by mutableStateOf(AppRestrictionState())
         private set
@@ -26,7 +26,7 @@ class AppRestrictionViewModel: ViewModel() {
 
     init {
         viewModelScope.launch {
-            setRestriction(interScreenCache.appRestriction.first(), true)
+            setRestriction(interScreenMediator.appRestriction.first(), true)
         }
     }
     
@@ -46,7 +46,7 @@ class AppRestrictionViewModel: ViewModel() {
             AppRestrictionAction.Save -> {
                 closeDialog()
                 rendered = false
-                interScreenCache.sendAppRestriction(state.restriction)
+                viewModelScope.launch { interScreenMediator.sendAppRestriction(state.restriction) }
                 sendEvent(AppRestrictionEvent.GoBack)
             }
 

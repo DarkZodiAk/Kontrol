@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.profile.domain.usecase.GetAllAppsUseCase
-import com.darkzodiak.kontrol.profile.presentation.ProfileInterScreenBus
+import com.darkzodiak.kontrol.profile.presentation.ProfileInterScreenMediator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
@@ -22,7 +22,7 @@ class AppListViewModel @Inject constructor(
 ): ViewModel() {
 
     private var rendered = false
-    private val interScreenCache = ProfileInterScreenBus.get()
+    private val interScreenMediator = ProfileInterScreenMediator.get()
 
     var state by mutableStateOf(AppListState())
         private set
@@ -36,7 +36,7 @@ class AppListViewModel @Inject constructor(
         }.launchIn(viewModelScope)
 
         viewModelScope.launch {
-            state = state.copy(selectedApps = interScreenCache.appList.first())
+            state = state.copy(selectedApps = interScreenMediator.appList.first())
         }
     }
 
@@ -53,7 +53,7 @@ class AppListViewModel @Inject constructor(
             }
             AppListAction.Save -> {
                 rendered = false
-                interScreenCache.sendAppList(state.selectedApps)
+                viewModelScope.launch { interScreenMediator.sendAppList(state.selectedApps) }
                 sendEvent(AppListEvent.GoBack)
             }
             is AppListAction.SelectApp -> {

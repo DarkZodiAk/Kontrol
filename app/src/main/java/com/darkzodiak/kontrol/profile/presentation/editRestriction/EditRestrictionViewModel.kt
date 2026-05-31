@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.core.data.local.types.EditRestrictionType
 import com.darkzodiak.kontrol.core.presentation.time.TimeSource
 import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
-import com.darkzodiak.kontrol.profile.presentation.ProfileInterScreenBus
+import com.darkzodiak.kontrol.profile.presentation.ProfileInterScreenMediator
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -21,7 +21,7 @@ class EditRestrictionViewModel: ViewModel() {
 
     private var rendered = false
     private val timeSource = TimeSource()
-    private val interScreenCache = ProfileInterScreenBus.get()
+    private val interScreenMediator = ProfileInterScreenMediator.get()
 
     var state by mutableStateOf(EditRestrictionState())
         private set
@@ -31,7 +31,7 @@ class EditRestrictionViewModel: ViewModel() {
 
     init {
         viewModelScope.launch {
-            setRestriction(interScreenCache.editRestriction.first(), true)
+            setRestriction(interScreenMediator.editRestriction.first(), true)
         }
 
         timeSource.currentTime.onEach { time ->
@@ -55,7 +55,7 @@ class EditRestrictionViewModel: ViewModel() {
             EditRestrictionAction.Save -> {
                 closeDialog()
                 rendered = false
-                interScreenCache.sendEditRestriction(state.restriction)
+                viewModelScope.launch { interScreenMediator.sendEditRestriction(state.restriction) }
                 sendEvent(EditRestrictionEvent.GoBack)
             }
 

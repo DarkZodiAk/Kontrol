@@ -3,15 +3,10 @@ package com.darkzodiak.kontrol.profile.presentation
 import com.darkzodiak.kontrol.apps.domain.App
 import com.darkzodiak.kontrol.profile.domain.model.AppRestriction
 import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 
-class ProfileInterScreenBus {
-    private val scope = CoroutineScope(Dispatchers.IO)
-
+class ProfileInterScreenMediator {
     private val appListFlow = MutableSharedFlow<List<App>>(replay = 1)
     private val editRestrictionFlow = MutableSharedFlow<EditRestriction>(replay = 1)
     private val appRestrictionFlow = MutableSharedFlow<AppRestriction>(replay = 1)
@@ -20,26 +15,23 @@ class ProfileInterScreenBus {
     val editRestriction = editRestrictionFlow.asSharedFlow()
     val appRestriction = appRestrictionFlow.asSharedFlow()
 
-    fun sendAppList(apps: List<App>) = scope.launch {
+    suspend fun sendAppList(apps: List<App>) {
         appListFlow.emit(apps)
     }
 
-    fun sendEditRestriction(restriction: EditRestriction) = scope.launch {
+    suspend fun sendEditRestriction(restriction: EditRestriction) {
         editRestrictionFlow.emit(restriction)
     }
 
-    fun sendAppRestriction(restriction: AppRestriction) = scope.launch {
+    suspend fun sendAppRestriction(restriction: AppRestriction) {
         appRestrictionFlow.emit(restriction)
     }
 
     companion object {
-        private var INSTANCE: ProfileInterScreenBus? = null
-
-        fun get(): ProfileInterScreenBus {
-            if (INSTANCE == null) INSTANCE = ProfileInterScreenBus()
-            return requireNotNull(INSTANCE)
+        @Volatile private var INSTANCE: ProfileInterScreenMediator? = null
+        fun get(): ProfileInterScreenMediator = INSTANCE ?: synchronized(this) {
+            INSTANCE ?: ProfileInterScreenMediator().also { INSTANCE = it }
         }
-
         fun clear() { INSTANCE = null }
     }
 }
