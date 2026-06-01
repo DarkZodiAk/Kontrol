@@ -20,7 +20,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Kontrol"
-        tools:targetApi="35">
+        tools:targetApi="37">
         <activity
             android:name=".app.MainActivity"
             android:exported="true"
