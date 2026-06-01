@@ -14,8 +14,8 @@ import java.time.temporal.ChronoUnit
 class DelayDialogViewModel: ViewModel() {
 
     private var initialized = false
-    private val mainDialogTimeSource = TimeSource()
-    private val selectDialogTimeSource = TimeSource()
+    private val mainDialogTimeSource = TimeSource(viewModelScope)
+    private val selectDialogTimeSource = TimeSource(viewModelScope)
 
     var state by mutableStateOf(DelayDialogState())
         private set

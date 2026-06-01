@@ -29,7 +29,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var rendered = false
-    private val timeSource = TimeSource()
+    private val timeSource = TimeSource(viewModelScope)
 
     private var pendingCardIntent: PendingProfileIntent? = null
     private var pendingDelayProfile: Profile? = null

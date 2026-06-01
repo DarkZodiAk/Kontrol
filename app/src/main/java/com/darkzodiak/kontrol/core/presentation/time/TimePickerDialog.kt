@@ -20,6 +20,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -38,9 +39,11 @@ fun TimePickerDialog(
     onDateSelected: (LocalDateTime) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+
     var now by remember { mutableStateOf(LocalDateTime.now()) }
     LaunchedEffect(Unit) {
-        TimeSource().currentTime.collect { now = it }
+        TimeSource(scope).currentTime.collect { now = it }
     }
 
     val isToday = rememberSaveable { initialDateTime.toLocalDate() == LocalDate.now() }

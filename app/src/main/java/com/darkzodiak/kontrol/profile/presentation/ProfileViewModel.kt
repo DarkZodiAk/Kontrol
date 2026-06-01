@@ -35,7 +35,7 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var rendered = false
-    private val timeSource = TimeSource()
+    private val timeSource = TimeSource(viewModelScope)
     private val interScreenMediator = ProfileInterScreenMediator.get()
 
     var state by mutableStateOf(ProfileScreenState())
