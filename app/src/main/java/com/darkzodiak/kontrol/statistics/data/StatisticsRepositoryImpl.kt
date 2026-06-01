@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 class StatisticsRepositoryImpl @Inject constructor(
     private val dailyAppUsageDao: DailyAppUsageDao,
@@ -14,7 +15,7 @@ class StatisticsRepositoryImpl @Inject constructor(
     private val dailyAppUsageActualizer: DailyAppUsageActualizer,
     private val statisticsPeriodicUpdater: StatisticsPeriodicUpdater
 ): StatisticsRepository {
-    override fun initializeStatisticsPeriodicSync() {
+    override fun initializeStatisticsSync() {
         statisticsPeriodicUpdater.initialize()
     }
 
@@ -33,10 +34,21 @@ class StatisticsRepositoryImpl @Inject constructor(
             dailyAppUsageMapper.entityListToDomain(it)
                 .groupBy { it.date }
                 .map { (date, usages) ->
+                    val totalUsageTime = usages.sumOf { it.foregroundTimeMs }
+
+                    val appUsagesWithPercent = usages
+                        .sortedByDescending { it.foregroundTimeMs }
+                        .map { usage ->
+                            val percent = if (totalUsageTime > 0) {
+                                ((usage.foregroundTimeMs * 100.0) / totalUsageTime).roundToInt()
+                            } else 0
+                            usage.copy(percentOfTotalUsage = percent)
+                        }
+
                     DailyUsageReport(
                         date = date,
-                        totalUsageTimeMs = usages.sumOf { it.foregroundTimeMs },
-                        appUsages = usages.sortedByDescending { it.foregroundTimeMs }
+                        totalUsageTimeMs = totalUsageTime,
+                        appUsages = appUsagesWithPercent
                     )
                 }.sortedBy { it.date }
         }

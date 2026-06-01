@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 interface StatisticsRepository {
-    fun initializeStatisticsPeriodicSync()
+    fun initializeStatisticsSync()
     fun updateAllStatistics()
     fun updateStatisticsForToday()
     fun getAppUsagesForDateRange(

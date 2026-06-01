@@ -29,8 +29,7 @@ class DailyAppUsageMapper @Inject constructor(
         return DailyAppUsage(
             date = entity.date,
             app = apps[entity.appId] ?: App(),
-            foregroundTimeMs = entity.foregroundTimeMs,
-            percentOfTotalUsage = entity.percentOfTotalUsage
+            foregroundTimeMs = entity.foregroundTimeMs
         )
     }
 

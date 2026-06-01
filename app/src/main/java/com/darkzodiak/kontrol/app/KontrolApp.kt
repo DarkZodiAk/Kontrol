@@ -29,7 +29,7 @@ class KontrolApp: Application() {
         permissionObserver.updateAllPermissions()
         appRepository.initializeAppSync()
         profileRepository.actualizeAllProfiles()
-        statisticsRepository.initializeStatisticsPeriodicSync()
+        statisticsRepository.initializeStatisticsSync()
         TimeChangedReceiver(profileRepository, statisticsRepository).register(this)
     }
 }

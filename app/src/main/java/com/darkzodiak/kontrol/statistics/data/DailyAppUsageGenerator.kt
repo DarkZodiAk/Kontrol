@@ -20,7 +20,6 @@ import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.roundToInt
 
 @Singleton
 class DailyAppUsageGenerator @Inject constructor(
@@ -45,18 +44,11 @@ class DailyAppUsageGenerator @Inject constructor(
     fun getDailyAppUsagesForDay(date: LocalDate): List<DailyAppUsageEntity> {
         val appStats = getUsageMapForDay(date)
 
-        val totalUsageTime = appStats.values.sum()
-
         return appStats.map { (app, time) ->
-            val percent = if (totalUsageTime > 0) {
-                ((time * 100.0) / totalUsageTime).roundToInt()
-            } else 0
-
             DailyAppUsageEntity(
                 date = date,
                 appId = app.id,
-                foregroundTimeMs = time,
-                percentOfTotalUsage = percent
+                foregroundTimeMs = time
             )
         }
     }

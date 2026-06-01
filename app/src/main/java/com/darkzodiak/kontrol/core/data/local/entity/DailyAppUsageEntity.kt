@@ -18,6 +18,5 @@ import java.time.LocalDate
 data class DailyAppUsageEntity(
     val date: LocalDate,
     val appId: Long,
-    val foregroundTimeMs: Long = 0L,
-    val percentOfTotalUsage: Int = 0
+    val foregroundTimeMs: Long = 0L
 )
