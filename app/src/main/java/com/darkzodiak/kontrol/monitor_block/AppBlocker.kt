@@ -37,6 +37,7 @@ class AppBlocker @Inject constructor(
                 if (event is ExternalEvent.OpenApp) {
                     processApp(event.packageName)
                 } else {
+                    cancelProfileCheckJob()
                     nextAppToIgnore.set(null)
                 }
                 if (event is ExternalEvent.ReturnToLauncher) overlayManager.closeOverlay()
