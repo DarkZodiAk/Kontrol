@@ -1,7 +1,6 @@
 package com.darkzodiak.kontrol.monitor_block
 
 import android.accessibilityservice.AccessibilityService
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
@@ -13,6 +12,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,16 +34,7 @@ class KontrolService: AccessibilityService(), AppCloser {
         super.onCreate()
         appBlocker.setAppCloser(this)
         deviceLauncher = getCurrentLauncherPackageName()
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when(intent?.action) {
-            ACTION_START -> {
-                isRunning = true
-            }
-            ACTION_STOP -> stop()
-        }
-        return START_STICKY
+        monitorPermission()
     }
 
     override fun onServiceConnected() {
@@ -88,6 +80,12 @@ class KontrolService: AccessibilityService(), AppCloser {
         performGlobalAction(GLOBAL_ACTION_HOME)
     }
 
+    private fun monitorPermission() {
+        permissionObserver.canRunService.onEach { canRunService ->
+            isRunning = canRunService
+        }.launchIn(scope)
+    }
+
     private fun processAppEvent(packageName: String) {
         if (packageName in ignoredPackages) return
 
@@ -116,9 +114,6 @@ class KontrolService: AccessibilityService(), AppCloser {
     }
 
     companion object {
-        const val ACTION_START = "ACTION_START"
-        const val ACTION_STOP = "ACTION_STOP"
-
         private const val BLOCKER_PACKAGE_NAME = "com.darkzodiak.kontrol"
 
         private val ignoredPackages = setOf(
@@ -126,11 +121,5 @@ class KontrolService: AccessibilityService(), AppCloser {
             "com.google.android.inputmethod.latin",
             "com.android.inputmethod.latin"
         )
-
-        fun buildActionIntent(context: Context, action: String): Intent {
-            return Intent(context, KontrolService::class.java).also {
-                it.action = action
-            }
-        }
     }
 }
