@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darkzodiak.kontrol.core.presentation.time.TimeSource
+import com.darkzodiak.kontrol.core.domain.TimeSource
 import com.darkzodiak.kontrol.home.profileCard.PendingProfileIntent
 import com.darkzodiak.kontrol.home.profileCard.ProfileCardIntent
 import com.darkzodiak.kontrol.permission.PermissionObserver

@@ -18,6 +18,10 @@ class StatisticsRepositoryImpl @Inject constructor(
         statisticsPeriodicUpdater.initialize()
     }
 
+    override fun updateAllStatistics() {
+        dailyAppUsageActualizer.actualizeAll()
+    }
+
     override fun updateStatisticsForToday() {
         dailyAppUsageActualizer.actualizeToday()
     }

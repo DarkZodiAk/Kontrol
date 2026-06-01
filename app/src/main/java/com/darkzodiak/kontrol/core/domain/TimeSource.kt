@@ -1,7 +1,8 @@
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package com.darkzodiak.kontrol.core.presentation.time
+package com.darkzodiak.kontrol.core.domain
 
+import com.darkzodiak.kontrol.core.presentation.time.UITimeUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow

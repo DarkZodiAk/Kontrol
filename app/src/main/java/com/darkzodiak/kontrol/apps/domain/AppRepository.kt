@@ -3,7 +3,7 @@ package com.darkzodiak.kontrol.apps.domain
 import kotlinx.coroutines.flow.Flow
 
 interface AppRepository {
-    fun syncInstalledApps()
+    fun initializeAppSync()
     fun getAllApps(): Flow<List<App>>
     suspend fun getAppById(id: Long): App?
     suspend fun getAppByPackageName(packageName: String): App?

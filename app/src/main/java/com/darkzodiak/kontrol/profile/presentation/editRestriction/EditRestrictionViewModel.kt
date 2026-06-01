@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.core.data.local.types.EditRestrictionType
-import com.darkzodiak.kontrol.core.presentation.time.TimeSource
+import com.darkzodiak.kontrol.core.domain.TimeSource
 import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
 import com.darkzodiak.kontrol.profile.presentation.ProfileInterScreenMediator
 import kotlinx.coroutines.channels.Channel

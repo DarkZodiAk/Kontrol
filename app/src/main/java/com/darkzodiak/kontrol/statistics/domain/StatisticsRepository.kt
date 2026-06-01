@@ -5,6 +5,7 @@ import java.time.LocalDate
 
 interface StatisticsRepository {
     fun initializeStatisticsPeriodicSync()
+    fun updateAllStatistics()
     fun updateStatisticsForToday()
     fun getAppUsagesForDateRange(
         start: LocalDate, end: LocalDate

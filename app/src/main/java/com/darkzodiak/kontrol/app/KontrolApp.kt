@@ -30,9 +30,10 @@ class KontrolApp: Application() {
     override fun onCreate() {
         super.onCreate()
         permissionObserver.updateAllPermissions()
-        appRepository.syncInstalledApps()
+        appRepository.initializeAppSync()
         profileRepository.actualizeAllProfiles()
         statisticsRepository.initializeStatisticsPeriodicSync()
+        TimeChangedReceiver(profileRepository, statisticsRepository).register(this)
         permissionObserver.canRunService.onEach { canRunService ->
             if (canRunService) {
                 startService(KontrolService.buildActionIntent(this, KontrolService.ACTION_START))

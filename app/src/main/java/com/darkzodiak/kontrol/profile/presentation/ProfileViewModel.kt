@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.darkzodiak.kontrol.apps.domain.App
 import com.darkzodiak.kontrol.apps.domain.AppRepository
-import com.darkzodiak.kontrol.core.presentation.time.TimeSource
+import com.darkzodiak.kontrol.core.domain.TimeSource
 import com.darkzodiak.kontrol.core.presentation.warning.WarningType
 import com.darkzodiak.kontrol.profile.domain.ProfileRepository
 import com.darkzodiak.kontrol.profile.domain.ProfileUpdater
