@@ -37,10 +37,12 @@ class AppBlocker @Inject constructor(
                 if (event is ExternalEvent.OpenApp) {
                     processApp(event.packageName)
                 } else {
-                    cancelProfileCheckJob()
                     nextAppToIgnore.set(null)
                 }
-                if (event is ExternalEvent.ReturnToLauncher) overlayManager.closeOverlay()
+                if (event is ExternalEvent.ReturnToLauncher) {
+                    cancelProfileCheckJob()
+                    overlayManager.closeOverlay()
+                }
             }
             .launchIn(scope)
     }
@@ -62,7 +64,7 @@ class AppBlocker @Inject constructor(
                 if (activeProfiles.isNotEmpty()) {
                     processProfiles(packageName, activeProfiles)
                 } else {
-                    overlayManager.closeOverlayImmediately()
+                    overlayManager.closeOverlay()
                 }
             }.launchIn(scope)
     }

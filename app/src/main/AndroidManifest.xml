@@ -33,7 +33,7 @@
         </activity>
 
         <service
-            android:name=".monitor_block.KontrolService"
+            android:name=".monitor_block.MonitorService"
             android:exported="false"
             android:foregroundServiceType="specialUse"
             android:label="@string/accessibility_service_label"

@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class KontrolService: AccessibilityService(), AppCloser {
+class MonitorService: AccessibilityService(), AppCloser {
 
     @Inject
     lateinit var permissionObserver: PermissionObserver
@@ -35,6 +35,7 @@ class KontrolService: AccessibilityService(), AppCloser {
         appBlocker.setAppCloser(this)
         deviceLauncher = getCurrentLauncherPackageName()
         monitorPermission()
+        listenForSystemNavigation()
     }
 
     override fun onServiceConnected() {
@@ -78,6 +79,11 @@ class KontrolService: AccessibilityService(), AppCloser {
 
     override fun closeApp(packageName: String) {
         performGlobalAction(GLOBAL_ACTION_HOME)
+    }
+
+    private fun listenForSystemNavigation() {
+        val lambda = { sendEvent(ExternalEvent.ReturnToLauncher) }
+        CloseDialogReceiver(lambda, lambda).register(this)
     }
 
     private fun monitorPermission() {
