@@ -18,19 +18,22 @@ fun getProfileTextInfo(profile: Profile, now: LocalDateTime): String {
 
         is ProfileState.Paused -> {
             val duration = Duration.between(now, profile.state.until)
+            if (duration.isNegative || duration.isZero) return "Пауза, время истекло"
 
-            val days = duration.toDays().toInt()
-            val hours = duration.toHours().toInt()
-            val minutes = duration.toMinutes().toInt()
+            val totalSeconds = duration.seconds
 
-            if (duration.isNegative || duration.isZero) "Пауза, время истекло"
-            else "Пауза, запустится через " + if (days >= 1) {
-                pluralStringResource(R.plurals.after_days, days, days)
-            } else if (hours >= 1) {
-                pluralStringResource(R.plurals.after_hours, hours, hours)
-            } else if (minutes >= 1) {
-                pluralStringResource(R.plurals.after_minutes, minutes, minutes)
-            } else pluralStringResource(R.plurals.after_minutes, 1)
+            val totalMinutes = (totalSeconds + 59) / 60
+
+            val days = (totalMinutes / 1440).toInt()
+            val hours = ((totalMinutes % 1440) / 60).toInt()
+            val minutes = (totalMinutes % 60).toInt()
+
+            "Пауза, запустится через " + when {
+                days >= 1 -> pluralStringResource(R.plurals.after_days, days, days)
+                hours >= 1 -> pluralStringResource(R.plurals.after_hours, hours, hours)
+                minutes >= 1 -> pluralStringResource(R.plurals.after_minutes, minutes, minutes)
+                else -> pluralStringResource(R.plurals.after_minutes, 1)
+            }
         }
     }
 }
