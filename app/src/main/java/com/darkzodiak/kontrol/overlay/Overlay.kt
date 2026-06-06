@@ -23,7 +23,7 @@ abstract class Overlay (
             }
         }
     }
-    var view: View = layoutInflater.inflate(layoutID, wrapper)
+    val view: View = layoutInflater.inflate(layoutID, wrapper)
 
     abstract fun init(data: OverlayData)
 

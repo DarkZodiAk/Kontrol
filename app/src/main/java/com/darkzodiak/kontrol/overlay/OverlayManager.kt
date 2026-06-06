@@ -119,7 +119,7 @@ class OverlayManager @Inject constructor(
         } ?: resetOverlayState()
     }
 
-    fun closeOverlayImmediately() = runOnMainThread {
+    private fun closeOverlayImmediately() = runOnMainThread {
         blockView?.let { view ->
             view.animate().cancel()
             safeRemoveView(view)
