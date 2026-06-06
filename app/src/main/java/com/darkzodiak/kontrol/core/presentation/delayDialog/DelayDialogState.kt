@@ -7,5 +7,8 @@ data class DelayDialogState(
     val delayTime: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES),
     val selectDelayTime: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES),
     val delayType: DelayType = DelayType.CUSTOM,
-    val unsavedDelayType: DelayType = DelayType.CUSTOM
+    val unsavedDelayType: DelayType = DelayType.CUSTOM,
+    val timePickerVisible: Boolean = false,
+    val datePickerVisible: Boolean = false,
+    val delayTypePickerVisible: Boolean = false
 )

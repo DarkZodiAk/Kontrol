@@ -50,15 +50,18 @@ class DelayDialogViewModel: ViewModel() {
                 mainDialogTimeSource.reset()
                 selectDialogTimeSource.reset()
             }
+            DelayDialogAction.OpenDelayTypePicker -> {
+                state = state.copy(delayTypePickerVisible = true)
+            }
             DelayDialogAction.SaveDelayType -> {
                 if (state.unsavedDelayType == state.delayType) return
                 val type = state.unsavedDelayType
-                state = state.copy(delayType = type)
+                state = state.copy(delayType = type, delayTypePickerVisible = false)
                 mainDialogTimeSource.setTimeOffset(type.delay)
             }
-            DelayDialogAction.DismissDelayType -> {
+            DelayDialogAction.DismissDelayTypeDialog -> {
                 val type = state.delayType
-                state = state.copy(unsavedDelayType = type)
+                state = state.copy(unsavedDelayType = type, delayTypePickerVisible = false)
                 selectDialogTimeSource.setTimeOffset(type.delay)
             }
             is DelayDialogAction.SelectDelayType -> {
@@ -66,13 +69,28 @@ class DelayDialogViewModel: ViewModel() {
                 state = state.copy(unsavedDelayType = type)
                 selectDialogTimeSource.setTimeOffset(type.delay)
             }
-            is DelayDialogAction.SetCustomTime -> {
+            is DelayDialogAction.SaveDateTime -> {
                 val time = if (action.time < LocalDateTime.now()) {
                     LocalDateTime.now()
                 } else {
                     action.time
                 }
-                state = state.copy(delayTime = time, delayType = DelayType.CUSTOM)
+                state = state.copy(
+                    delayTime = time, delayType = DelayType.CUSTOM,
+                    timePickerVisible = false, datePickerVisible = false
+                )
+            }
+            DelayDialogAction.OpenDatePicker -> {
+                state = state.copy(datePickerVisible = true)
+            }
+            DelayDialogAction.DismissDatePicker -> {
+                state = state.copy(datePickerVisible = false)
+            }
+            DelayDialogAction.OpenTimePicker -> {
+                state = state.copy(timePickerVisible = true)
+            }
+            DelayDialogAction.DismissTimePicker -> {
+                state = state.copy(timePickerVisible = false)
             }
         }
     }

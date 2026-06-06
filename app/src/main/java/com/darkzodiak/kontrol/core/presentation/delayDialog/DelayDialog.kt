@@ -18,10 +18,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,9 +39,7 @@ fun DelayDialog(
     onDismiss: () -> Unit,
     oldValue: LocalDateTime?
 ) {
-    var datePickerVisible by rememberSaveable { mutableStateOf(false) }
-    var timePickerVisible by rememberSaveable { mutableStateOf(false) }
-    var selectDelayTypeDialogVisible by rememberSaveable { mutableStateOf(false) }
+    val state = viewModel.state
 
     LaunchedEffect(Unit) {
         viewModel.setInitialData(oldValue)
@@ -68,12 +62,12 @@ fun DelayDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 AssistChip(
-                    onClick = { selectDelayTypeDialogVisible = true },
+                    onClick = { viewModel.onAction(DelayDialogAction.OpenDelayTypePicker) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Default.Timer, contentDescription = null)
                     },
                     label = {
-                        Text(text = viewModel.state.delayType.text)
+                        Text(text = state.delayType.text)
                     },
                     trailingIcon = {
                         Icon(imageVector = Icons.Default.Edit, contentDescription = null)
@@ -85,16 +79,16 @@ fun DelayDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     AssistChip(
-                        onClick = { datePickerVisible = true },
+                        onClick = { viewModel.onAction(DelayDialogAction.OpenDatePicker) },
                         label = {
-                            Text(text = UITimeUtils.formatDate(viewModel.state.delayTime))
+                            Text(text = UITimeUtils.formatDate(state.delayTime))
                         },
                         modifier = Modifier.weight(1f)
                     )
                     AssistChip(
-                        onClick = { timePickerVisible = true },
+                        onClick = { viewModel.onAction(DelayDialogAction.OpenTimePicker) },
                         label = {
-                            Text(text = UITimeUtils.formatTime(viewModel.state.delayTime))
+                            Text(text = UITimeUtils.formatTime(state.delayTime))
                         },
                         modifier = Modifier.weight(0.6f)
                     )
@@ -114,7 +108,7 @@ fun DelayDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    onSetPause(viewModel.state.delayTime)
+                    onSetPause(state.delayTime)
                     viewModel.onAction(DelayDialogAction.Close)
                 }
             ) {
@@ -123,41 +117,37 @@ fun DelayDialog(
         }
     )
 
-    if (datePickerVisible) {
+    if (state.datePickerVisible) {
         DatePickerDialog(
-            initialDateTime = viewModel.state.delayTime,
+            initialDateTime = state.delayTime,
             onDateSelected = {
-                datePickerVisible = false
-                viewModel.onAction(DelayDialogAction.SetCustomTime(it))
+                viewModel.onAction(DelayDialogAction.SaveDateTime(it))
             },
-            onDismiss = { datePickerVisible = false }
+            onDismiss = { viewModel.onAction(DelayDialogAction.DismissDatePicker) }
         )
     }
-    if (timePickerVisible) {
+    if (state.timePickerVisible) {
         TimePickerDialog(
-            initialDateTime = viewModel.state.delayTime,
+            initialDateTime = state.delayTime,
             onDateSelected = {
-                timePickerVisible = false
-                viewModel.onAction(DelayDialogAction.SetCustomTime(it))
+                viewModel.onAction(DelayDialogAction.SaveDateTime(it))
             },
-            onDismiss = { timePickerVisible = false }
+            onDismiss = { viewModel.onAction(DelayDialogAction.DismissTimePicker) }
         )
     }
 
-    if (selectDelayTypeDialogVisible) {
-        SelectDelayTypeDialog(
-            state = viewModel.state,
+    if (state.delayTypePickerVisible) {
+        DelayTypePicker(
+            state = state,
             type = type,
             onSelectDelay = {
                 viewModel.onAction(DelayDialogAction.SelectDelayType(it))
             },
             onSaveDelay = {
                 viewModel.onAction(DelayDialogAction.SaveDelayType)
-                selectDelayTypeDialogVisible = false
             },
             onDismiss = {
-                viewModel.onAction(DelayDialogAction.DismissDelayType)
-                selectDelayTypeDialogVisible = false
+                viewModel.onAction(DelayDialogAction.DismissDelayTypeDialog)
             }
         )
     }

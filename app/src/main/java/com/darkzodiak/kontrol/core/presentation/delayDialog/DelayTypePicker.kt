@@ -27,7 +27,7 @@ import androidx.compose.ui.window.Dialog
 import com.darkzodiak.kontrol.core.presentation.time.UITimeUtils
 
 @Composable
-fun SelectDelayTypeDialog(
+fun DelayTypePicker(
     state: DelayDialogState,
     type: DelayDialogType,
     onSelectDelay: (DelayType) -> Unit,
@@ -96,11 +96,11 @@ fun getDelayInfoText(type: DelayDialogType) = when (type) {
 
 @Preview
 @Composable
-private fun SelectDelayTypeDialogPreview() {
+private fun DelayTypePickerPreview() {
     Box(Modifier
         .fillMaxSize()
         .background(Color.Black))
-    SelectDelayTypeDialog(
+    DelayTypePicker(
         state = DelayDialogState(unsavedDelayType = DelayType.HOURS_1),
         type = DelayDialogType.RESTRICT_UNTIL,
         onSelectDelay = {},
