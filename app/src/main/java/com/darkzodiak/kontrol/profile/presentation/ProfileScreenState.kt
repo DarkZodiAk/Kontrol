@@ -15,5 +15,7 @@ data class ProfileScreenState(
 
     val unsaved: Boolean = false,
     val protectedMode: Boolean = false,
-    val warnings: List<WarningType> = emptyList()
+    val warnings: List<WarningType> = emptyList(),
+
+    val isSaving: Boolean = false
 )

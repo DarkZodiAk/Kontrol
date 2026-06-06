@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -109,7 +110,14 @@ fun ProfileScreen(
                         onClick = { onAction(ProfileAction.Done) },
                         enabled = state.name.isNotBlank()
                     ) {
-                        Icon(Icons.Default.Done, null)
+                        if (state.isSaving) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        } else {
+                            Icon(Icons.Default.Done, null)
+                        }
                     }
                 }
             )
@@ -221,7 +229,7 @@ fun ProfileScreen(
 @Composable
 private fun ProfileScreenPreview() {
     ProfileScreen(
-        state = ProfileScreenState(unsaved = true, isNewProfile = false),
+        state = ProfileScreenState(unsaved = true, isNewProfile = false, isSaving = true),
         onAction = { }
     )
 }

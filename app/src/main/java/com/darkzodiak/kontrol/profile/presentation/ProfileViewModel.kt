@@ -11,7 +11,6 @@ import com.darkzodiak.kontrol.apps.domain.AppRepository
 import com.darkzodiak.kontrol.core.domain.TimeSource
 import com.darkzodiak.kontrol.core.presentation.warning.WarningType
 import com.darkzodiak.kontrol.profile.domain.ProfileRepository
-import com.darkzodiak.kontrol.profile.domain.ProfileUpdater
 import com.darkzodiak.kontrol.profile.domain.model.EditRestriction
 import com.darkzodiak.kontrol.profile.domain.model.Profile
 import com.darkzodiak.kontrol.profile.domain.usecase.CheckProfileOverlapsUseCase
@@ -29,7 +28,6 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val profileRepository: ProfileRepository,
     private val appRepository: AppRepository,
-    private val profileUpdater: ProfileUpdater,
     private val checkProfileOverlapsUseCase: CheckProfileOverlapsUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -119,11 +117,9 @@ class ProfileViewModel @Inject constructor(
             }
             ProfileAction.Done -> {
                 rendered = false
-                profileUpdater.updateProfileWithApps(
-                    profile = createRelevantProfileInstance(),
-                    profileApps = state.apps
-                )
-                sendEvent(ProfileEvent.GoBack)
+                state = state.copy(isSaving = true)
+                val profile = createRelevantProfileInstance()
+                upsertProfile(profile)
             }
             is ProfileAction.ModifyName -> {
                 state = state.copy(name = action.text, unsaved = true)
@@ -152,6 +148,28 @@ class ProfileViewModel @Inject constructor(
             appRestriction = state.appRestriction,
             editRestriction = state.editRestriction
         )
+    }
+
+    private fun upsertProfile(profile: Profile) {
+        viewModelScope.launch {
+            try {
+                var id = profile.id
+                if (state.isNewProfile) id = profileRepository.addProfile(profile)
+                else profileRepository.updateProfile(profile)
+                val currentApps = profileRepository.getProfileAppsById(id).first()
+                state.apps.forEach { app ->
+                    profileRepository.addAppToProfile(profileId = id, appId = app.id)
+                }
+                (currentApps.map { it.id } - state.apps.map { it.id }).forEach { appId ->
+                    profileRepository.deleteAppFromProfile(profileId = id, appId = appId)
+                }
+                sendEvent(ProfileEvent.GoBack)
+            } catch (e: Exception) {
+                sendEvent(ProfileEvent.ShowWarning("Не удалось сохранить профиль"))
+                rendered = true
+                state = state.copy(isSaving = false)
+            }
+        }
     }
 
     private fun checkTimedRestriction(currentTime: LocalDateTime) {
